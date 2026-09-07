@@ -21,7 +21,18 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
-  <div id="app-root"></div>
+  <div id="app-root">
+    <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; font-family: 'Plus Jakarta Sans', sans-serif; color: #ff5500;">
+      <div style="text-align: center;">
+        <div style="width: 48px; height: 48px; border: 4px solid #ff5500; border-top-color: transparent; border-radius: 50%; margin: 0 auto 1rem; animation: spin 1s linear infinite;"></div>
+        <div style="font-weight: 800; font-size: 1.1rem; color: #fff;">RON'S CHICKEN PAYROLL</div>
+        <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 0.3rem;">Loading Cugman Biometric Attendance...</div>
+      </div>
+      <style>
+        @keyframes spin { to { transform: rotate(360deg); } }
+      </style>
+    </div>
+  </div>
 
   <!-- Application Scripts -->
   <script src="js/db.js"></script>
