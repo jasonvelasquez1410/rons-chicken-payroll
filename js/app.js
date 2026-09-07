@@ -1,7 +1,7 @@
 /**
  * Ron's Chicken Custom Payroll & Biometric Attendance System
  * "Mi Nomina" Bento Grid Theme & Interactive PWA Controller
- * with Real-Time Theme Brightness / Dimmer Slider
+ * with Real-Time Theme Brightness Slider & Batch Payslip Generator
  */
 
 let currentView = 'dashboard';
@@ -11,7 +11,7 @@ let activeCutoff = null;
 let cachedPayrollSummary = null;
 let currentBrightness = parseInt(localStorage.getItem('rons_payroll_brightness') || '0', 10);
 
-// SVG Icons (Mi Nomina crisp line style)
+// SVG Icons
 const ICONS = {
   dashboard: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="2"></rect><rect x="14" y="3" width="7" height="7" rx="2"></rect><rect x="14" y="14" width="7" height="7" rx="2"></rect><rect x="3" y="14" width="7" height="7" rx="2"></rect></svg>`,
   employee: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>`,
@@ -23,7 +23,7 @@ const ICONS = {
   download: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>`,
   print: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>`,
   check: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>`,
-  settings: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0-.33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>`,
+  settings: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>`,
   sun: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`
 };
 
@@ -91,7 +91,7 @@ function renderApp() {
     container.innerHTML = renderStaffBentoPortal();
   } else {
     container.innerHTML = `
-      <!-- Mi Nomina Header with Brightness Slider -->
+      <!-- Header with Brightness Slider -->
       <header class="app-header">
         <div class="brand-wrapper" onclick="navigateTo('dashboard')">
           <div class="brand-icon-monogram">Σ</div>
@@ -170,8 +170,8 @@ function renderApp() {
 
       <!-- Payslip Printable Modal -->
       <div id="payslip-modal" class="modal-backdrop">
-        <div class="modal-card" style="max-width: 720px; background: transparent; border: none; box-shadow: none;">
-          <div style="display: flex; justify-content: flex-end; margin-bottom: 0.75rem; gap: 0.5rem;">
+        <div class="modal-card" style="max-width: 760px; background: transparent; border: none; box-shadow: none;">
+          <div style="display: flex; justify-content: flex-end; margin-bottom: 0.75rem; gap: 0.5rem; flex-wrap: wrap;">
             <button class="btn-bento btn-bento-orange btn-sm" onclick="window.print()">${ICONS.print} Print / Save PDF</button>
             <button class="btn-bento btn-bento-white btn-sm" onclick="closeModal('payslip-modal')">Close</button>
           </div>
@@ -193,29 +193,12 @@ function getBrightnessName(level) {
    Manager Bento Dashboard & Views
    ========================================================================== */
 
-function renderManagerBentoView() {
-  switch (currentView) {
-    case 'dashboard':
-      return renderManagerBentoDashboard();
-    case 'attendance':
-      return renderBentoAttendance();
-    case 'payroll':
-      return renderBentoPayroll();
-    case 'advances':
-      return renderBentoAdvances();
-    case 'device':
-      return renderBentoDevice();
-    default:
-      return renderManagerBentoDashboard();
-  }
-}
-
 function renderManagerBentoDashboard() {
   const employees = window.DB.getEmployees();
   const summary = cachedPayrollSummary || window.PayrollEngine.runBranchPayroll(activeCutoff);
 
   return `
-    <!-- Top Welcome Banner (Mi Nomina Style) -->
+    <!-- Top Welcome Banner -->
     <div class="user-welcome-banner">
       <div class="user-welcome-info">
         <div class="user-avatar-circle">RC</div>
@@ -224,7 +207,10 @@ function renderManagerBentoDashboard() {
           <p>Ron's Chicken Cugman • Cutoff: ${activeCutoff.name}</p>
         </div>
       </div>
-      <div style="display: flex; gap: 0.75rem;">
+      <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+        <button class="btn-bento btn-bento-white" onclick="generateAllBatchPayslips()">
+          ${ICONS.print} Batch Print All Payslips (31 Staff)
+        </button>
         <button class="btn-bento btn-bento-orange" onclick="openUploadModal()">
           ${ICONS.upload} Import Deli e3960 .xls
         </button>
@@ -260,7 +246,7 @@ function renderManagerBentoDashboard() {
         </div>
       </div>
 
-      <!-- High Contrast White Bento Card: Payroll Management -->
+      <!-- High Contrast White Bento Card: Payroll Management & Payslips Generator -->
       <div class="bento-card bento-white col-7" onclick="navigateTo('payroll')">
         <div class="bento-card-header">
           <div class="bento-badge-circle">${ICONS.payroll}</div>
@@ -268,9 +254,9 @@ function renderManagerBentoDashboard() {
         </div>
         <div>
           <div class="bento-value" style="color: #000;">₱${summary.totals.net.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
-          <div class="bento-title" style="color: #000;">Payroll Management</div>
+          <div class="bento-title" style="color: #000;">Payroll Management & Payslips</div>
           <div class="bento-meta" style="color: #4b5563; margin-top: 0.4rem;">
-            Gross: ₱${summary.totals.gross.toLocaleString('en-US', { minimumFractionDigits: 2 })} • Deductions: ₱${summary.totals.deductions.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            Gross: ₱${summary.totals.gross.toLocaleString('en-US', { minimumFractionDigits: 2 })} • Click to generate and print payslips
           </div>
         </div>
       </div>
@@ -290,13 +276,18 @@ function renderManagerBentoDashboard() {
 
     </div>
 
-    <!-- Active Attendance Table Section -->
+    <!-- Active Attendance Table Section with Direct Payslip Generator Buttons -->
     <div class="data-panel-card" style="margin-top: 2rem;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
         <h3 style="color: var(--text-primary); font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
           ${ICONS.fingerprint} Deli e3960 Attendance Summary (${activeCutoff.name})
         </h3>
-        <button class="btn-bento btn-bento-dark btn-sm" onclick="navigateTo('payroll')">View Full Payroll →</button>
+        <div style="display: flex; gap: 0.5rem;">
+          <button class="btn-bento btn-bento-orange btn-sm" onclick="generateAllBatchPayslips()">
+            ${ICONS.print} Generate All Payslips
+          </button>
+          <button class="btn-bento btn-bento-dark btn-sm" onclick="navigateTo('payroll')">Full Payroll Table →</button>
+        </div>
       </div>
 
       <div class="table-responsive">
@@ -311,7 +302,7 @@ function renderManagerBentoDashboard() {
               <th>Overtime</th>
               <th>Night Diff</th>
               <th>Net Pay</th>
-              <th>Action</th>
+              <th>Generate Payslip</th>
             </tr>
           </thead>
           <tbody>
@@ -326,7 +317,9 @@ function renderManagerBentoDashboard() {
                 <td><span style="color: #a855f7; font-weight: 700;">${r.timecardSummary.totalNightDiffHours}h</span></td>
                 <td style="font-weight: 800; color: var(--accent-emerald);">₱${r.netPay.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
                 <td>
-                  <button class="btn-bento btn-bento-dark btn-sm" onclick="showEmployeePayslip(${r.employeeId})">Payslip</button>
+                  <button class="btn-bento btn-bento-orange btn-sm" style="font-weight: 800;" onclick="showEmployeePayslip(${r.employeeId})">
+                    ${ICONS.print} Generate Payslip
+                  </button>
                 </td>
               </tr>
             `).join('')}
@@ -347,7 +340,8 @@ function renderBentoAttendance() {
         <h1 style="color: var(--text-primary); font-size: 1.75rem;">Biometric Timekeeping Matrix</h1>
         <p style="color: var(--text-secondary);">Deli e3960 USB Attendance Logs • 31 Cugman Employees</p>
       </div>
-      <div style="display: flex; gap: 0.75rem;">
+      <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+        <button class="btn-bento btn-bento-white" onclick="generateAllBatchPayslips()">${ICONS.print} Generate All Payslips</button>
         <button class="btn-bento btn-bento-dark" onclick="exportAttendanceCSV()">${ICONS.download} Export CSV</button>
         <button class="btn-bento btn-bento-orange" onclick="openUploadModal()">${ICONS.upload} Ingest USB .xls</button>
       </div>
@@ -367,7 +361,7 @@ function renderBentoAttendance() {
               <th>OT (125%)</th>
               <th>Night Diff (10%)</th>
               <th>Late</th>
-              <th>Action</th>
+              <th>Generate Payslip</th>
             </tr>
           </thead>
           <tbody>
@@ -386,7 +380,9 @@ function renderBentoAttendance() {
                   <td><span style="color: #a855f7; font-weight: 700;">${tc.totalNightDiffHours}h</span></td>
                   <td>${tc.totalLateMinutes > 0 ? `<span style="color: var(--accent-rose);">${tc.totalLateMinutes}m</span>` : '0m'}</td>
                   <td>
-                    <button class="btn-bento btn-bento-dark btn-sm" onclick="showEmployeePayslip(${emp.id})">Payslip</button>
+                    <button class="btn-bento btn-bento-orange btn-sm" style="font-weight: 800;" onclick="showEmployeePayslip(${emp.id})">
+                      ${ICONS.print} Generate Payslip
+                    </button>
                   </td>
                 </tr>
               `;
@@ -407,9 +403,10 @@ function renderBentoPayroll() {
         <h1 style="color: var(--text-primary); font-size: 1.75rem;">Philippine DOLE & BIR Payroll Computation</h1>
         <p style="color: var(--text-secondary);">${activeCutoff.name} • Ron's Chicken Cugman</p>
       </div>
-      <div style="display: flex; gap: 0.75rem;">
+      <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+        <button class="btn-bento btn-bento-orange" onclick="generateAllBatchPayslips()">${ICONS.print} Print / Generate All Payslips (31 Staff)</button>
         <button class="btn-bento btn-bento-dark" onclick="exportPayrollCSV()">${ICONS.download} Bank Advice CSV</button>
-        <button class="btn-bento btn-bento-orange" onclick="recalculatePayroll()">${ICONS.payroll} Recalculate</button>
+        <button class="btn-bento btn-bento-purple" onclick="recalculatePayroll()">${ICONS.payroll} Recalculate</button>
       </div>
     </div>
 
@@ -430,7 +427,7 @@ function renderBentoPayroll() {
               <th>SSS/PhilH/HDMF</th>
               <th>Vale</th>
               <th>Net Take-Home</th>
-              <th>Action</th>
+              <th>Generate Payslip</th>
             </tr>
           </thead>
           <tbody>
@@ -449,7 +446,9 @@ function renderBentoPayroll() {
                 <td style="color: var(--accent-rose);">${r.deductions.cashAdvance > 0 ? `₱${r.deductions.cashAdvance.toFixed(2)}` : '-'}</td>
                 <td style="font-weight: 800; color: var(--accent-emerald); font-size: 0.95rem;">₱${r.netPay.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
                 <td>
-                  <button class="btn-bento btn-bento-dark btn-sm" onclick="showEmployeePayslip(${r.employeeId})">Payslip</button>
+                  <button class="btn-bento btn-bento-orange btn-sm" style="font-weight: 800;" onclick="showEmployeePayslip(${r.employeeId})">
+                    ${ICONS.print} Generate Payslip
+                  </button>
                 </td>
               </tr>
             `).join('')}
@@ -584,7 +583,7 @@ function renderStaffBentoPortal() {
     </header>
 
     <main class="bento-container" style="max-width: 600px;">
-      <!-- Welcome Paul / Staff Header (Mi Nomina Style) -->
+      <!-- Welcome Paul / Staff Header -->
       <div class="user-welcome-banner" style="margin-bottom: 1.5rem;">
         <div class="user-welcome-info">
           <div class="user-avatar-circle" style="width: 48px; height: 48px; font-size: 1.2rem;">
@@ -607,7 +606,7 @@ function renderStaffBentoPortal() {
       <!-- Bento Cards Stack (Mobile PWA) -->
       <div style="display: flex; flex-direction: column; gap: 1.2rem;">
 
-        <!-- Big Orange Bento: Employee Management & Mobile Time Clock -->
+        <!-- Big Orange Bento: Mobile Time Clock -->
         <div class="bento-card bento-orange" onclick="staffSelfPunch(${currentEmp.id})">
           <div class="bento-card-header">
             <div class="bento-badge-circle">${ICONS.fingerprint}</div>
@@ -620,7 +619,7 @@ function renderStaffBentoPortal() {
           </div>
         </div>
 
-        <!-- High Contrast White Bento: My Estimated Payslip -->
+        <!-- High Contrast White Bento: My Estimated Payslip & GENERATE Button -->
         <div class="bento-card bento-white" onclick="showEmployeePayslip(${currentEmp.id})">
           <div class="bento-card-header">
             <div class="bento-badge-circle">${ICONS.payroll}</div>
@@ -631,6 +630,11 @@ function renderStaffBentoPortal() {
             <div class="bento-title" style="color: #000;">My Estimated Net Pay</div>
             <div class="bento-meta" style="color: #4b5563; margin-top: 0.4rem;">
               Gross: ₱${payroll.earnings.grossPay.toFixed(2)} • Basic: ₱${payroll.earnings.basicPay.toFixed(2)} • OT: ₱${payroll.earnings.otPay.toFixed(2)}
+            </div>
+            <div style="margin-top: 1rem;">
+              <span class="btn-bento btn-bento-orange btn-sm" style="font-size: 0.8rem; font-weight: 800; display: inline-flex;">
+                ${ICONS.print} View & Generate Official Payslip
+              </span>
             </div>
           </div>
         </div>
@@ -699,12 +703,12 @@ function staffSelfPunch(employeeId) {
 }
 
 /* ==========================================================================
-   Payslip Generator
+   Payslip Generator Engine (Individual & Batch)
    ========================================================================== */
 
-function showEmployeePayslip(employeeId) {
+function generatePayslipHTML(employeeId) {
   const emp = window.DB.getEmployeeById(employeeId);
-  if (!emp) return;
+  if (!emp) return '';
 
   const shifts = window.DB.getShifts();
   const timecard = window.BiometricParser.calculateTimecard(emp, activeCutoff.startDate, activeCutoff.endDate, shifts);
@@ -716,22 +720,19 @@ function showEmployeePayslip(employeeId) {
     incentives: (emp.position && emp.position.includes("Grill")) ? 200 : 0
   });
 
-  const content = document.getElementById('payslip-printable-content');
-  if (!content) return;
-
-  content.innerHTML = `
-    <div class="payslip-container">
+  return `
+    <div class="payslip-container" style="margin-bottom: 2rem; page-break-after: always;">
       <div class="payslip-header">
         <div class="payslip-brand">
           <img src="assets/logo.jpg" alt="Ron's Chicken">
           <div class="payslip-title">
             <h2>RON'S CHICKEN</h2>
             <p>Lechon Manok & Liempo • Cugman Branch, Cagayan de Oro</p>
-            <p style="font-size: 0.72rem; color: #6b7280;">Deli e3960 Biometric Verified Attendance</p>
+            <p style="font-size: 0.72rem; color: #6b7280;">Deli e3960 Biometric Attendance Verified</p>
           </div>
         </div>
         <div style="text-align: right;">
-          <div style="font-weight: 800; font-size: 1rem; color: #111827;">PAYSLIP</div>
+          <div style="font-weight: 800; font-size: 1.1rem; color: #111827;">OFFICIAL PAYSLIP</div>
           <div style="font-size: 0.75rem; color: #4b5563;">Period: ${activeCutoff.startDate} to ${activeCutoff.endDate}</div>
           <div style="font-size: 0.72rem; color: #6b7280;">Date Issued: ${new Date().toLocaleDateString()}</div>
         </div>
@@ -831,7 +832,28 @@ function showEmployeePayslip(employeeId) {
       </div>
     </div>
   `;
+}
 
+function showEmployeePayslip(employeeId) {
+  const content = document.getElementById('payslip-printable-content');
+  if (!content) return;
+  content.innerHTML = generatePayslipHTML(employeeId);
+  openModal('payslip-modal');
+}
+
+function generateAllBatchPayslips() {
+  const employees = window.DB.getEmployees();
+  const content = document.getElementById('payslip-printable-content');
+  if (!content) return;
+
+  const activeEmployees = employees.filter(e => {
+    const shifts = window.DB.getShifts();
+    const tc = window.BiometricParser.calculateTimecard(e, activeCutoff.startDate, activeCutoff.endDate, shifts);
+    return tc.daysPresent > 0 || (e.attendanceLogs && e.attendanceLogs.length > 0);
+  });
+
+  const targetList = activeEmployees.length > 0 ? activeEmployees : employees;
+  content.innerHTML = targetList.map(e => generatePayslipHTML(e.id)).join('');
   openModal('payslip-modal');
 }
 
@@ -924,6 +946,7 @@ window.openUploadModal = openUploadModal;
 window.closeModal = closeModal;
 window.handleFileSelected = handleFileSelected;
 window.showEmployeePayslip = showEmployeePayslip;
+window.generateAllBatchPayslips = generateAllBatchPayslips;
 window.recalculatePayroll = recalculatePayroll;
 window.exportPayrollCSV = exportPayrollCSV;
 window.exportAttendanceCSV = exportAttendanceCSV;
