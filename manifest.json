@@ -1,0 +1,35 @@
+{
+  "name": "Ron's Chicken - Biometric Payroll & Timekeeping PWA",
+  "short_name": "Ron's Payroll",
+  "description": "Custom Biometric Attendance, Shift Management & Philippine Payroll System for Ron's Chicken Lechon Manok Cugman Branch",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#121316",
+  "theme_color": "#d97706",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "assets/logo.jpg",
+      "sizes": "192x192 512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Staff Portal",
+      "url": "./index.html?view=staff",
+      "description": "Employee timecard and payslips"
+    },
+    {
+      "name": "Biometric Timekeeping",
+      "url": "./index.html?view=attendance",
+      "description": "Import biometric logs"
+    },
+    {
+      "name": "Run Payroll",
+      "url": "./index.html?view=payroll",
+      "description": "Compute cutoff payroll"
+    }
+  ]
+}
