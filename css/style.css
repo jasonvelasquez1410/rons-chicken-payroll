@@ -1,20 +1,31 @@
 /* ==========================================================================
    Ron's Chicken Payroll PWA - "Mi Nomina" Bento Grid Theme
-   Inspired by Mi Nomina Luxury Bento Mobile & Desktop UI
+   with Real-Time Theme Brightness & Ambient Lighting Slider
    ========================================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap');
 
 :root {
-  /* Mi Nomina Signature Color System */
-  --bg-black: #000000;
-  --bg-canvas: #090a0d;
-  --bg-card-dark: #12141a;
-  --bg-card-elevated: #1a1d26;
-  --bg-surface: #222634;
-  --bg-glass: rgba(18, 20, 26, 0.85);
+  /* Dynamic Brightness Variable (0 to 100) */
+  --brightness-level: 0;
 
-  /* Signature Bento Colors */
+  /* Dynamically Calculated Surfaces Based on Brightness Slider */
+  --bg-black: hsl(222, 18%, calc(4% + (var(--brightness-level) * 0.90%)));
+  --bg-canvas: hsl(222, 18%, calc(6% + (var(--brightness-level) * 0.88%)));
+  --bg-card-dark: hsl(222, 16%, calc(9% + (var(--brightness-level) * 0.84%)));
+  --bg-card-elevated: hsl(222, 15%, calc(13% + (var(--brightness-level) * 0.80%)));
+  --bg-surface: hsl(222, 14%, calc(17% + (var(--brightness-level) * 0.76%)));
+  
+  /* Text dynamically flips from light to dark at high brightness */
+  --text-primary: hsl(210, 20%, calc(98% - (var(--brightness-level) * 0.85%)));
+  --text-secondary: hsl(215, 15%, calc(70% - (var(--brightness-level) * 0.35%)));
+  --text-muted: hsl(215, 12%, calc(50% - (var(--brightness-level) * 0.10%)));
+  --text-dark: #0a0a0c;
+
+  --border-subtle: rgba(255, 255, 255, calc(0.08 + (var(--brightness-level) * 0.0008)));
+  --border-glass: rgba(255, 255, 255, calc(0.12 + (var(--brightness-level) * 0.001)));
+
+  /* Signature Mi Nomina Bento Palette (Always Vibrant) */
   --bento-orange: #ff5500;
   --bento-orange-hover: #ff6a1a;
   --bento-orange-gradient: linear-gradient(135deg, #ff6600 0%, #ff4400 100%);
@@ -27,19 +38,10 @@
 
   --bento-white: #ffffff;
   --bento-white-sub: #9ca3af;
-  --bento-white-dark: #000000;
 
   --accent-emerald: #10b981;
   --accent-cyan: #06b6d4;
   --accent-rose: #f43f5e;
-
-  --text-primary: #ffffff;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --text-dark: #0a0a0c;
-
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-glass: rgba(255, 255, 255, 0.12);
 
   --radius-xs: 8px;
   --radius-sm: 14px;
@@ -47,8 +49,8 @@
   --radius-bento: 28px;
   --radius-full: 9999px;
 
-  --shadow-bento: 0 16px 36px rgba(0, 0, 0, 0.5);
-  --shadow-bento-hover: 0 20px 48px rgba(0, 0, 0, 0.7);
+  --shadow-bento: 0 16px 36px rgba(0, 0, 0, calc(0.5 - (var(--brightness-level) * 0.003)));
+  --shadow-bento-hover: 0 20px 48px rgba(0, 0, 0, calc(0.7 - (var(--brightness-level) * 0.003)));
   --shadow-orange: 0 12px 30px rgba(255, 85, 0, 0.35);
   --shadow-purple: 0 12px 30px rgba(124, 58, 237, 0.3);
 
@@ -70,9 +72,10 @@ body {
   min-height: 100vh;
   line-height: 1.45;
   overflow-x: hidden;
+  transition: background-color 0.2s ease, color 0.2s ease;
   background-image: 
-    radial-gradient(circle at 10% 20%, rgba(255, 85, 0, 0.05) 0%, transparent 40%),
-    radial-gradient(circle at 90% 80%, rgba(121, 40, 202, 0.06) 0%, transparent 40%);
+    radial-gradient(circle at 10% 20%, rgba(255, 85, 0, calc(0.05 + (var(--brightness-level) * 0.0003))) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(121, 40, 202, calc(0.06 + (var(--brightness-level) * 0.0003))) 0%, transparent 40%);
   background-attachment: fixed;
 }
 
@@ -88,7 +91,7 @@ h1, h2, h3, h4, .brand-title, .bento-title {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(0, 0, 0, 0.88);
+  background: var(--bg-card-dark);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border-bottom: 1px solid var(--border-subtle);
@@ -96,6 +99,8 @@ h1, h2, h3, h4, .brand-title, .bento-title {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .brand-wrapper {
@@ -129,7 +134,7 @@ h1, h2, h3, h4, .brand-title, .bento-title {
 .brand-title {
   font-size: 1.15rem;
   font-weight: 800;
-  color: #fff;
+  color: var(--text-primary);
   line-height: 1.1;
   display: flex;
   align-items: center;
@@ -146,10 +151,71 @@ h1, h2, h3, h4, .brand-title, .bento-title {
   font-weight: 500;
 }
 
+/* Right Controls: Brightness Slider + Mode Switch */
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+
+/* Brightness Slider Widget */
+.brightness-control-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  padding: 0.35rem 0.85rem;
+  color: var(--text-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.brightness-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 90px;
+  height: 6px;
+  background: linear-gradient(90deg, #11141c 0%, #ff5500 50%, #ffffff 100%);
+  border-radius: var(--radius-full);
+  outline: none;
+  cursor: pointer;
+}
+
+.brightness-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 8px rgba(255, 85, 0, 0.8);
+  cursor: pointer;
+  border: 2px solid var(--bento-orange);
+  transition: transform 0.15s ease;
+}
+
+.brightness-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.25);
+}
+
+.brightness-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 8px rgba(255, 85, 0, 0.8);
+  cursor: pointer;
+  border: 2px solid var(--bento-orange);
+}
+
 /* Mode Switcher Pill */
 .mode-switch-pill {
   display: flex;
-  background: var(--bg-card-dark);
+  background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-full);
   padding: 0.25rem;
@@ -229,6 +295,8 @@ h1, h2, h3, h4, .brand-title, .bento-title {
 .bento-white {
   background: var(--bento-white);
   color: var(--text-dark);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(0,0,0,0.05);
 }
 
 .bento-white .bento-title, .bento-white h2, .bento-white h3 {
@@ -275,7 +343,7 @@ h1, h2, h3, h4, .brand-title, .bento-title {
 }
 
 .bento-dark .bento-badge-circle {
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--bg-surface);
   color: var(--bento-orange);
 }
 
@@ -322,6 +390,8 @@ h1, h2, h3, h4, .brand-title, .bento-title {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 1.75rem;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .user-welcome-info {
@@ -348,7 +418,7 @@ h1, h2, h3, h4, .brand-title, .bento-title {
 .user-welcome-text h1 {
   font-size: 1.75rem;
   font-weight: 800;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .user-welcome-text p {
@@ -394,13 +464,13 @@ h1, h2, h3, h4, .brand-title, .bento-title {
 
 .table-bento td {
   padding: 0.9rem 1.1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--border-subtle);
   color: var(--text-primary);
   vertical-align: middle;
 }
 
 .table-bento tr:hover td {
-  background: rgba(255, 255, 255, 0.025);
+  background: rgba(255, 85, 0, 0.03);
 }
 
 /* Bento Status Pills */
@@ -484,6 +554,7 @@ h1, h2, h3, h4, .brand-title, .bento-title {
   background: #ffffff;
   color: var(--text-dark);
   font-weight: 800;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.15);
 }
 
 .btn-bento-white:hover {
@@ -493,7 +564,7 @@ h1, h2, h3, h4, .brand-title, .bento-title {
 
 .btn-bento-dark {
   background: var(--bg-surface);
-  color: #ffffff;
+  color: var(--text-primary);
   border: 1px solid var(--border-subtle);
 }
 
@@ -516,7 +587,7 @@ h1, h2, h3, h4, .brand-title, .bento-title {
   bottom: 1.25rem;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(18, 20, 26, 0.94);
+  background: var(--bg-card-dark);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--border-glass);
@@ -526,7 +597,7 @@ h1, h2, h3, h4, .brand-title, .bento-title {
   align-items: center;
   gap: 0.5rem;
   z-index: 99;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
 }
 
 .bottom-nav-item {

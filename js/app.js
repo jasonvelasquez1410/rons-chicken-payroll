@@ -1,6 +1,7 @@
 /**
  * Ron's Chicken Custom Payroll & Biometric Attendance System
  * "Mi Nomina" Bento Grid Theme & Interactive PWA Controller
+ * with Real-Time Theme Brightness / Dimmer Slider
  */
 
 let currentView = 'dashboard';
@@ -8,6 +9,7 @@ let currentMode = 'manager'; // 'manager' | 'staff'
 let selectedStaffEmployeeId = 12; // Default to Argie Daliva (Senior Roaster)
 let activeCutoff = null;
 let cachedPayrollSummary = null;
+let currentBrightness = parseInt(localStorage.getItem('rons_payroll_brightness') || '0', 10);
 
 // SVG Icons (Mi Nomina crisp line style)
 const ICONS = {
@@ -21,7 +23,8 @@ const ICONS = {
   download: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>`,
   print: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>`,
   check: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>`,
-  settings: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>`
+  settings: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0-.33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>`,
+  sun: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -29,6 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initApp() {
+  applyBrightness(currentBrightness);
+
   const params = new URLSearchParams(window.location.search);
   if (params.get('view') === 'staff') {
     currentMode = 'staff';
@@ -51,6 +56,23 @@ function initApp() {
   renderApp();
 }
 
+function applyBrightness(level) {
+  currentBrightness = level;
+  document.documentElement.style.setProperty('--brightness-level', level);
+  localStorage.setItem('rons_payroll_brightness', level);
+  const label = document.getElementById('brightness-label');
+  if (label) {
+    if (level <= 15) label.textContent = 'Midnight';
+    else if (level <= 45) label.textContent = 'Dark';
+    else if (level <= 75) label.textContent = 'Ambient';
+    else label.textContent = 'Bright';
+  }
+}
+
+function handleBrightnessChange(e) {
+  applyBrightness(parseInt(e.target.value, 10));
+}
+
 function setMode(mode) {
   currentMode = mode;
   renderApp();
@@ -69,7 +91,7 @@ function renderApp() {
     container.innerHTML = renderStaffBentoPortal();
   } else {
     container.innerHTML = `
-      <!-- Mi Nomina Header -->
+      <!-- Mi Nomina Header with Brightness Slider -->
       <header class="app-header">
         <div class="brand-wrapper" onclick="navigateTo('dashboard')">
           <div class="brand-icon-monogram">Σ</div>
@@ -79,9 +101,18 @@ function renderApp() {
           </div>
         </div>
 
-        <div class="mode-switch-pill">
-          <button class="mode-pill-btn active" onclick="setMode('manager')">${ICONS.dashboard} Manager</button>
-          <button class="mode-pill-btn" onclick="setMode('staff')">${ICONS.employee} Staff PWA</button>
+        <div class="header-controls">
+          <!-- Real-Time Theme Brightness Slider -->
+          <div class="brightness-control-pill" title="Adjust Theme Brightness / Lighting">
+            ${ICONS.sun}
+            <input type="range" class="brightness-slider" id="theme-brightness-slider" min="0" max="100" value="${currentBrightness}" oninput="handleBrightnessChange(event)">
+            <span id="brightness-label" style="min-width: 46px;">${getBrightnessName(currentBrightness)}</span>
+          </div>
+
+          <div class="mode-switch-pill">
+            <button class="mode-pill-btn active" onclick="setMode('manager')">${ICONS.dashboard} Manager</button>
+            <button class="mode-pill-btn" onclick="setMode('staff')">${ICONS.employee} Staff PWA</button>
+          </div>
         </div>
       </header>
 
@@ -118,7 +149,7 @@ function renderApp() {
       <div id="upload-modal" class="modal-backdrop">
         <div class="modal-card">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
-            <h3 style="color: #fff; font-size: 1.25rem;">Import Deli e3960 USB Biometric File</h3>
+            <h3 style="color: var(--text-primary); font-size: 1.25rem;">Import Deli e3960 USB Biometric File</h3>
             <button class="btn-bento btn-bento-dark btn-sm" onclick="closeModal('upload-modal')">✕</button>
           </div>
           <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
@@ -129,7 +160,7 @@ function renderApp() {
             <div style="width: 56px; height: 56px; border-radius: 50%; background: var(--bento-orange); color: #fff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; box-shadow: 0 4px 16px var(--bento-orange-glow);">
               ${ICONS.upload}
             </div>
-            <h4 style="color: #fff; margin-bottom: 0.3rem;">Click or Drag & Drop Excel File</h4>
+            <h4 style="color: var(--text-primary); margin-bottom: 0.3rem;">Click or Drag & Drop Excel File</h4>
             <p style="font-size: 0.8rem; color: var(--text-muted);">Supports .xls, .xlsx, and .csv from Deli e3960 & ZKTeco</p>
             <input type="file" id="excel-file-input" style="display: none;" accept=".xls,.xlsx,.csv" onchange="handleFileSelected(event)">
           </div>
@@ -149,6 +180,13 @@ function renderApp() {
       </div>
     `;
   }
+}
+
+function getBrightnessName(level) {
+  if (level <= 15) return 'Midnight';
+  if (level <= 45) return 'Dark';
+  if (level <= 75) return 'Ambient';
+  return 'Bright';
 }
 
 /* ==========================================================================
@@ -255,7 +293,7 @@ function renderManagerBentoDashboard() {
     <!-- Active Attendance Table Section -->
     <div class="data-panel-card" style="margin-top: 2rem;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
-        <h3 style="color: #fff; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
+        <h3 style="color: var(--text-primary); font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
           ${ICONS.fingerprint} Deli e3960 Attendance Summary (${activeCutoff.name})
         </h3>
         <button class="btn-bento btn-bento-dark btn-sm" onclick="navigateTo('payroll')">View Full Payroll →</button>
@@ -280,7 +318,7 @@ function renderManagerBentoDashboard() {
             ${summary.records.filter(r => r.timecardSummary.daysPresent > 0).slice(0, 8).map(r => `
               <tr>
                 <td><strong>#${r.employeeId}</strong></td>
-                <td style="font-weight: 700; color: #fff;">${r.employeeName}</td>
+                <td style="font-weight: 700; color: var(--text-primary);">${r.employeeName}</td>
                 <td><span class="pill ${r.department === 'OPERATION' ? 'pill-orange' : 'pill-purple'}">${r.position}</span></td>
                 <td><strong>${r.timecardSummary.daysPresent}</strong> days</td>
                 <td>${r.timecardSummary.totalRegularHours} hrs</td>
@@ -306,7 +344,7 @@ function renderBentoAttendance() {
   return `
     <div class="user-welcome-banner">
       <div>
-        <h1 style="color: #fff; font-size: 1.75rem;">Biometric Timekeeping Matrix</h1>
+        <h1 style="color: var(--text-primary); font-size: 1.75rem;">Biometric Timekeeping Matrix</h1>
         <p style="color: var(--text-secondary);">Deli e3960 USB Attendance Logs • 31 Cugman Employees</p>
       </div>
       <div style="display: flex; gap: 0.75rem;">
@@ -339,7 +377,7 @@ function renderBentoAttendance() {
               return `
                 <tr>
                   <td><strong>#${emp.id}</strong></td>
-                  <td style="font-weight: 700; color: #fff;">${emp.name}</td>
+                  <td style="font-weight: 700; color: var(--text-primary);">${emp.name}</td>
                   <td><span class="pill ${emp.department === 'OPERATION' ? 'pill-orange' : 'pill-purple'}">${emp.department}</span></td>
                   <td>${punchCount} punches</td>
                   <td><strong>${tc.daysPresent}</strong></td>
@@ -366,7 +404,7 @@ function renderBentoPayroll() {
   return `
     <div class="user-welcome-banner">
       <div>
-        <h1 style="color: #fff; font-size: 1.75rem;">Philippine DOLE & BIR Payroll Computation</h1>
+        <h1 style="color: var(--text-primary); font-size: 1.75rem;">Philippine DOLE & BIR Payroll Computation</h1>
         <p style="color: var(--text-secondary);">${activeCutoff.name} • Ron's Chicken Cugman</p>
       </div>
       <div style="display: flex; gap: 0.75rem;">
@@ -399,14 +437,14 @@ function renderBentoPayroll() {
             ${summary.records.map(r => `
               <tr>
                 <td><strong>#${r.employeeId}</strong></td>
-                <td style="font-weight: 700; color: #fff;">${r.employeeName}</td>
+                <td style="font-weight: 700; color: var(--text-primary);">${r.employeeName}</td>
                 <td>₱${r.dailyRate.toFixed(2)}</td>
                 <td><strong>${r.daysPresent}</strong></td>
                 <td>₱${r.earnings.basicPay.toFixed(2)}</td>
                 <td>₱${r.earnings.otPay.toFixed(2)}</td>
                 <td>₱${r.earnings.nightDiffPay.toFixed(2)}</td>
                 <td>₱${r.earnings.allowances.toFixed(2)}</td>
-                <td style="font-weight: 700; color: #fff;">₱${r.earnings.grossPay.toFixed(2)}</td>
+                <td style="font-weight: 700; color: var(--text-primary);">₱${r.earnings.grossPay.toFixed(2)}</td>
                 <td style="color: var(--text-secondary); font-size: 0.78rem;">₱${(r.deductions.sss + r.deductions.philHealth + r.deductions.pagIbig).toFixed(2)}</td>
                 <td style="color: var(--accent-rose);">${r.deductions.cashAdvance > 0 ? `₱${r.deductions.cashAdvance.toFixed(2)}` : '-'}</td>
                 <td style="font-weight: 800; color: var(--accent-emerald); font-size: 0.95rem;">₱${r.netPay.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
@@ -428,7 +466,7 @@ function renderBentoAdvances() {
   return `
     <div class="user-welcome-banner">
       <div>
-        <h1 style="color: #fff; font-size: 1.75rem;">Cash Advances & Vale Ledger</h1>
+        <h1 style="color: var(--text-primary); font-size: 1.75rem;">Cash Advances & Vale Ledger</h1>
         <p style="color: var(--text-secondary);">Track emergency staff loans and automated payroll deductions</p>
       </div>
       <button class="btn-bento btn-bento-purple" onclick="alert('Vale ledger synchronized.')">+ New Vale Entry</button>
@@ -451,7 +489,7 @@ function renderBentoAdvances() {
             ${advances.map(a => `
               <tr>
                 <td><strong>${a.id}</strong></td>
-                <td style="font-weight: 700; color: #fff;">${a.employeeName}</td>
+                <td style="font-weight: 700; color: var(--text-primary);">${a.employeeName}</td>
                 <td>${a.date}</td>
                 <td style="font-weight: 800; color: var(--bento-orange);">₱${a.amount.toFixed(2)}</td>
                 <td>${a.reason}</td>
@@ -469,7 +507,7 @@ function renderBentoDevice() {
   return `
     <div class="user-welcome-banner">
       <div>
-        <h1 style="color: #fff; font-size: 1.75rem;">Deli e3960 & Biometric Setup</h1>
+        <h1 style="color: var(--text-primary); font-size: 1.75rem;">Deli e3960 & Biometric Setup</h1>
         <p style="color: var(--text-secondary);">USB Flash Drive Workflow & Future Internet Upgrade</p>
       </div>
     </div>
@@ -532,9 +570,16 @@ function renderStaffBentoPortal() {
         </div>
       </div>
 
-      <div class="mode-switch-pill">
-        <button class="mode-pill-btn" onclick="setMode('manager')">${ICONS.dashboard} Manager</button>
-        <button class="mode-pill-btn active" onclick="setMode('staff')">${ICONS.employee} Staff PWA</button>
+      <div class="header-controls">
+        <div class="brightness-control-pill" title="Adjust Theme Brightness / Lighting">
+          ${ICONS.sun}
+          <input type="range" class="brightness-slider" id="theme-brightness-slider" min="0" max="100" value="${currentBrightness}" oninput="handleBrightnessChange(event)">
+        </div>
+
+        <div class="mode-switch-pill">
+          <button class="mode-pill-btn" onclick="setMode('manager')">${ICONS.dashboard} Manager</button>
+          <button class="mode-pill-btn active" onclick="setMode('staff')">${ICONS.employee} Staff PWA</button>
+        </div>
       </div>
     </header>
 
@@ -552,7 +597,7 @@ function renderStaffBentoPortal() {
         </div>
 
         <select id="staff-select" onchange="changeStaffUser(this.value)" 
-          style="padding: 0.4rem 0.75rem; background: var(--bg-card-dark); border: 1px solid var(--border-subtle); color: #fff; border-radius: var(--radius-full); font-size: 0.8rem;">
+          style="padding: 0.4rem 0.75rem; background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); border-radius: var(--radius-full); font-size: 0.8rem;">
           ${employees.map(e => `
             <option value="${e.id}" ${e.id === currentEmp.id ? 'selected' : ''}>#${e.id} ${e.name}</option>
           `).join('')}
@@ -604,7 +649,7 @@ function renderStaffBentoPortal() {
 
         <!-- Dark Bento: Attendance Log -->
         <div class="data-panel-card" style="padding: 1.25rem;">
-          <h3 style="color: #fff; font-size: 1rem; margin-bottom: 0.85rem;">Daily Punches (${activeCutoff.name})</h3>
+          <h3 style="color: var(--text-primary); font-size: 1rem; margin-bottom: 0.85rem;">Daily Punches (${activeCutoff.name})</h3>
           <div class="table-responsive">
             <table class="table-bento" style="font-size: 0.78rem;">
               <thead>
@@ -884,3 +929,4 @@ window.exportPayrollCSV = exportPayrollCSV;
 window.exportAttendanceCSV = exportAttendanceCSV;
 window.changeStaffUser = changeStaffUser;
 window.staffSelfPunch = staffSelfPunch;
+window.handleBrightnessChange = handleBrightnessChange;
