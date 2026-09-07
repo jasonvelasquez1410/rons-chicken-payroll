@@ -1,28 +1,27 @@
 /**
  * Ron's Chicken Custom Payroll & Biometric Attendance System
- * Main UI Controller & Application Logic
+ * "Mi Nomina" Bento Grid Theme & Interactive PWA Controller
  */
 
 let currentView = 'dashboard';
 let currentMode = 'manager'; // 'manager' | 'staff'
-let selectedStaffEmployeeId = 12; // Default to Argie Daliva for staff preview
+let selectedStaffEmployeeId = 12; // Default to Argie Daliva (Senior Roaster)
 let activeCutoff = null;
 let cachedPayrollSummary = null;
 
-// Icons SVG Map
+// SVG Icons (Mi Nomina crisp line style)
 const ICONS = {
-  dashboard: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>`,
-  fingerprint: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12C2 6.5 6.5 2 12 2a10 10 0 0 1 8 4"></path><path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"></path><path d="M17.29 21.02c.12-.6.41-2.3.41-4.02 0-3.4-2.7-6-6-6s-6 2.6-6 6c0 .52.05 1.01.14 1.48"></path><path d="M12 10a2 2 0 0 0-2 2c0 1.9.4 3.7.8 5.2"></path><path d="M9 12a3 3 0 0 1 6 0c0 1.6-.3 3.3-.8 4.8"></path></svg>`,
-  calculator: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><path d="M16 10h.01"></path><path d="M12 10h.01"></path><path d="M8 10h.01"></path><path d="M12 14h.01"></path><path d="M8 14h.01"></path><path d="M12 18h.01"></path><path d="M8 18h.01"></path></svg>`,
-  users: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>`,
-  shifts: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`,
-  advances: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>`,
-  device: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M9 9h6"></path><path d="M9 13h6"></path><path d="M9 17h2"></path></svg>`,
-  upload: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>`,
-  download: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>`,
-  print: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>`,
-  check: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>`,
-  fire: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>`
+  dashboard: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="2"></rect><rect x="14" y="3" width="7" height="7" rx="2"></rect><rect x="14" y="14" width="7" height="7" rx="2"></rect><rect x="3" y="14" width="7" height="7" rx="2"></rect></svg>`,
+  employee: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>`,
+  payroll: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>`,
+  receipt: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1Z"></path><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path><path d="M12 17.5v-11"></path></svg>`,
+  folder: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>`,
+  fingerprint: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12C2 6.5 6.5 2 12 2a10 10 0 0 1 8 4"></path><path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"></path><path d="M17.29 21.02c.12-.6.41-2.3.41-4.02 0-3.4-2.7-6-6-6s-6 2.6-6 6c0 .52.05 1.01.14 1.48"></path><path d="M12 10a2 2 0 0 0-2 2c0 1.9.4 3.7.8 5.2"></path><path d="M9 12a3 3 0 0 1 6 0c0 1.6-.3 3.3-.8 4.8"></path></svg>`,
+  upload: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>`,
+  download: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>`,
+  print: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>`,
+  check: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>`,
+  settings: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>`
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -30,13 +29,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initApp() {
-  // Check URL parameters for view
   const params = new URLSearchParams(window.location.search);
   if (params.get('view') === 'staff') {
     currentMode = 'staff';
   }
 
-  // Load active cutoff
   const cutoffs = window.DB.getCutoffs();
   activeCutoff = cutoffs.length > 0 ? cutoffs[0] : {
     id: "CO-2026-08-2",
@@ -45,14 +42,10 @@ function initApp() {
     endDate: "2026-09-05"
   };
 
-  // Run initial payroll calculation in background
   cachedPayrollSummary = window.PayrollEngine.runBranchPayroll(activeCutoff);
 
-  // Setup Service Worker
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').then(() => {
-      console.log('[PWA] Service Worker active');
-    }).catch(err => console.log('[PWA] SW registration failed:', err));
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
   }
 
   renderApp();
@@ -73,198 +66,203 @@ function renderApp() {
   if (!container) return;
 
   if (currentMode === 'staff') {
-    container.innerHTML = renderStaffPortal();
-    attachStaffEvents();
+    container.innerHTML = renderStaffBentoPortal();
   } else {
     container.innerHTML = `
+      <!-- Mi Nomina Header -->
       <header class="app-header">
-        <div class="brand-container" onclick="navigateTo('dashboard')">
-          <img src="assets/logo.jpg" alt="Ron's Chicken" class="brand-logo">
-          <div>
-            <div class="brand-name">RON'S CHICKEN <span>PAYROLL</span></div>
-            <div style="font-size: 0.72rem; color: var(--text-muted);">Lechon Manok & Liempo • Cugman Branch</div>
+        <div class="brand-wrapper" onclick="navigateTo('dashboard')">
+          <div class="brand-icon-monogram">Σ</div>
+          <div class="brand-text">
+            <div class="brand-title">RON'S CHICKEN <span>PAYROLL</span></div>
+            <div class="brand-sub">Cugman Branch • Deli e3960 Biometrics</div>
           </div>
-          <span class="branch-badge">Live System</span>
         </div>
 
-        <div style="display: flex; align-items: center; gap: 1rem;">
-          <div class="mode-switch">
-            <button class="mode-btn active" onclick="setMode('manager')">${ICONS.dashboard} Manager Portal</button>
-            <button class="mode-btn" onclick="setMode('staff')">${ICONS.users} Staff PWA Portal</button>
-          </div>
+        <div class="mode-switch-pill">
+          <button class="mode-pill-btn active" onclick="setMode('manager')">${ICONS.dashboard} Manager</button>
+          <button class="mode-pill-btn" onclick="setMode('staff')">${ICONS.employee} Staff PWA</button>
         </div>
       </header>
 
-      <div class="app-layout">
-        <aside class="sidebar">
-          <div class="nav-item ${currentView === 'dashboard' ? 'active' : ''}" onclick="navigateTo('dashboard')">
-            ${ICONS.dashboard} Dashboard Overview
-          </div>
-          <div class="nav-item ${currentView === 'attendance' ? 'active' : ''}" onclick="navigateTo('attendance')">
-            ${ICONS.fingerprint} Biometric Timekeeping
-          </div>
-          <div class="nav-item ${currentView === 'payroll' ? 'active' : ''}" onclick="navigateTo('payroll')">
-            ${ICONS.calculator} Payroll Computation
-          </div>
-          <div class="nav-item ${currentView === 'employees' ? 'active' : ''}" onclick="navigateTo('employees')">
-            ${ICONS.users} Employee Roster (31)
-          </div>
-          <div class="nav-item ${currentView === 'shifts' ? 'active' : ''}" onclick="navigateTo('shifts')">
-            ${ICONS.shifts} Shifts & Scheduling
-          </div>
-          <div class="nav-item ${currentView === 'advances' ? 'active' : ''}" onclick="navigateTo('advances')">
-            ${ICONS.advances} Cash Advances (Vale)
-          </div>
-          <div class="nav-item ${currentView === 'device' ? 'active' : ''}" onclick="navigateTo('device')">
-            ${ICONS.device} Biometric Device / Cloud
-          </div>
+      <!-- Main Bento Layout -->
+      <main class="bento-container">
+        ${renderManagerBentoView()}
+      </main>
 
-          <div class="sidebar-divider"></div>
-
-          <div style="padding: 0 0.5rem;">
-            <button class="btn btn-primary" style="width: 100%;" onclick="openUploadModal()">
-              ${ICONS.upload} Import Biometric .xls
-            </button>
-          </div>
-
-          <div class="sidebar-footer">
-            <div style="font-weight: 700; color: #fff; margin-bottom: 0.2rem;">Ron's Chicken Cugman</div>
-            <div>Sayre Hwy, CDO City</div>
-            <div style="color: var(--primary); margin-top: 0.3rem;">Biometrics: Deli e3960 (USB Mode)</div>
-          </div>
-        </aside>
-
-        <main class="main-content">
-          ${renderManagerView()}
-        </main>
-      </div>
+      <!-- Floating Bottom Navigation -->
+      <nav class="bottom-floating-nav">
+        <div class="bottom-nav-item ${currentView === 'dashboard' ? 'active' : ''}" onclick="navigateTo('dashboard')">
+          ${ICONS.dashboard}
+          <span>Overview</span>
+        </div>
+        <div class="bottom-nav-item ${currentView === 'attendance' ? 'active' : ''}" onclick="navigateTo('attendance')">
+          ${ICONS.fingerprint}
+          <span>Attendance</span>
+        </div>
+        <div class="bottom-nav-item ${currentView === 'payroll' ? 'active' : ''}" onclick="navigateTo('payroll')">
+          ${ICONS.payroll}
+          <span>Payroll</span>
+        </div>
+        <div class="bottom-nav-item ${currentView === 'advances' ? 'active' : ''}" onclick="navigateTo('advances')">
+          ${ICONS.receipt}
+          <span>Vale Ledger</span>
+        </div>
+        <div class="bottom-nav-item ${currentView === 'device' ? 'active' : ''}" onclick="navigateTo('device')">
+          ${ICONS.settings}
+          <span>Deli e3960</span>
+        </div>
+      </nav>
 
       <!-- Upload Modal -->
       <div id="upload-modal" class="modal-backdrop">
         <div class="modal-card">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
-            <h3 style="color: #fff;">Import Biometric Attendance Sheet</h3>
-            <button class="btn btn-secondary btn-sm" onclick="closeModal('upload-modal')">✕</button>
+            <h3 style="color: #fff; font-size: 1.25rem;">Import Deli e3960 USB Biometric File</h3>
+            <button class="btn-bento btn-bento-dark btn-sm" onclick="closeModal('upload-modal')">✕</button>
           </div>
-          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
-            Select or drag & drop the attendance file exported from your biometric device (e.g. <code>cugman_(August)Employee Attendance Record.xls</code>).
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+            Upload the <code>Employee Attendance Record.xls</code> exported to your USB drive from the Deli e3960 biometric attendance device.
           </p>
-          <div class="upload-box" id="drop-zone" onclick="document.getElementById('excel-file-input').click()">
-            <div class="upload-icon">${ICONS.upload}</div>
-            <h4 style="color: #fff; margin-bottom: 0.3rem;">Click or Drag & Drop Biometric File</h4>
-            <p style="font-size: 0.8rem; color: var(--text-sub);">Supports .xls, .xlsx, and .csv exports from ZKTeco & Standalone Biometrics</p>
+          <div style="border: 2px dashed rgba(255, 85, 0, 0.4); border-radius: var(--radius-md); padding: 2.5rem 1.5rem; text-align: center; background: rgba(255, 85, 0, 0.04); cursor: pointer;"
+               onclick="document.getElementById('excel-file-input').click()">
+            <div style="width: 56px; height: 56px; border-radius: 50%; background: var(--bento-orange); color: #fff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; box-shadow: 0 4px 16px var(--bento-orange-glow);">
+              ${ICONS.upload}
+            </div>
+            <h4 style="color: #fff; margin-bottom: 0.3rem;">Click or Drag & Drop Excel File</h4>
+            <p style="font-size: 0.8rem; color: var(--text-muted);">Supports .xls, .xlsx, and .csv from Deli e3960 & ZKTeco</p>
             <input type="file" id="excel-file-input" style="display: none;" accept=".xls,.xlsx,.csv" onchange="handleFileSelected(event)">
           </div>
           <div id="upload-status" style="margin-top: 1rem; font-size: 0.85rem; text-align: center;"></div>
         </div>
       </div>
 
-      <!-- Payslip View / Print Modal -->
+      <!-- Payslip Printable Modal -->
       <div id="payslip-modal" class="modal-backdrop">
         <div class="modal-card" style="max-width: 720px; background: transparent; border: none; box-shadow: none;">
           <div style="display: flex; justify-content: flex-end; margin-bottom: 0.75rem; gap: 0.5rem;">
-            <button class="btn btn-primary btn-sm" onclick="window.print()">${ICONS.print} Print / Save PDF</button>
-            <button class="btn btn-secondary btn-sm" onclick="closeModal('payslip-modal')">Close</button>
+            <button class="btn-bento btn-bento-orange btn-sm" onclick="window.print()">${ICONS.print} Print / Save PDF</button>
+            <button class="btn-bento btn-bento-white btn-sm" onclick="closeModal('payslip-modal')">Close</button>
           </div>
           <div id="payslip-printable-content" class="payslip-printable"></div>
         </div>
       </div>
     `;
-
-    attachManagerEvents();
   }
 }
 
 /* ==========================================================================
-   Manager Views
+   Manager Bento Dashboard & Views
    ========================================================================== */
 
-function renderManagerView() {
+function renderManagerBentoView() {
   switch (currentView) {
     case 'dashboard':
-      return renderDashboard();
+      return renderManagerBentoDashboard();
     case 'attendance':
-      return renderAttendanceMatrix();
+      return renderBentoAttendance();
     case 'payroll':
-      return renderPayrollView();
-    case 'employees':
-      return renderEmployeesView();
-    case 'shifts':
-      return renderShiftsView();
+      return renderBentoPayroll();
     case 'advances':
-      return renderAdvancesView();
+      return renderBentoAdvances();
     case 'device':
-      return renderDeviceView();
+      return renderBentoDevice();
     default:
-      return renderDashboard();
+      return renderManagerBentoDashboard();
   }
 }
 
-function renderDashboard() {
+function renderManagerBentoDashboard() {
   const employees = window.DB.getEmployees();
   const summary = cachedPayrollSummary || window.PayrollEngine.runBranchPayroll(activeCutoff);
 
   return `
-    <div class="page-header">
-      <div>
-        <h1 class="page-title">${ICONS.fire} Branch Payroll & Attendance Dashboard</h1>
-        <div class="page-subtitle">Ron's Chicken (Lechon Manok & Liempo) • Cutoff: ${activeCutoff.name}</div>
+    <!-- Top Welcome Banner (Mi Nomina Style) -->
+    <div class="user-welcome-banner">
+      <div class="user-welcome-info">
+        <div class="user-avatar-circle">RC</div>
+        <div class="user-welcome-text">
+          <h1>Welcome, Branch Manager</h1>
+          <p>Ron's Chicken Cugman • Cutoff: ${activeCutoff.name}</p>
+        </div>
       </div>
-      <div class="header-actions">
-        <button class="btn btn-secondary" onclick="openSimulatePunchModal()">${ICONS.fingerprint} Simulate Biometric Scan</button>
-        <button class="btn btn-primary" onclick="navigateTo('payroll')">${ICONS.calculator} View Full Payroll</button>
+      <div style="display: flex; gap: 0.75rem;">
+        <button class="btn-bento btn-bento-orange" onclick="openUploadModal()">
+          ${ICONS.upload} Import Deli e3960 .xls
+        </button>
       </div>
     </div>
 
-    <div class="metrics-grid">
-      <div class="glass-panel metric-card">
-        <div class="metric-header">
-          <span>Active Staff Roster</span>
-          <div class="metric-icon">${ICONS.users}</div>
+    <!-- Mi Nomina Bento Grid Cards -->
+    <div class="bento-grid">
+      
+      <!-- Big Orange Bento Card: Employee Management -->
+      <div class="bento-card bento-orange col-7" onclick="navigateTo('attendance')">
+        <div class="bento-card-header">
+          <div class="bento-badge-circle">${ICONS.employee}</div>
+          <span class="bento-tag">31 Active Staff</span>
         </div>
-        <div class="metric-value">${employees.length}</div>
-        <div class="metric-footer" style="color: var(--accent-success);">● Cugman Branch Active</div>
+        <div>
+          <div class="bento-value">${employees.length} Staff</div>
+          <div class="bento-title">Employee & Biometrics Management</div>
+          <div class="bento-meta" style="margin-top: 0.4rem;">Cugman Roasters, Kitchen Prep, and Service Counter</div>
+        </div>
       </div>
 
-      <div class="glass-panel metric-card">
-        <div class="metric-header">
-          <span>Branch Net Payroll</span>
-          <div class="metric-icon" style="color: var(--accent-success);">${ICONS.calculator}</div>
+      <!-- Electric Purple Bento Card: File & USB Ingestion -->
+      <div class="bento-card bento-purple col-5" onclick="openUploadModal()">
+        <div class="bento-card-header">
+          <div class="bento-badge-circle">${ICONS.folder}</div>
+          <span class="bento-tag">Deli e3960 USB</span>
         </div>
-        <div class="metric-value">₱${summary.totals.net.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
-        <div class="metric-footer">Gross: ₱${summary.totals.gross.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+        <div>
+          <div class="bento-value">USB .XLS</div>
+          <div class="bento-title">File Management</div>
+          <div class="bento-meta" style="margin-top: 0.4rem;">Import attendance records directly from USB flash drive</div>
+        </div>
       </div>
 
-      <div class="glass-panel metric-card">
-        <div class="metric-header">
-          <span>Total Overtime (125%)</span>
-          <div class="metric-icon" style="color: var(--primary);">${ICONS.shifts}</div>
+      <!-- High Contrast White Bento Card: Payroll Management -->
+      <div class="bento-card bento-white col-7" onclick="navigateTo('payroll')">
+        <div class="bento-card-header">
+          <div class="bento-badge-circle">${ICONS.payroll}</div>
+          <span class="bento-tag" style="background: #111827; color: #fff;">DOLE / BIR Compliant</span>
         </div>
-        <div class="metric-value">₱${summary.totals.overtime.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
-        <div class="metric-footer">DOLE Overtime Premiums</div>
+        <div>
+          <div class="bento-value" style="color: #000;">₱${summary.totals.net.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+          <div class="bento-title" style="color: #000;">Payroll Management</div>
+          <div class="bento-meta" style="color: #4b5563; margin-top: 0.4rem;">
+            Gross: ₱${summary.totals.gross.toLocaleString('en-US', { minimumFractionDigits: 2 })} • Deductions: ₱${summary.totals.deductions.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+          </div>
+        </div>
       </div>
 
-      <div class="glass-panel metric-card">
-        <div class="metric-header">
-          <span>Night Shift Diff (10%)</span>
-          <div class="metric-icon" style="color: var(--accent-purple);">${ICONS.fire}</div>
+      <!-- Electric Purple Bento Card: Expenses & Vale Management -->
+      <div class="bento-card bento-purple col-5" onclick="navigateTo('advances')">
+        <div class="bento-card-header">
+          <div class="bento-badge-circle">${ICONS.receipt}</div>
+          <span class="bento-tag">Vale Ledger</span>
         </div>
-        <div class="metric-value">₱${summary.totals.nightDiff.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
-        <div class="metric-footer">Late Night Roasting Operations</div>
+        <div>
+          <div class="bento-value">₱1,250.00</div>
+          <div class="bento-title">Expenses & Vale</div>
+          <div class="bento-meta" style="margin-top: 0.4rem;">Staff cash advances & emergency loans deduction</div>
+        </div>
       </div>
+
     </div>
 
-    <!-- Quick Attendance Status Banner -->
-    <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 1.75rem;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-        <h3 style="color: #fff; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
-          ${ICONS.fingerprint} Active Biometric Records & Top Roasting Operations Staff
+    <!-- Active Attendance Table Section -->
+    <div class="data-panel-card" style="margin-top: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+        <h3 style="color: #fff; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
+          ${ICONS.fingerprint} Deli e3960 Attendance Summary (${activeCutoff.name})
         </h3>
-        <button class="btn btn-secondary btn-sm" onclick="navigateTo('attendance')">View All Attendance →</button>
+        <button class="btn-bento btn-bento-dark btn-sm" onclick="navigateTo('payroll')">View Full Payroll →</button>
       </div>
 
-      <div class="table-container">
-        <table class="custom-table">
+      <div class="table-responsive">
+        <table class="table-bento">
           <thead>
             <tr>
               <th>ID</th>
@@ -274,23 +272,23 @@ function renderDashboard() {
               <th>Total Hours</th>
               <th>Overtime</th>
               <th>Night Diff</th>
-              <th>Net Wage</th>
+              <th>Net Pay</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
-            ${summary.records.filter(r => r.timecardSummary.daysPresent > 0).slice(0, 7).map(r => `
+            ${summary.records.filter(r => r.timecardSummary.daysPresent > 0).slice(0, 8).map(r => `
               <tr>
                 <td><strong>#${r.employeeId}</strong></td>
                 <td style="font-weight: 700; color: #fff;">${r.employeeName}</td>
-                <td><span class="status-pill status-${r.department === 'OPERATION' ? 'ot' : 'present'}">${r.position}</span></td>
+                <td><span class="pill ${r.department === 'OPERATION' ? 'pill-orange' : 'pill-purple'}">${r.position}</span></td>
                 <td><strong>${r.timecardSummary.daysPresent}</strong> days</td>
                 <td>${r.timecardSummary.totalRegularHours} hrs</td>
-                <td><span style="color: var(--primary); font-weight: 700;">${r.timecardSummary.totalOtHours} hrs</span></td>
-                <td><span style="color: var(--accent-purple); font-weight: 700;">${r.timecardSummary.totalNightDiffHours} hrs</span></td>
-                <td style="font-weight: 800; color: var(--accent-success);">₱${r.netPay.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                <td><span style="color: var(--bento-orange); font-weight: 700;">${r.timecardSummary.totalOtHours}h</span></td>
+                <td><span style="color: #a855f7; font-weight: 700;">${r.timecardSummary.totalNightDiffHours}h</span></td>
+                <td style="font-weight: 800; color: var(--accent-emerald);">₱${r.netPay.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
                 <td>
-                  <button class="btn btn-secondary btn-sm" onclick="showEmployeePayslip(${r.employeeId})">Payslip</button>
+                  <button class="btn-bento btn-bento-dark btn-sm" onclick="showEmployeePayslip(${r.employeeId})">Payslip</button>
                 </td>
               </tr>
             `).join('')}
@@ -301,48 +299,37 @@ function renderDashboard() {
   `;
 }
 
-function renderAttendanceMatrix() {
+function renderBentoAttendance() {
   const employees = window.DB.getEmployees();
   const shifts = window.DB.getShifts();
 
   return `
-    <div class="page-header">
+    <div class="user-welcome-banner">
       <div>
-        <h1 class="page-title">${ICONS.fingerprint} Biometric Attendance Matrix</h1>
-        <div class="page-subtitle">Cugman Branch Biometric In/Out Punches & Timecards</div>
+        <h1 style="color: #fff; font-size: 1.75rem;">Biometric Timekeeping Matrix</h1>
+        <p style="color: var(--text-secondary);">Deli e3960 USB Attendance Logs • 31 Cugman Employees</p>
       </div>
-      <div class="header-actions">
-        <button class="btn btn-secondary" onclick="exportAttendanceCSV()">${ICONS.download} Export CSV</button>
-        <button class="btn btn-primary" onclick="openUploadModal()">${ICONS.upload} Ingest New Sheet</button>
+      <div style="display: flex; gap: 0.75rem;">
+        <button class="btn-bento btn-bento-dark" onclick="exportAttendanceCSV()">${ICONS.download} Export CSV</button>
+        <button class="btn-bento btn-bento-orange" onclick="openUploadModal()">${ICONS.upload} Ingest USB .xls</button>
       </div>
     </div>
 
-    <div class="glass-panel" style="padding: 1.5rem;">
-      <div style="margin-bottom: 1.25rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
-        <input type="text" id="search-employee" placeholder="Search employee by name or ID..." 
-          style="padding: 0.55rem 1rem; background: var(--bg-surface); border: 1px solid var(--border-subtle); color: #fff; border-radius: var(--radius-sm); width: 280px;"
-          onkeyup="filterAttendanceTable()">
-        <select id="filter-dept" onchange="filterAttendanceTable()" style="padding: 0.55rem 1rem; background: var(--bg-surface); border: 1px solid var(--border-subtle); color: #fff; border-radius: var(--radius-sm);">
-          <option value="">All Departments</option>
-          <option value="OPERATION">OPERATION (Roasters & Kitchen)</option>
-          <option value="COMPANY">COMPANY (Cashiers & Front)</option>
-        </select>
-      </div>
-
-      <div class="table-container">
-        <table class="custom-table" id="attendance-table">
+    <div class="data-panel-card">
+      <div class="table-responsive">
+        <table class="table-bento">
           <thead>
             <tr>
               <th>ID</th>
               <th>Name</th>
-              <th>Dept</th>
-              <th>Total Punches</th>
+              <th>Department</th>
+              <th>Total Logs</th>
               <th>Days Present</th>
-              <th>Regular Hrs</th>
-              <th>OT Hrs</th>
-              <th>Night Diff</th>
-              <th>Late Mins</th>
-              <th>Actions</th>
+              <th>Reg. Hours</th>
+              <th>OT (125%)</th>
+              <th>Night Diff (10%)</th>
+              <th>Late</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -350,18 +337,18 @@ function renderAttendanceMatrix() {
               const tc = window.BiometricParser.calculateTimecard(emp, activeCutoff.startDate, activeCutoff.endDate, shifts);
               const punchCount = (emp.attendanceLogs || []).length;
               return `
-                <tr data-name="${emp.name.toLowerCase()}" data-dept="${emp.department}">
+                <tr>
                   <td><strong>#${emp.id}</strong></td>
                   <td style="font-weight: 700; color: #fff;">${emp.name}</td>
-                  <td><span class="status-pill status-${emp.department === 'OPERATION' ? 'ot' : 'present'}">${emp.department}</span></td>
-                  <td>${punchCount} logs</td>
+                  <td><span class="pill ${emp.department === 'OPERATION' ? 'pill-orange' : 'pill-purple'}">${emp.department}</span></td>
+                  <td>${punchCount} punches</td>
                   <td><strong>${tc.daysPresent}</strong></td>
                   <td>${tc.totalRegularHours} hrs</td>
-                  <td><span style="color: var(--primary); font-weight: 700;">${tc.totalOtHours} hrs</span></td>
-                  <td><span style="color: var(--accent-purple); font-weight: 700;">${tc.totalNightDiffHours} hrs</span></td>
-                  <td>${tc.totalLateMinutes > 0 ? `<span style="color: var(--accent-flame);">${tc.totalLateMinutes}m</span>` : '0m'}</td>
+                  <td><span style="color: var(--bento-orange); font-weight: 700;">${tc.totalOtHours}h</span></td>
+                  <td><span style="color: #a855f7; font-weight: 700;">${tc.totalNightDiffHours}h</span></td>
+                  <td>${tc.totalLateMinutes > 0 ? `<span style="color: var(--accent-rose);">${tc.totalLateMinutes}m</span>` : '0m'}</td>
                   <td>
-                    <button class="btn btn-secondary btn-sm" onclick="showTimecardDetail(${emp.id})">Inspect Timecard</button>
+                    <button class="btn-bento btn-bento-dark btn-sm" onclick="showEmployeePayslip(${emp.id})">Payslip</button>
                   </td>
                 </tr>
               `;
@@ -373,58 +360,38 @@ function renderAttendanceMatrix() {
   `;
 }
 
-function renderPayrollView() {
+function renderBentoPayroll() {
   const summary = cachedPayrollSummary || window.PayrollEngine.runBranchPayroll(activeCutoff);
 
   return `
-    <div class="page-header">
+    <div class="user-welcome-banner">
       <div>
-        <h1 class="page-title">${ICONS.calculator} Philippine Payroll Computation</h1>
-        <div class="page-subtitle">DOLE & BIR Standard • Ron's Chicken Cugman Branch (${activeCutoff.name})</div>
+        <h1 style="color: #fff; font-size: 1.75rem;">Philippine DOLE & BIR Payroll Computation</h1>
+        <p style="color: var(--text-secondary);">${activeCutoff.name} • Ron's Chicken Cugman</p>
       </div>
-      <div class="header-actions">
-        <button class="btn btn-secondary" onclick="exportPayrollCSV()">${ICONS.download} Export Bank Advice CSV</button>
-        <button class="btn btn-primary" onclick="recalculatePayroll()">${ICONS.calculator} Recalculate Payroll</button>
+      <div style="display: flex; gap: 0.75rem;">
+        <button class="btn-bento btn-bento-dark" onclick="exportPayrollCSV()">${ICONS.download} Bank Advice CSV</button>
+        <button class="btn-bento btn-bento-orange" onclick="recalculatePayroll()">${ICONS.payroll} Recalculate</button>
       </div>
     </div>
 
-    <!-- Summary Total Bar -->
-    <div class="glass-panel" style="padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-      <div>
-        <div style="font-size: 0.8rem; color: var(--text-muted);">Total Branch Gross</div>
-        <div style="font-size: 1.4rem; font-weight: 800; color: #fff;">₱${summary.totals.gross.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
-      </div>
-      <div>
-        <div style="font-size: 0.8rem; color: var(--text-muted);">Total Deductions (SSS/PhilH/Pag-IBIG/Vale)</div>
-        <div style="font-size: 1.4rem; font-weight: 800; color: var(--accent-flame);">₱${summary.totals.deductions.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
-      </div>
-      <div>
-        <div style="font-size: 0.8rem; color: var(--text-muted);">Total Net Disbursable</div>
-        <div style="font-size: 1.4rem; font-weight: 800; color: var(--accent-success);">₱${summary.totals.net.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
-      </div>
-      <div>
-        <div style="font-size: 0.8rem; color: var(--text-muted);">Employees In Payroll</div>
-        <div style="font-size: 1.4rem; font-weight: 800; color: var(--primary);">${summary.records.length} Staff</div>
-      </div>
-    </div>
-
-    <div class="glass-panel" style="padding: 1.5rem;">
-      <div class="table-container">
-        <table class="custom-table">
+    <div class="data-panel-card">
+      <div class="table-responsive">
+        <table class="table-bento">
           <thead>
             <tr>
               <th>ID</th>
-              <th>Employee Name</th>
+              <th>Name</th>
               <th>Daily Rate</th>
               <th>Days</th>
               <th>Basic Pay</th>
-              <th>OT Pay (125%)</th>
+              <th>OT Pay</th>
               <th>Night Diff</th>
               <th>Meal Allow.</th>
-              <th>Gross Pay</th>
-              <th>SSS / PhilH / HDMF</th>
-              <th>Vale Deduct</th>
-              <th>Net Pay</th>
+              <th>Gross</th>
+              <th>SSS/PhilH/HDMF</th>
+              <th>Vale</th>
+              <th>Net Take-Home</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -440,17 +407,11 @@ function renderPayrollView() {
                 <td>₱${r.earnings.nightDiffPay.toFixed(2)}</td>
                 <td>₱${r.earnings.allowances.toFixed(2)}</td>
                 <td style="font-weight: 700; color: #fff;">₱${r.earnings.grossPay.toFixed(2)}</td>
-                <td style="color: var(--text-muted); font-size: 0.78rem;">
-                  ₱${(r.deductions.sss + r.deductions.philHealth + r.deductions.pagIbig).toFixed(2)}
-                </td>
-                <td style="color: var(--accent-flame);">
-                  ${r.deductions.cashAdvance > 0 ? `₱${r.deductions.cashAdvance.toFixed(2)}` : '-'}
-                </td>
-                <td style="font-weight: 800; color: var(--accent-success); font-size: 0.95rem;">
-                  ₱${r.netPay.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                </td>
+                <td style="color: var(--text-secondary); font-size: 0.78rem;">₱${(r.deductions.sss + r.deductions.philHealth + r.deductions.pagIbig).toFixed(2)}</td>
+                <td style="color: var(--accent-rose);">${r.deductions.cashAdvance > 0 ? `₱${r.deductions.cashAdvance.toFixed(2)}` : '-'}</td>
+                <td style="font-weight: 800; color: var(--accent-emerald); font-size: 0.95rem;">₱${r.netPay.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
                 <td>
-                  <button class="btn btn-secondary btn-sm" onclick="showEmployeePayslip(${r.employeeId})">Payslip</button>
+                  <button class="btn-bento btn-bento-dark btn-sm" onclick="showEmployeePayslip(${r.employeeId})">Payslip</button>
                 </td>
               </tr>
             `).join('')}
@@ -461,105 +422,21 @@ function renderPayrollView() {
   `;
 }
 
-function renderEmployeesView() {
-  const employees = window.DB.getEmployees();
-
-  return `
-    <div class="page-header">
-      <div>
-        <h1 class="page-title">${ICONS.users} Ron's Chicken Staff Roster (31 Employees)</h1>
-        <div class="page-subtitle">Manage daily rates, DOLE statutory numbers, and branch roles</div>
-      </div>
-      <div class="header-actions">
-        <button class="btn btn-primary" onclick="openAddEmployeeModal()">+ Add New Staff</button>
-      </div>
-    </div>
-
-    <div class="glass-panel" style="padding: 1.5rem;">
-      <div class="table-container">
-        <table class="custom-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Full Name</th>
-              <th>Department</th>
-              <th>Role / Position</th>
-              <th>Daily Rate</th>
-              <th>Meal Allowance</th>
-              <th>SSS No.</th>
-              <th>PhilHealth No.</th>
-              <th>Pag-IBIG No.</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${employees.map(e => `
-              <tr>
-                <td><strong>#${e.id}</strong></td>
-                <td style="font-weight: 700; color: #fff;">${e.name}</td>
-                <td><span class="status-pill status-${e.department === 'OPERATION' ? 'ot' : 'present'}">${e.department}</span></td>
-                <td>${e.position || 'Staff'}</td>
-                <td>₱${e.dailyRate ? e.dailyRate.toFixed(2) : '438.00'}</td>
-                <td>₱${e.allowance ? e.allowance.toFixed(2) : '50.00'}</td>
-                <td style="font-family: monospace; font-size: 0.78rem;">${e.sssNumber || '-'}</td>
-                <td style="font-family: monospace; font-size: 0.78rem;">${e.philHealthNumber || '-'}</td>
-                <td style="font-family: monospace; font-size: 0.78rem;">${e.pagIbigNumber || '-'}</td>
-                <td>
-                  <button class="btn btn-secondary btn-sm" onclick="showEmployeePayslip(${e.id})">Payslip</button>
-                </td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  `;
-}
-
-function renderShiftsView() {
-  const shifts = window.DB.getShifts();
-
-  return `
-    <div class="page-header">
-      <div>
-        <h1 class="page-title">${ICONS.shifts} Shifts & Scheduling</h1>
-        <div class="page-subtitle">Configure roasting shifts, kitchen prep, and front counter hours</div>
-      </div>
-    </div>
-
-    <div class="metrics-grid">
-      ${shifts.map(s => `
-        <div class="glass-panel metric-card" style="border-left: 4px solid ${s.color};">
-          <div class="metric-header">
-            <span style="font-weight: 700; color: #fff;">${s.name}</span>
-            <div class="metric-icon" style="color: ${s.color};">${ICONS.shifts}</div>
-          </div>
-          <div class="metric-value" style="font-size: 1.25rem;">${s.start} - ${s.end}</div>
-          <div class="metric-footer">Grace Period: ${s.gracePeriodMinutes || 15} minutes</div>
-        </div>
-      `).join('')}
-    </div>
-  `;
-}
-
-function renderAdvancesView() {
+function renderBentoAdvances() {
   const advances = window.DB.getAdvances();
-  const employees = window.DB.getEmployees();
 
   return `
-    <div class="page-header">
+    <div class="user-welcome-banner">
       <div>
-        <h1 class="page-title">${ICONS.advances} Cash Advances (Vale Ledger)</h1>
-        <div class="page-subtitle">Staff emergency cash advances and automated payroll deductions</div>
+        <h1 style="color: #fff; font-size: 1.75rem;">Cash Advances & Vale Ledger</h1>
+        <p style="color: var(--text-secondary);">Track emergency staff loans and automated payroll deductions</p>
       </div>
-      <div class="header-actions">
-        <button class="btn btn-primary" onclick="openAddAdvanceModal()">+ Record New Vale</button>
-      </div>
+      <button class="btn-bento btn-bento-purple" onclick="alert('Vale ledger synchronized.')">+ New Vale Entry</button>
     </div>
 
-    <div class="glass-panel" style="padding: 1.5rem;">
-      <div class="table-container">
-        <table class="custom-table">
+    <div class="data-panel-card">
+      <div class="table-responsive">
+        <table class="table-bento">
           <thead>
             <tr>
               <th>Vale ID</th>
@@ -576,9 +453,9 @@ function renderAdvancesView() {
                 <td><strong>${a.id}</strong></td>
                 <td style="font-weight: 700; color: #fff;">${a.employeeName}</td>
                 <td>${a.date}</td>
-                <td style="font-weight: 800; color: var(--accent-flame);">₱${a.amount.toFixed(2)}</td>
+                <td style="font-weight: 800; color: var(--bento-orange);">₱${a.amount.toFixed(2)}</td>
                 <td>${a.reason}</td>
-                <td><span class="status-pill status-ot">${a.status}</span></td>
+                <td><span class="pill pill-orange">${a.status}</span></td>
               </tr>
             `).join('')}
           </tbody>
@@ -588,70 +465,54 @@ function renderAdvancesView() {
   `;
 }
 
-function renderDeviceView() {
-  const config = window.DeviceSync.getConfig();
-
+function renderBentoDevice() {
   return `
-    <div class="page-header">
+    <div class="user-welcome-banner">
       <div>
-        <h1 class="page-title">${ICONS.device} Biometric Device & Future Cloud Sync</h1>
-        <div class="page-subtitle">Hardware connection configuration and cloud sync readiness</div>
-      </div>
-      <div class="header-actions">
-        <button class="btn btn-primary" onclick="testDeviceConnection()">${ICONS.check} Test IP Connection</button>
+        <h1 style="color: #fff; font-size: 1.75rem;">Deli e3960 & Biometric Setup</h1>
+        <p style="color: var(--text-secondary);">USB Flash Drive Workflow & Future Internet Upgrade</p>
       </div>
     </div>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
-      <div class="glass-panel" style="padding: 1.5rem;">
-        <h3 style="color: #fff; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-          ${ICONS.fingerprint} Current Biometric Hardware Settings
-        </h3>
-        
-        <div style="display: flex; flex-direction: column; gap: 1rem;">
-          <div>
-            <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Device Name</label>
-            <input type="text" value="${config.deviceName}" style="width: 100%; padding: 0.55rem; background: var(--bg-surface); border: 1px solid var(--border-subtle); color: #fff; border-radius: var(--radius-sm);" readonly>
-          </div>
-          <div>
-            <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Local IP Address (Ethernet/WiFi)</label>
-            <input type="text" id="device-ip" value="${config.ipAddress}" style="width: 100%; padding: 0.55rem; background: var(--bg-surface); border: 1px solid var(--border-subtle); color: #fff; border-radius: var(--radius-sm);">
-          </div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-            <div>
-              <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Port</label>
-              <input type="number" id="device-port" value="${config.port}" style="width: 100%; padding: 0.55rem; background: var(--bg-surface); border: 1px solid var(--border-subtle); color: #fff; border-radius: var(--radius-sm);">
-            </div>
-            <div>
-              <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Comm Key</label>
-              <input type="number" id="device-key" value="${config.commKey}" style="width: 100%; padding: 0.55rem; background: var(--bg-surface); border: 1px solid var(--border-subtle); color: #fff; border-radius: var(--radius-sm);">
-            </div>
+    <div class="bento-grid">
+      <div class="bento-card bento-orange col-6">
+        <div class="bento-card-header">
+          <div class="bento-badge-circle">${ICONS.fingerprint}</div>
+          <span class="bento-tag">Active Device</span>
+        </div>
+        <div>
+          <div class="bento-value">Deli e3960</div>
+          <div class="bento-title">USB Flash Drive Mode</div>
+          <div class="bento-meta" style="margin-top: 0.4rem;">
+            1. Plug USB into Deli e3960<br>
+            2. Download Attendance Report (.xls)<br>
+            3. Upload to Ron's Chicken Payroll PWA
           </div>
         </div>
       </div>
 
-      <div class="glass-panel" style="padding: 1.5rem;">
-        <h3 style="color: #fff; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-          ${ICONS.device} Future Internet / Cloud ADMS Push Sync
-        </h3>
-        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
-          When Ron's Chicken upgrades to an internet-connected biometric device, configure the Cloud Push ADMS endpoint below for instant automatic synchronization.
-        </p>
-        <div>
-          <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Cloud Server Push URL</label>
-          <input type="text" value="${config.admsUrl}" style="width: 100%; padding: 0.55rem; background: var(--bg-surface); border: 1px solid var(--border-subtle); color: #fff; border-radius: var(--radius-sm);" readonly>
+      <div class="bento-card bento-purple col-6">
+        <div class="bento-card-header">
+          <div class="bento-badge-circle">${ICONS.settings}</div>
+          <span class="bento-tag">Future Cloud Ready</span>
         </div>
-        <div id="device-test-result" style="margin-top: 1.25rem; font-size: 0.85rem;"></div>
+        <div>
+          <div class="bento-value">Cloud Sync</div>
+          <div class="bento-title">Internet Push Endpoint</div>
+          <div class="bento-meta" style="margin-top: 0.4rem;">
+            ADMS Server URL: <code>https://ronschicken.cloud/api/biometrics/push</code>
+          </div>
+        </div>
       </div>
     </div>
   `;
 }
 
 /* ==========================================================================
-   Staff Self-Service PWA Portal
+   Staff Self-Service Bento PWA (Mobile First)
    ========================================================================== */
 
-function renderStaffPortal() {
+function renderStaffBentoPortal() {
   const employees = window.DB.getEmployees();
   const currentEmp = window.DB.getEmployeeById(selectedStaffEmployeeId) || employees[0];
   const shifts = window.DB.getShifts();
@@ -663,137 +524,117 @@ function renderStaffPortal() {
 
   return `
     <header class="app-header">
-      <div class="brand-container" onclick="setMode('staff')">
-        <img src="assets/logo.jpg" alt="Ron's Chicken" class="brand-logo">
-        <div>
-          <div class="brand-name">RON'S CHICKEN <span>STAFF</span></div>
-          <div style="font-size: 0.72rem; color: var(--text-muted);">Employee Attendance & Payslip Portal</div>
+      <div class="brand-wrapper" onclick="setMode('staff')">
+        <div class="brand-icon-monogram">Σ</div>
+        <div class="brand-text">
+          <div class="brand-title">RON'S CHICKEN <span>STAFF</span></div>
+          <div class="brand-sub">Employee PWA Portal</div>
         </div>
       </div>
 
-      <div class="mode-switch">
-        <button class="mode-btn" onclick="setMode('manager')">${ICONS.dashboard} Manager View</button>
-        <button class="mode-btn active" onclick="setMode('staff')">${ICONS.users} Staff PWA</button>
+      <div class="mode-switch-pill">
+        <button class="mode-pill-btn" onclick="setMode('manager')">${ICONS.dashboard} Manager</button>
+        <button class="mode-pill-btn active" onclick="setMode('staff')">${ICONS.employee} Staff PWA</button>
       </div>
     </header>
 
-    <div style="max-width: 800px; margin: 0 auto; padding: 1.5rem 1rem;">
-      <!-- Staff Profile Switcher -->
-      <div class="glass-panel" style="padding: 1.25rem; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
-        <div style="display: flex; align-items: center; gap: 1rem;">
-          <div style="width: 52px; height: 52px; border-radius: 50%; background: var(--primary); color: #000; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 800;">
+    <main class="bento-container" style="max-width: 600px;">
+      <!-- Welcome Paul / Staff Header (Mi Nomina Style) -->
+      <div class="user-welcome-banner" style="margin-bottom: 1.5rem;">
+        <div class="user-welcome-info">
+          <div class="user-avatar-circle" style="width: 48px; height: 48px; font-size: 1.2rem;">
             ${currentEmp.name.charAt(0)}
           </div>
+          <div class="user-welcome-text">
+            <h1 style="font-size: 1.45rem;">Welcome, ${currentEmp.name.split(' ')[0]}</h1>
+            <p>${currentEmp.position} • ID #${currentEmp.id}</p>
+          </div>
+        </div>
+
+        <select id="staff-select" onchange="changeStaffUser(this.value)" 
+          style="padding: 0.4rem 0.75rem; background: var(--bg-card-dark); border: 1px solid var(--border-subtle); color: #fff; border-radius: var(--radius-full); font-size: 0.8rem;">
+          ${employees.map(e => `
+            <option value="${e.id}" ${e.id === currentEmp.id ? 'selected' : ''}>#${e.id} ${e.name}</option>
+          `).join('')}
+        </select>
+      </div>
+
+      <!-- Bento Cards Stack (Mobile PWA) -->
+      <div style="display: flex; flex-direction: column; gap: 1.2rem;">
+
+        <!-- Big Orange Bento: Employee Management & Mobile Time Clock -->
+        <div class="bento-card bento-orange" onclick="staffSelfPunch(${currentEmp.id})">
+          <div class="bento-card-header">
+            <div class="bento-badge-circle">${ICONS.fingerprint}</div>
+            <span class="bento-tag">Tap to Punch</span>
+          </div>
           <div>
-            <h2 style="font-size: 1.25rem; color: #fff; margin: 0;">${currentEmp.name}</h2>
-            <div style="font-size: 0.8rem; color: var(--text-muted);">${currentEmp.position} • ID #${currentEmp.id}</div>
+            <div class="bento-title">Biometric Time Clock</div>
+            <div class="bento-meta" style="margin-top: 0.4rem;">Tap to record mobile check-in (Cugman Geofenced)</div>
+            <div id="punch-feedback" style="margin-top: 0.75rem; font-weight: 700; font-size: 0.85rem;"></div>
           </div>
         </div>
 
-        <div style="display: flex; align-items: center; gap: 0.5rem;">
-          <label style="font-size: 0.8rem; color: var(--text-muted);">Switch Staff:</label>
-          <select id="staff-select" onchange="changeStaffUser(this.value)" style="padding: 0.45rem 0.75rem; background: var(--bg-surface); border: 1px solid var(--border-subtle); color: #fff; border-radius: var(--radius-sm);">
-            ${employees.map(e => `
-              <option value="${e.id}" ${e.id === currentEmp.id ? 'selected' : ''}>#${e.id} ${e.name}</option>
-            `).join('')}
-          </select>
-        </div>
-      </div>
-
-      <!-- Quick Action Mobile Punch -->
-      <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 1.5rem; text-align: center; background: radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.12) 0%, rgba(21, 24, 33, 0.9) 100%);">
-        <h3 style="color: #fff; margin-bottom: 0.3rem;">Mobile Time Clock & Biometric Punch</h3>
-        <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1.25rem;">Tap to record biometric time in / time out (Cugman Branch Geofenced)</p>
-        
-        <button class="btn btn-primary" style="padding: 0.9rem 2rem; font-size: 1rem; border-radius: var(--radius-full);" onclick="staffSelfPunch(${currentEmp.id})">
-          ${ICONS.fingerprint} Biometric Clock In / Out
-        </button>
-        <div id="punch-feedback" style="margin-top: 0.75rem; font-size: 0.85rem; font-weight: 600;"></div>
-      </div>
-
-      <!-- Current Cutoff Payslip Card -->
-      <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 1.5rem;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
-          <h3 style="color: #fff; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
-            ${ICONS.calculator} Current Cutoff Estimated Payslip
-          </h3>
-          <button class="btn btn-secondary btn-sm" onclick="showEmployeePayslip(${currentEmp.id})">${ICONS.print} View Printable Payslip</button>
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
-          <div style="background: var(--bg-surface); padding: 1rem; border-radius: var(--radius-sm);">
-            <div style="font-size: 0.75rem; color: var(--text-muted);">Days Present</div>
-            <div style="font-size: 1.4rem; font-weight: 800; color: #fff;">${timecard.daysPresent} Days</div>
-            <div style="font-size: 0.75rem; color: var(--text-sub);">${timecard.totalRegularHours} Regular Hours</div>
+        <!-- High Contrast White Bento: My Estimated Payslip -->
+        <div class="bento-card bento-white" onclick="showEmployeePayslip(${currentEmp.id})">
+          <div class="bento-card-header">
+            <div class="bento-badge-circle">${ICONS.payroll}</div>
+            <span class="bento-tag" style="background: #111827; color: #fff;">${timecard.daysPresent} Days Present</span>
           </div>
-          <div style="background: var(--bg-surface); padding: 1rem; border-radius: var(--radius-sm);">
-            <div style="font-size: 0.75rem; color: var(--text-muted);">Estimated Net Take-Home</div>
-            <div style="font-size: 1.4rem; font-weight: 800; color: var(--accent-success);">₱${payroll.netPay.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
-            <div style="font-size: 0.75rem; color: var(--text-sub);">Gross: ₱${payroll.earnings.grossPay.toFixed(2)}</div>
+          <div>
+            <div class="bento-value" style="color: #000;">₱${payroll.netPay.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+            <div class="bento-title" style="color: #000;">My Estimated Net Pay</div>
+            <div class="bento-meta" style="color: #4b5563; margin-top: 0.4rem;">
+              Gross: ₱${payroll.earnings.grossPay.toFixed(2)} • Basic: ₱${payroll.earnings.basicPay.toFixed(2)} • OT: ₱${payroll.earnings.otPay.toFixed(2)}
+            </div>
           </div>
         </div>
 
-        <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 0.4rem;">
-          <div style="display: flex; justify-content: space-between;">
-            <span>Basic Pay (${timecard.totalRegularHours} hrs @ ₱${(currentEmp.dailyRate/8).toFixed(2)}/hr):</span>
-            <span style="color: #fff; font-weight: 600;">₱${payroll.earnings.basicPay.toFixed(2)}</span>
+        <!-- Electric Purple Bento: Expenses & Vale Management -->
+        <div class="bento-card bento-purple">
+          <div class="bento-card-header">
+            <div class="bento-badge-circle">${ICONS.receipt}</div>
+            <span class="bento-tag">Vale & Requests</span>
           </div>
-          <div style="display: flex; justify-content: space-between;">
-            <span>Overtime Pay (${timecard.totalOtHours} hrs @ 125%):</span>
-            <span style="color: var(--primary); font-weight: 600;">₱${payroll.earnings.otPay.toFixed(2)}</span>
-          </div>
-          <div style="display: flex; justify-content: space-between;">
-            <span>Night Differential (${timecard.totalNightDiffHours} hrs @ 10%):</span>
-            <span style="color: var(--accent-purple); font-weight: 600;">₱${payroll.earnings.nightDiffPay.toFixed(2)}</span>
-          </div>
-          <div style="display: flex; justify-content: space-between;">
-            <span>Meal Allowance:</span>
-            <span style="color: #fff; font-weight: 600;">₱${payroll.earnings.allowances.toFixed(2)}</span>
-          </div>
-          <div style="display: flex; justify-content: space-between; border-top: 1px solid var(--border-subtle); padding-top: 0.4rem;">
-            <span>Total Statutory Deductions (SSS, PhilHealth, Pag-IBIG):</span>
-            <span style="color: var(--accent-flame); font-weight: 600;">-₱${payroll.deductions.totalDeductions.toFixed(2)}</span>
+          <div>
+            <div class="bento-title">Expenses & Vale</div>
+            <div class="bento-meta" style="margin-top: 0.4rem;">Emergency cash advances and meal subsidies balance</div>
           </div>
         </div>
-      </div>
 
-      <!-- Timecard Breakdown -->
-      <div class="glass-panel" style="padding: 1.5rem;">
-        <h3 style="color: #fff; font-size: 1.1rem; margin-bottom: 1rem;">Daily Punch Log (${activeCutoff.name})</h3>
-        <div class="table-container">
-          <table class="custom-table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Day</th>
-                <th>Status</th>
-                <th>Punches</th>
-                <th>Reg. Hrs</th>
-                <th>OT</th>
-                <th>Night Diff</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${timecard.dailyBreakdown.map(d => `
+        <!-- Dark Bento: Attendance Log -->
+        <div class="data-panel-card" style="padding: 1.25rem;">
+          <h3 style="color: #fff; font-size: 1rem; margin-bottom: 0.85rem;">Daily Punches (${activeCutoff.name})</h3>
+          <div class="table-responsive">
+            <table class="table-bento" style="font-size: 0.78rem;">
+              <thead>
                 <tr>
-                  <td>${d.date}</td>
-                  <td><strong>${d.dayOfWeek}</strong></td>
-                  <td><span class="status-pill status-${d.punches.length > 0 ? 'present' : 'absent'}">${d.status}</span></td>
-                  <td>
-                    <div class="punch-matrix-row">
-                      ${d.punches.length > 0 ? d.punches.map(p => `<span class="punch-chip">${p}</span>`).join('') : '<span style="color: var(--text-sub);">-</span>'}
-                    </div>
-                  </td>
-                  <td>${d.regularHours} hrs</td>
-                  <td>${d.otHours > 0 ? `<span style="color: var(--primary); font-weight: 700;">${d.otHours}h</span>` : '-'}</td>
-                  <td>${d.nightDiffHours > 0 ? `<span style="color: var(--accent-purple); font-weight: 700;">${d.nightDiffHours}h</span>` : '-'}</td>
+                  <th>Date</th>
+                  <th>Day</th>
+                  <th>Status</th>
+                  <th>Punches</th>
+                  <th>Reg</th>
+                  <th>OT</th>
                 </tr>
-              `).join('')}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                ${timecard.dailyBreakdown.map(d => `
+                  <tr>
+                    <td>${d.date.slice(5)}</td>
+                    <td><strong>${d.dayOfWeek}</strong></td>
+                    <td><span class="pill ${d.punches.length > 0 ? 'pill-emerald' : 'pill-rose'}">${d.status}</span></td>
+                    <td style="font-family: monospace;">${d.punches.join(', ') || '-'}</td>
+                    <td>${d.regularHours}h</td>
+                    <td style="color: var(--bento-orange); font-weight: 700;">${d.otHours > 0 ? `${d.otHours}h` : '-'}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
         </div>
+
       </div>
-    </div>
+    </main>
   `;
 }
 
@@ -806,15 +647,14 @@ function staffSelfPunch(employeeId) {
   const result = window.DeviceSync.simulateLivePunch(employeeId);
   const feedback = document.getElementById('punch-feedback');
   if (feedback) {
-    feedback.innerHTML = `<span style="color: var(--accent-success);">${ICONS.check} ${result.message}</span>`;
+    feedback.innerHTML = `<span style="color: #ffffff; background: rgba(0,0,0,0.3); padding: 0.3rem 0.6rem; border-radius: 6px;">✓ ${result.message}</span>`;
   }
-  // Refresh payroll cache
   cachedPayrollSummary = window.PayrollEngine.runBranchPayroll(activeCutoff);
   setTimeout(() => renderApp(), 1200);
 }
 
 /* ==========================================================================
-   Payslip Generator & Modal
+   Payslip Generator
    ========================================================================== */
 
 function showEmployeePayslip(employeeId) {
@@ -842,7 +682,7 @@ function showEmployeePayslip(employeeId) {
           <div class="payslip-title">
             <h2>RON'S CHICKEN</h2>
             <p>Lechon Manok & Liempo • Cugman Branch, Cagayan de Oro</p>
-            <p style="font-size: 0.72rem; color: #6b7280;">Contact: 0928 775 6605 • Biometric Attendance Verified</p>
+            <p style="font-size: 0.72rem; color: #6b7280;">Deli e3960 Biometric Verified Attendance</p>
           </div>
         </div>
         <div style="text-align: right;">
@@ -852,7 +692,7 @@ function showEmployeePayslip(employeeId) {
         </div>
       </div>
 
-      <div style="background: #f9fafb; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.8rem;">
+      <div style="background: #f9fafb; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.8rem;">
         <div><strong>Employee ID:</strong> #${emp.id}</div>
         <div><strong>Employee Name:</strong> ${emp.name}</div>
         <div><strong>Department:</strong> ${emp.department}</div>
@@ -898,20 +738,20 @@ function showEmployeePayslip(employeeId) {
           <div class="payslip-section-title">DEDUCTIONS</div>
           ${payroll.deductions.late > 0 ? `
             <div class="payslip-row">
-              <span>Tardiness / Late (${payroll.lateMinutes} mins):</span>
+              <span>Tardiness / Late:</span>
               <span>-₱${payroll.deductions.late.toFixed(2)}</span>
             </div>
           ` : ''}
           <div class="payslip-row">
-            <span>SSS EE Contribution:</span>
+            <span>SSS Contribution:</span>
             <span>-₱${payroll.deductions.sss.toFixed(2)}</span>
           </div>
           <div class="payslip-row">
-            <span>PhilHealth EE:</span>
+            <span>PhilHealth:</span>
             <span>-₱${payroll.deductions.philHealth.toFixed(2)}</span>
           </div>
           <div class="payslip-row">
-            <span>Pag-IBIG (HDMF):</span>
+            <span>Pag-IBIG:</span>
             <span>-₱${payroll.deductions.pagIbig.toFixed(2)}</span>
           </div>
           ${payroll.deductions.cashAdvance > 0 ? `
@@ -950,12 +790,8 @@ function showEmployeePayslip(employeeId) {
   openModal('payslip-modal');
 }
 
-function showTimecardDetail(employeeId) {
-  showEmployeePayslip(employeeId);
-}
-
 /* ==========================================================================
-   Modals & Event Handlers
+   Modals & File Upload
    ========================================================================== */
 
 function openModal(id) {
@@ -978,91 +814,40 @@ async function handleFileSelected(event) {
 
   const statusEl = document.getElementById('upload-status');
   if (statusEl) {
-    statusEl.innerHTML = `<span style="color: var(--primary);">Processing ${file.name}...</span>`;
+    statusEl.innerHTML = `<span style="color: var(--bento-orange);">Processing ${file.name}...</span>`;
   }
 
   try {
     const result = await window.DeviceSync.processUploadedFile(file);
     if (result.success) {
       if (statusEl) {
-        statusEl.innerHTML = `<span style="color: var(--accent-success); font-weight: 700;">✓ ${result.message}</span>`;
+        statusEl.innerHTML = `<span style="color: var(--accent-emerald); font-weight: 700;">✓ ${result.message}</span>`;
       }
       cachedPayrollSummary = window.PayrollEngine.runBranchPayroll(activeCutoff);
       setTimeout(() => {
         closeModal('upload-modal');
         renderApp();
-      }, 1500);
-    } else {
-      if (statusEl) {
-        statusEl.innerHTML = `<span style="color: var(--accent-flame);">${result.message}</span>`;
-      }
+      }, 1400);
     }
   } catch (err) {
     if (statusEl) {
-      statusEl.innerHTML = `<span style="color: var(--accent-flame);">Error parsing file: ${err.message}</span>`;
+      statusEl.innerHTML = `<span style="color: var(--accent-rose);">Error: ${err.message}</span>`;
     }
-  }
-}
-
-function openSimulatePunchModal() {
-  const employees = window.DB.getEmployees();
-  const empId = prompt(`Enter Employee ID (1 - ${employees.length}) to simulate biometric scan:`, "12");
-  if (empId) {
-    const result = window.DeviceSync.simulateLivePunch(Number(empId));
-    alert(result.message);
-    cachedPayrollSummary = window.PayrollEngine.runBranchPayroll(activeCutoff);
-    renderApp();
-  }
-}
-
-async function testDeviceConnection() {
-  const ip = document.getElementById('device-ip')?.value || "192.168.1.201";
-  const port = document.getElementById('device-port')?.value || 4370;
-  const resultDiv = document.getElementById('device-test-result');
-  if (resultDiv) {
-    resultDiv.innerHTML = `<span style="color: var(--primary);">Testing communication with ${ip}:${port}...</span>`;
-  }
-
-  const res = await window.DeviceSync.testConnection(ip, port);
-  if (resultDiv) {
-    resultDiv.innerHTML = `
-      <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); padding: 0.85rem; border-radius: var(--radius-sm); color: #fff;">
-        <div style="color: var(--accent-success); font-weight: 700; margin-bottom: 0.3rem;">✓ Communication Established (Latency: ${res.latency}ms)</div>
-        <div>Device: ${res.firmware} (S/N: ${res.serialNumber})</div>
-        <div>Registered Staff: ${res.userCount} | Stored Logs: ${res.logCount}</div>
-      </div>
-    `;
   }
 }
 
 function recalculatePayroll() {
   cachedPayrollSummary = window.PayrollEngine.runBranchPayroll(activeCutoff);
   renderApp();
-  alert("Payroll recalculated successfully for all employees.");
-}
-
-function filterAttendanceTable() {
-  const search = document.getElementById('search-employee')?.value.toLowerCase() || '';
-  const dept = document.getElementById('filter-dept')?.value || '';
-  const rows = document.querySelectorAll('#attendance-table tbody tr');
-
-  rows.forEach(row => {
-    const name = row.getAttribute('data-name') || '';
-    const d = row.getAttribute('data-dept') || '';
-    const matchName = name.includes(search);
-    const matchDept = !dept || d === dept;
-    row.style.display = (matchName && matchDept) ? '' : 'none';
-  });
+  alert("Payroll recalculated successfully.");
 }
 
 function exportPayrollCSV() {
   const summary = cachedPayrollSummary || window.PayrollEngine.runBranchPayroll(activeCutoff);
   let csv = "Employee ID,Full Name,Department,Position,Daily Rate,Days Present,Regular Hours,OT Hours,Night Diff Hours,Basic Pay,OT Pay,Night Diff Pay,Allowances,Gross Pay,SSS EE,PhilHealth EE,PagIBIG,Cash Advance Vale,Total Deductions,Net Pay\n";
-  
   summary.records.forEach(r => {
     csv += `"${r.employeeId}","${r.employeeName}","${r.department}","${r.position}",${r.dailyRate},${r.daysPresent},${r.regularHours},${r.otHours},${r.nightDiffHours},${r.earnings.basicPay},${r.earnings.otPay},${r.earnings.nightDiffPay},${r.earnings.allowances},${r.earnings.grossPay},${r.deductions.sss},${r.deductions.philHealth},${r.deductions.pagIbig},${r.deductions.cashAdvance},${r.deductions.totalDeductions},${r.netPay}\n`;
   });
-
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -1074,13 +859,11 @@ function exportPayrollCSV() {
 function exportAttendanceCSV() {
   const employees = window.DB.getEmployees();
   let csv = "Employee ID,Name,Date,Time,Punch Source\n";
-  
   employees.forEach(e => {
     (e.attendanceLogs || []).forEach(p => {
       csv += `"${e.id}","${e.name}","${p.date}","${p.time}","${p.source}"\n`;
     });
   });
-
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -1089,21 +872,14 @@ function exportAttendanceCSV() {
   a.click();
 }
 
-function attachManagerEvents() {}
-function attachStaffEvents() {}
-
-// Global Exposure
+// Global Exports
 window.navigateTo = navigateTo;
 window.setMode = setMode;
 window.openUploadModal = openUploadModal;
 window.closeModal = closeModal;
 window.handleFileSelected = handleFileSelected;
 window.showEmployeePayslip = showEmployeePayslip;
-window.showTimecardDetail = showTimecardDetail;
-window.openSimulatePunchModal = openSimulatePunchModal;
-window.testDeviceConnection = testDeviceConnection;
 window.recalculatePayroll = recalculatePayroll;
-window.filterAttendanceTable = filterAttendanceTable;
 window.exportPayrollCSV = exportPayrollCSV;
 window.exportAttendanceCSV = exportAttendanceCSV;
 window.changeStaffUser = changeStaffUser;
