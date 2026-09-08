@@ -25,28 +25,34 @@
       padding: 0;
     }
 
+    @page {
+      size: A4 portrait;
+      margin: 6mm 8mm;
+    }
+
     body {
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       color: var(--gray-900);
       background: #f1f5f9;
-      padding: 2.5rem 1rem;
-      line-height: 1.6;
+      padding: 1rem 0.5rem;
+      line-height: 1.35;
+      font-size: 0.8rem;
     }
 
     .document-container {
-      max-width: 850px;
+      max-width: 800px;
       margin: 0 auto;
       background: #ffffff;
-      padding: 3.5rem 3.5rem;
-      border-radius: 12px;
+      padding: 1.5rem 1.75rem;
+      border-radius: 8px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
       border: 1px solid var(--gray-200);
     }
 
     /* Print Button Bar */
     .action-bar {
-      max-width: 850px;
-      margin: 0 auto 1.5rem;
+      max-width: 800px;
+      margin: 0 auto 0.75rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -55,15 +61,15 @@
     .btn-print {
       background: #d97706;
       color: #fff;
-      padding: 0.65rem 1.25rem;
+      padding: 0.45rem 1rem;
       border-radius: 6px;
       font-weight: 700;
-      font-size: 0.9rem;
+      font-size: 0.82rem;
       border: none;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.4rem;
       box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
     }
 
@@ -77,28 +83,30 @@
       justify-content: space-between;
       align-items: flex-start;
       border-bottom: 2px solid var(--gray-900);
-      padding-bottom: 1.5rem;
-      margin-bottom: 2rem;
+      padding-bottom: 0.5rem;
+      margin-bottom: 0.65rem;
     }
 
     .brand-title {
       font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.5rem;
+      font-size: 1.25rem;
       font-weight: 800;
       color: var(--dark);
       letter-spacing: -0.02em;
+      line-height: 1.15;
     }
 
     .brand-sub {
-      font-size: 0.82rem;
+      font-size: 0.75rem;
       color: var(--gray-600);
-      margin-top: 0.25rem;
+      margin-top: 0.15rem;
     }
 
     .proposal-meta {
       text-align: right;
-      font-size: 0.82rem;
+      font-size: 0.74rem;
       color: var(--gray-600);
+      line-height: 1.3;
     }
 
     .proposal-meta strong {
@@ -109,98 +117,101 @@
       display: inline-block;
       background: #fef3c7;
       color: #92400e;
-      font-size: 0.75rem;
+      font-size: 0.68rem;
       font-weight: 800;
-      padding: 0.25rem 0.6rem;
+      padding: 0.15rem 0.45rem;
       border-radius: 4px;
       text-transform: uppercase;
-      margin-bottom: 0.4rem;
+      margin-bottom: 0.2rem;
     }
 
     /* Client Info */
     .client-card {
       background: var(--gray-50);
       border: 1px solid var(--gray-200);
-      border-radius: 8px;
-      padding: 1.25rem 1.5rem;
-      margin-bottom: 2rem;
+      border-radius: 6px;
+      padding: 0.55rem 0.85rem;
+      margin-bottom: 0.65rem;
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      font-size: 0.88rem;
+      gap: 0.75rem;
+      font-size: 0.78rem;
+      line-height: 1.3;
     }
 
     .client-card h4 {
-      font-size: 0.78rem;
+      font-size: 0.7rem;
       text-transform: uppercase;
       color: var(--primary-dark);
       letter-spacing: 0.05em;
-      margin-bottom: 0.3rem;
+      margin-bottom: 0.15rem;
     }
 
     /* Section Headings */
     .section-title {
-      font-size: 1.05rem;
+      font-size: 0.86rem;
       font-weight: 800;
       color: var(--dark);
       border-bottom: 1px solid var(--gray-200);
-      padding-bottom: 0.4rem;
-      margin: 1.75rem 0 1rem;
+      padding-bottom: 0.15rem;
+      margin: 0.6rem 0 0.45rem;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.35rem;
     }
 
-    /* Scope Items */
+    /* Scope Items (3 Columns) */
     .scope-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.45rem;
+      margin-bottom: 0.65rem;
     }
 
     .scope-card {
       background: #fff;
       border: 1px solid var(--gray-200);
-      border-radius: 8px;
-      padding: 1rem 1.15rem;
-      font-size: 0.84rem;
+      border-radius: 5px;
+      padding: 0.45rem 0.65rem;
+      font-size: 0.73rem;
     }
 
     .scope-card strong {
       display: block;
       color: var(--dark);
-      font-size: 0.9rem;
-      margin-bottom: 0.25rem;
+      font-size: 0.76rem;
+      margin-bottom: 0.1rem;
     }
 
     .scope-card p {
       color: var(--gray-600);
-      line-height: 1.45;
+      line-height: 1.25;
+      font-size: 0.71rem;
     }
 
     /* Pricing Table */
     .table-pricing {
       width: 100%;
       border-collapse: collapse;
-      margin: 1.25rem 0;
-      font-size: 0.88rem;
+      margin: 0.45rem 0;
+      font-size: 0.76rem;
     }
 
     .table-pricing th {
       background: var(--dark);
       color: #ffffff;
       text-align: left;
-      padding: 0.75rem 1rem;
-      font-size: 0.8rem;
+      padding: 0.4rem 0.65rem;
+      font-size: 0.7rem;
       text-transform: uppercase;
       letter-spacing: 0.04em;
     }
 
     .table-pricing td {
-      padding: 0.9rem 1rem;
+      padding: 0.45rem 0.65rem;
       border-bottom: 1px solid var(--gray-200);
       vertical-align: top;
+      line-height: 1.25;
     }
 
     .table-pricing tr:last-child td {
@@ -209,32 +220,33 @@
 
     .total-row td {
       font-weight: 800;
-      font-size: 1.05rem;
+      font-size: 0.86rem;
       background: var(--gray-50);
       color: var(--dark);
       border-top: 2px solid var(--gray-900);
+      padding: 0.45rem 0.65rem;
     }
 
     /* Milestone Box */
     .milestone-box {
       background: #fffbeb;
       border: 1px solid #fde68a;
-      border-radius: 8px;
-      padding: 1.25rem 1.5rem;
-      margin: 1.25rem 0 2rem;
-      font-size: 0.85rem;
+      border-radius: 5px;
+      padding: 0.45rem 0.75rem;
+      margin: 0.45rem 0 0.65rem;
+      font-size: 0.74rem;
     }
 
     .milestone-box h4 {
       color: #92400e;
-      font-size: 0.9rem;
-      margin-bottom: 0.5rem;
+      font-size: 0.76rem;
+      margin-bottom: 0.2rem;
     }
 
     .milestone-step {
       display: flex;
       justify-content: space-between;
-      padding: 0.4rem 0;
+      padding: 0.15rem 0;
       border-bottom: 1px dashed #fcd34d;
     }
 
@@ -244,22 +256,24 @@
 
     /* Conforme Section */
     .conforme-section {
-      margin-top: 3rem;
+      margin-top: 0.65rem;
       border-top: 2px solid var(--gray-900);
-      padding-top: 1.5rem;
+      padding-top: 0.45rem;
+      page-break-inside: avoid;
+      break-inside: avoid;
     }
 
     .conforme-text {
-      font-size: 0.82rem;
+      font-size: 0.72rem;
       color: var(--gray-600);
-      margin-bottom: 2rem;
-      line-height: 1.5;
+      margin-bottom: 0.65rem;
+      line-height: 1.25;
     }
 
     .signatures-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 3rem;
+      gap: 2rem;
     }
 
     .sig-box {
@@ -268,18 +282,18 @@
 
     .sig-line {
       border-top: 1px solid var(--gray-900);
-      margin-top: 3rem;
-      padding-top: 0.4rem;
+      margin-top: 1.25rem;
+      padding-top: 0.25rem;
     }
 
     .sig-name {
       font-weight: 800;
-      font-size: 0.95rem;
+      font-size: 0.84rem;
       color: var(--dark);
     }
 
     .sig-title {
-      font-size: 0.8rem;
+      font-size: 0.72rem;
       color: var(--gray-600);
     }
 
@@ -287,15 +301,21 @@
       body {
         background: #fff;
         padding: 0;
+        margin: 0;
       }
       .document-container {
         border: none;
         box-shadow: none;
-        padding: 1.5rem 1.5rem;
+        padding: 0;
         max-width: 100%;
+        margin: 0;
       }
       .action-bar {
         display: none;
+      }
+      .conforme-section {
+        page-break-inside: avoid;
+        break-inside: avoid;
       }
     }
   </style>
@@ -435,21 +455,18 @@
 
       <div class="signatures-grid">
         <div class="sig-box">
-          <div style="font-size: 0.78rem; text-transform: uppercase; color: var(--gray-600); margin-bottom: 0.2rem;">Prepared By (Developer):</div>
+          <div style="font-size: 0.76rem; text-transform: uppercase; color: var(--gray-600); margin-bottom: 0.2rem;">Prepared By:</div>
           <div class="sig-line">
             <div class="sig-name">JASON JEFF D. VELASQUEZ</div>
-            <div class="sig-title">Software Developer / System Consultant</div>
-            <div style="font-size: 0.75rem; color: var(--gray-600); margin-top: 0.2rem;">Date: ________________________</div>
+            <div class="sig-title">Software Developer</div>
           </div>
         </div>
 
         <div class="sig-box">
-          <div style="font-size: 0.78rem; text-transform: uppercase; color: var(--gray-600); margin-bottom: 0.2rem;">Conforme:</div>
+          <div style="font-size: 0.76rem; text-transform: uppercase; color: var(--gray-600); margin-bottom: 0.2rem;">Conforme:</div>
           <div class="sig-line">
-            <div style="font-size: 0.8rem; color: var(--gray-600); margin-bottom: 0.25rem;">Signature over Printed Name:</div>
+            <div style="font-size: 0.78rem; color: var(--gray-600); margin-bottom: 0.25rem;">Signature over Printed Name:</div>
             <div style="font-weight: 700; color: var(--dark); font-size: 0.95rem; min-height: 20px;">________________________________________</div>
-            <div style="font-size: 0.82rem; color: var(--gray-600); margin-top: 0.4rem;">Full Name: _____________________________</div>
-            <div style="font-size: 0.82rem; color: var(--gray-600); margin-top: 0.4rem;">Date: __________________________________</div>
           </div>
         </div>
       </div>
