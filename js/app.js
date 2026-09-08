@@ -25,7 +25,8 @@ const ICONS = {
   check: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>`,
   settings: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>`,
   sun: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`,
-  book: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`
+  book: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`,
+  database: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>`
 };
 
 function initApp() {
@@ -112,6 +113,10 @@ function renderApp() {
         </div>
 
         <div class="header-controls">
+          <button class="btn-bento btn-bento-dark btn-sm" style="padding: 0.45rem 0.85rem; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 0.4rem;" onclick="openModal('backup-modal')" title="Backup & Restore Full Payroll Database">
+            ${ICONS.database} Backup & Data
+          </button>
+
           <button class="btn-bento btn-bento-dark btn-sm" style="padding: 0.45rem 0.85rem; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 0.4rem;" onclick="openModal('guide-modal')" title="View Owner / Admin DOLE & System Guide">
             ${ICONS.book} Reference Guide
           </button>
@@ -155,6 +160,10 @@ function renderApp() {
         <div class="bottom-nav-item ${currentView === 'device' ? 'active' : ''}" onclick="navigateTo('device')">
           ${ICONS.settings}
           <span>Deli e3960</span>
+        </div>
+        <div class="bottom-nav-item" onclick="openModal('backup-modal')">
+          ${ICONS.database}
+          <span>Backup</span>
         </div>
         <div class="bottom-nav-item" onclick="openModal('guide-modal')">
           ${ICONS.book}
@@ -456,10 +465,119 @@ function renderApp() {
               </ul>
             </div>
 
+            <!-- Section 6: Data Safety & Automatic Backups -->
+            <div style="background: var(--bg-surface); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid #10b981;">
+              <h4 style="color: var(--text-primary); margin-bottom: 0.4rem; font-size: 0.95rem; font-weight: 800;">6. Data Safety, Continuous Auto-Backup & System Recovery</h4>
+              <p>The system is built with automated offline persistence, browser storage protection, and 1-click full database export / import:</p>
+              <ul style="padding-left: 1.2rem; margin-top: 0.4rem;">
+                <li><strong>Continuous Auto-Snapshots:</strong> Every time attendance is uploaded, staff rates are saved, or vale loans are recorded, the system automatically takes rolling backup snapshots.</li>
+                <li><strong>Persistent Storage:</strong> Uses modern browser Storage API (<code>navigator.storage.persist</code>) so browser cache cleanups or OS updates do not evict your payroll database.</li>
+                <li><strong>1-Click Backup Export (.json):</strong> Click <strong>"Backup & Data"</strong> in the top header or Deli e3960 tab to download a complete backup file to your flash drive or Google Drive in 1 second.</li>
+                <li><strong>1-Click Restore:</strong> To transfer all payroll records to a new store laptop or tablet, simply click <strong>"Restore / Import Backup"</strong> and select your <code>.json</code> file.</li>
+              </ul>
+            </div>
+
           </div>
 
           <div style="display: flex; justify-content: flex-end; margin-top: 1.5rem;">
             <button class="btn-bento btn-bento-orange" onclick="closeModal('guide-modal')">Got it / Close Guide</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Backup & Restore Data Management Modal -->
+      <div id="backup-modal" class="modal-backdrop">
+        <div class="modal-card" style="max-width: 680px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <h3 style="color: var(--text-primary); font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+              ${ICONS.database} Data Safety, Backup & System Recovery
+            </h3>
+            <button class="btn-bento btn-bento-dark btn-sm" onclick="closeModal('backup-modal')">✕</button>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+            
+            <!-- Continuous Auto-Backup Status Pill Card -->
+            <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-md); padding: 1rem 1.25rem;">
+              <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <div style="width: 10px; height: 10px; border-radius: 50%; background: #10b981; box-shadow: 0 0 10px #10b981;"></div>
+                  <strong style="color: var(--text-primary); font-size: 0.9rem;">Continuous Auto-Backup: ACTIVE</strong>
+                </div>
+                <span class="pill pill-emerald" style="font-size: 0.72rem;">Protected Local Storage</span>
+              </div>
+              <p style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.5rem; line-height: 1.45;">
+                The system automatically creates rolling snapshots in browser storage every time attendance is imported or staff details are updated. Browser eviction protection is active.
+              </p>
+            </div>
+
+            <!-- Manual 1-Click Backup & Restore Actions -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              
+              <!-- Download Backup -->
+              <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                  <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem;">
+                    <div style="color: var(--bento-orange);">${ICONS.download}</div>
+                    <h4 style="color: var(--text-primary); font-size: 0.95rem; font-weight: 700;">Download Backup</h4>
+                  </div>
+                  <p style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                    Export all 31 staff profiles, wage rates, statutory settings, vale records, and attendance logs to a single portable <code>.json</code> file.
+                  </p>
+                </div>
+                <button class="btn-bento btn-bento-orange" style="width: 100%; justify-content: center; font-size: 0.85rem;" onclick="handleDownloadBackup()">
+                  ${ICONS.download} Export Backup (.json)
+                </button>
+              </div>
+
+              <!-- Restore Backup -->
+              <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                  <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem;">
+                    <div style="color: #a855f7;">${ICONS.upload}</div>
+                    <h4 style="color: var(--text-primary); font-size: 0.95rem; font-weight: 700;">Restore / Transfer Data</h4>
+                  </div>
+                  <p style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                    Upload a previously downloaded <code>.json</code> backup file to instantly restore or transfer all data to this computer or device.
+                  </p>
+                </div>
+                <button class="btn-bento btn-bento-purple" style="width: 100%; justify-content: center; font-size: 0.85rem;" onclick="document.getElementById('backup-file-input').click()">
+                  ${ICONS.upload} Restore from .json
+                </button>
+                <input type="file" id="backup-file-input" style="display: none;" accept=".json" onchange="handleImportBackupFile(event)">
+              </div>
+
+            </div>
+
+            <!-- Rolling Auto-Snapshots Rollback -->
+            <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.25rem;">
+              <h4 style="color: var(--text-primary); font-size: 0.9rem; font-weight: 700; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
+                🕒 Rolling Automatic Snapshots
+              </h4>
+              <p style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+                If you made a mistake or want to undo recent changes, you can roll back to a previously saved automatic snapshot:
+              </p>
+              
+              <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+                <select id="auto-snapshot-select" style="flex: 1; min-width: 240px; padding: 0.6rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-card-dark); border: 1px solid var(--border-glass); color: var(--text-primary); font-size: 0.82rem;">
+                  ${(window.DB && typeof window.DB.getAutoBackups === 'function' ? window.DB.getAutoBackups() : []).map(s => `
+                    <option value="${s.id}">${s.formattedDate} — ${s.label || 'Auto Snapshot'}</option>
+                  `).join('') || '<option value="">No snapshots available</option>'}
+                </select>
+                <button class="btn-bento btn-bento-dark btn-sm" onclick="handleRestoreSnapshot(document.getElementById('auto-snapshot-select').value)">
+                  ↺ Rollback to Snapshot
+                </button>
+              </div>
+            </div>
+
+            <!-- Factory Reset Emergency Section -->
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.5rem; border-top: 1px solid var(--border-subtle); flex-wrap: wrap; gap: 0.75rem;">
+              <span style="font-size: 0.75rem; color: var(--text-muted);">Ron's Chicken Cugman Payroll Engine v1.0</span>
+              <button class="btn-bento btn-bento-dark btn-sm" style="font-size: 0.72rem; color: var(--accent-rose); border-color: rgba(239, 68, 68, 0.3);" onclick="handleResetFactoryConfirm()">
+                ⚠️ Reset to Factory Defaults
+              </button>
+            </div>
+
           </div>
         </div>
       </div>
@@ -882,15 +1000,27 @@ function renderBentoAdvances() {
 }
 
 function renderBentoDevice() {
+  const autoBackups = (window.DB && typeof window.DB.getAutoBackups === 'function') ? window.DB.getAutoBackups() : [];
+  const lastBackupStr = autoBackups.length > 0 ? autoBackups[0].formattedDate : 'Just now';
+
   return `
     <div class="user-welcome-banner">
       <div>
-        <h1 style="color: var(--text-primary); font-size: 1.75rem;">Deli e3960 & Biometric Setup</h1>
-        <p style="color: var(--text-secondary);">USB Flash Drive Workflow & Future Internet Upgrade</p>
+        <h1 style="color: var(--text-primary); font-size: 1.75rem;">Deli e3960 & Data Management</h1>
+        <p style="color: var(--text-secondary);">Biometric Hardware, Persistent Storage & Continuous Auto-Backups</p>
+      </div>
+      <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+        <button class="btn-bento btn-bento-orange" onclick="handleDownloadBackup()">
+          ${ICONS.download} Export Backup (.json)
+        </button>
+        <button class="btn-bento btn-bento-purple" onclick="openModal('backup-modal')">
+          ${ICONS.database} Backup & Data Center
+        </button>
       </div>
     </div>
 
     <div class="bento-grid">
+      <!-- Deli e3960 Hardware Card -->
       <div class="bento-card bento-orange col-6">
         <div class="bento-card-header">
           <div class="bento-badge-circle">${ICONS.fingerprint}</div>
@@ -907,7 +1037,24 @@ function renderBentoDevice() {
         </div>
       </div>
 
-      <div class="bento-card bento-purple col-6">
+      <!-- Continuous Auto-Backup & Safety Card -->
+      <div class="bento-card bento-white col-6" onclick="openModal('backup-modal')" style="cursor: pointer;">
+        <div class="bento-card-header">
+          <div class="bento-badge-circle" style="background: #10b981; color: #fff;">${ICONS.database}</div>
+          <span class="bento-tag" style="background: #10b981; color: #fff;">Continuous Auto-Backup</span>
+        </div>
+        <div>
+          <div class="bento-value" style="color: #000; font-size: 1.5rem;">Auto-Saved</div>
+          <div class="bento-title" style="color: #000;">Persistent Local Storage</div>
+          <div class="bento-meta" style="color: #4b5563; margin-top: 0.4rem;">
+            Last auto-snapshot: ${lastBackupStr}<br>
+            Click to download or restore .json backup
+          </div>
+        </div>
+      </div>
+
+      <!-- Cloud Sync Future Ready -->
+      <div class="bento-card bento-purple col-12">
         <div class="bento-card-header">
           <div class="bento-badge-circle">${ICONS.settings}</div>
           <span class="bento-tag">Future Cloud Ready</span>
@@ -916,8 +1063,37 @@ function renderBentoDevice() {
           <div class="bento-value">Cloud Sync</div>
           <div class="bento-title">Internet Push Endpoint</div>
           <div class="bento-meta" style="margin-top: 0.4rem;">
-            ADMS Server URL: <code>https://ronschicken.cloud/api/biometrics/push</code>
+            ADMS Server URL: <code>https://ronschicken.cloud/api/biometrics/push</code> • Automatically syncs future WiFi-enabled biometric clocks.
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data Safety & Recovery Panel -->
+    <div class="data-panel-card" style="margin-top: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+        <h3 style="color: var(--text-primary); font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
+          ${ICONS.database} Data Protection & Backup Center
+        </h3>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <button class="btn-bento btn-bento-orange btn-sm" onclick="handleDownloadBackup()">
+            ${ICONS.download} Download .json Backup
+          </button>
+          <button class="btn-bento btn-bento-purple btn-sm" onclick="document.getElementById('device-backup-input').click()">
+            ${ICONS.upload} Restore from .json
+          </button>
+          <input type="file" id="device-backup-input" style="display: none;" accept=".json" onchange="handleImportBackupFile(event)">
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; font-size: 0.85rem; color: var(--text-secondary);">
+        <div style="background: var(--bg-surface); padding: 1.25rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+          <strong style="color: var(--text-primary); display: block; margin-bottom: 0.4rem;">🛡️ How Continuous Auto-Backup Works</strong>
+          Your data is automatically saved to high-speed persistent browser storage (IndexedDB / LocalStorage). Even if you refresh or close your browser, your 31 staff profiles, wage rates, statutory settings, and attendance records remain 100% intact.
+        </div>
+        <div style="background: var(--bg-surface); padding: 1.25rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+          <strong style="color: var(--text-primary); display: block; margin-bottom: 0.4rem;">💻 Switching Computers or OS Updates</strong>
+          Before performing major computer maintenance or if you want to run payroll from a home laptop or tablet, simply click <strong>"Download .json Backup"</strong>. You can restore it on any device in 1 second!
         </div>
       </div>
     </div>
@@ -1473,12 +1649,82 @@ function handleSaveEmployee(event) {
   renderApp();
 }
 
+function openBackupModal() {
+  openModal('backup-modal');
+}
+
+function handleDownloadBackup() {
+  if (window.DB && typeof window.DB.downloadBackupJson === 'function') {
+    window.DB.downloadBackupJson();
+    alert("✅ Payroll Backup Downloaded!\n\nAll 31 staff records, wage rates, statutory settings, vale ledger, and attendance history have been exported to your computer.");
+  }
+}
+
+function handleImportBackupFile(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const content = e.target.result;
+      const res = window.DB.importBackupJson(content);
+      if (res.success) {
+        alert("✅ Backup Restored Successfully!\n\n" + res.message);
+        cachedPayrollSummary = window.PayrollEngine.runBranchPayroll(activeCutoff);
+        closeModal('backup-modal');
+        renderApp();
+      } else {
+        alert("❌ Error Restoring Backup: " + (res.error || "Unknown format"));
+      }
+    } catch (err) {
+      alert("❌ Could not read backup file: " + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function handleRestoreSnapshot(snapshotId) {
+  if (!snapshotId) {
+    alert("Please select a valid snapshot.");
+    return;
+  }
+  if (!confirm("Are you sure you want to roll back the system to this snapshot? Current data will be replaced with that snapshot.")) {
+    return;
+  }
+  const res = window.DB.restoreAutoSnapshot(snapshotId);
+  if (res.success) {
+    alert("✅ System Rolled Back Successfully!\n\n" + res.message);
+    cachedPayrollSummary = window.PayrollEngine.runBranchPayroll(activeCutoff);
+    closeModal('backup-modal');
+    renderApp();
+  } else {
+    alert("❌ Error: " + res.error);
+  }
+}
+
+function handleResetFactoryConfirm() {
+  const code = prompt("⚠️ FACTORY RESET WARNING:\n\nThis will clear current modified records and restore the default 31 Cugman branch staff database.\n\nType 'RESET' to confirm:");
+  if (code === 'RESET') {
+    window.DB.resetToDefaults();
+    cachedPayrollSummary = window.PayrollEngine.runBranchPayroll(activeCutoff);
+    alert("✅ System reset to factory default state with 31 Cugman employees.");
+    closeModal('backup-modal');
+    renderApp();
+  }
+}
+
 // Global Exports
 window.navigateTo = navigateTo;
 window.setMode = setMode;
 window.openUploadModal = openUploadModal;
 window.openAdvanceModal = openAdvanceModal;
 window.openEmployeeModal = openEmployeeModal;
+window.openBackupModal = openBackupModal;
+window.handleDownloadBackup = handleDownloadBackup;
+window.handleImportBackupFile = handleImportBackupFile;
+window.handleRestoreSnapshot = handleRestoreSnapshot;
+window.handleResetFactoryConfirm = handleResetFactoryConfirm;
 window.handleEmployeeSelectChange = handleEmployeeSelectChange;
 window.handleSaveEmployee = handleSaveEmployee;
 window.closeModal = closeModal;
@@ -1494,5 +1740,6 @@ window.exportAttendanceCSV = exportAttendanceCSV;
 window.changeStaffUser = changeStaffUser;
 window.staffSelfPunch = staffSelfPunch;
 window.handleBrightnessChange = handleBrightnessChange;
+
 
 

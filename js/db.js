@@ -2160,8 +2160,130 @@ class DB {
     this.savePayrollHistory(history);
   }
 
+  // Automatic Rolling Backups & Snapshots
+  static autoBackupSnapshot(label = 'Auto Snapshot') {
+    try {
+      const backupData = this.getFullBackupData(label);
+      let snapshots = [];
+      try {
+        snapshots = JSON.parse(localStorage.getItem('rons_payroll_autobackup_snapshots')) || [];
+      } catch (e) {
+        snapshots = [];
+      }
+      
+      // Keep up to 10 rolling snapshots
+      snapshots.unshift({
+        id: 'snap_' + Date.now(),
+        timestamp: new Date().toISOString(),
+        formattedDate: new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }),
+        label: label,
+        data: backupData
+      });
+
+      if (snapshots.length > 10) {
+        snapshots = snapshots.slice(0, 10);
+      }
+
+      localStorage.setItem('rons_payroll_autobackup_snapshots', JSON.stringify(snapshots));
+      localStorage.setItem('rons_payroll_last_autobackup', new Date().toISOString());
+    } catch (err) {
+      console.warn("[DB] Auto backup snapshot warning:", err);
+    }
+  }
+
+  static getAutoBackups() {
+    try {
+      return JSON.parse(localStorage.getItem('rons_payroll_autobackup_snapshots')) || [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  static getFullBackupData(label = 'Manual Export') {
+    return {
+      version: '1.0',
+      system: "Ron's Chicken Custom Payroll & Biometric Attendance System",
+      branch: "Cugman Branch (Cagayan de Oro)",
+      exportDate: new Date().toISOString(),
+      label: label,
+      payload: {
+        employees: this.getEmployees(),
+        shifts: this.getShifts(),
+        cutoffs: this.getCutoffs(),
+        advances: this.getAdvances(),
+        settings: this.getSettings(),
+        payrollHistory: this.getPayrollHistory(),
+        leaves: this.getLeaves(),
+        deviceConfig: this.getDeviceConfig()
+      }
+    };
+  }
+
+  static downloadBackupJson() {
+    this.autoBackupSnapshot('Pre-Export Snapshot');
+    const data = this.getFullBackupData('User Downloaded Backup');
+    const jsonStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+    const now = new Date();
+    const dateStr = now.toISOString().slice(0, 10);
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", jsonStr);
+    downloadAnchor.setAttribute("download", `rons_chicken_cugman_payroll_backup_${dateStr}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+    return true;
+  }
+
+  static importBackupJson(jsonString) {
+    try {
+      const parsed = typeof jsonString === 'string' ? JSON.parse(jsonString) : jsonString;
+      const payload = parsed.payload || parsed;
+
+      if (!payload || !payload.employees || !Array.isArray(payload.employees)) {
+        throw new Error("Invalid backup file format. Missing employee records.");
+      }
+
+      // Create safety snapshot before restoring
+      this.autoBackupSnapshot('Pre-Restore Safety Snapshot');
+
+      if (payload.employees) this.saveEmployees(payload.employees);
+      if (payload.shifts) this.saveShifts(payload.shifts);
+      if (payload.cutoffs) this.saveCutoffs(payload.cutoffs);
+      if (payload.advances) this.saveAdvances(payload.advances);
+      if (payload.settings) this.saveSettings(payload.settings);
+      if (payload.payrollHistory) this.savePayrollHistory(payload.payrollHistory);
+      if (payload.leaves) this.saveLeaves(payload.leaves);
+      if (payload.deviceConfig) this.saveDeviceConfig(payload.deviceConfig);
+
+      this.autoBackupSnapshot('Post-Restore Snapshot');
+      return { success: true, message: `Successfully restored ${payload.employees.length} employees and records.` };
+    } catch (err) {
+      console.error("[DB] Import Backup Error:", err);
+      return { success: false, error: err.message };
+    }
+  }
+
+  static restoreAutoSnapshot(snapshotId) {
+    const snapshots = this.getAutoBackups();
+    const target = snapshots.find(s => s.id === snapshotId);
+    if (!target || !target.data) {
+      return { success: false, error: "Snapshot not found." };
+    }
+    return this.importBackupJson(target.data);
+  }
+
+  static async requestPersistentStorage() {
+    if (navigator.storage && navigator.storage.persist) {
+      const isPersisted = await navigator.storage.persist();
+      console.log(`[DB] Persistent storage granted: ${isPersisted}`);
+      return isPersisted;
+    }
+    return false;
+  }
+
   // Reset to Default Factory State
   static resetToDefaults() {
+    this.autoBackupSnapshot('Pre-Reset Factory Snapshot');
     localStorage.clear();
     this.init();
   }
@@ -2169,5 +2291,10 @@ class DB {
 
 // Auto-initialize on load
 DB.init();
+if (typeof DB.requestPersistentStorage === 'function') {
+  DB.requestPersistentStorage().catch(() => {});
+}
+DB.autoBackupSnapshot('App Init Snapshot');
 
 window.DB = DB;
+
