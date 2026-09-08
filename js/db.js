@@ -1929,11 +1929,27 @@ class DB {
     }
     if (!localStorage.getItem(STORAGE_KEYS.ADVANCES)) {
       const defaultAdvances = [
-        { id: "VA-101", employeeId: 12, employeeName: "Argie Daliva", date: "2026-08-20", amount: 500, reason: "Family emergency allowance", status: "Active", deducted: 500 },
-        { id: "VA-102", employeeId: 19, employeeName: "Sherwin Cagas", date: "2026-08-25", amount: 350, reason: "Medicine vale", status: "Active", deducted: 350 },
-        { id: "VA-103", employeeId: 31, employeeName: "Josh Abenir", date: "2026-08-28", amount: 400, reason: "Motorcycle gas vale", status: "Active", deducted: 400 }
+        { id: "VA-101", employeeId: 12, employeeName: "Argie Daliva", type: "Cash Advance (Vale)", date: "2026-08-20", amount: 500, deductionPerCutoff: 500, reason: "Family emergency allowance", status: "Active", deducted: 0 },
+        { id: "VA-102", employeeId: 19, employeeName: "Sherwin Cagas", type: "Cash Advance (Vale)", date: "2026-08-25", amount: 350, deductionPerCutoff: 350, reason: "Medicine vale", status: "Active", deducted: 0 },
+        { id: "VA-103", employeeId: 31, employeeName: "Josh Abenir", type: "Cash Advance (Vale)", date: "2026-08-28", amount: 400, deductionPerCutoff: 400, reason: "Motorcycle gas vale", status: "Active", deducted: 0 }
       ];
       localStorage.setItem(STORAGE_KEYS.ADVANCES, JSON.stringify(defaultAdvances));
+    } else {
+      // Auto-migrate any legacy seed entries where deducted was set to amount
+      try {
+        const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.ADVANCES)) || [];
+        let modified = false;
+        stored.forEach(a => {
+          if (a.status === 'Active' && a.deducted === a.amount && (a.id === 'VA-101' || a.id === 'VA-102' || a.id === 'VA-103')) {
+            a.deducted = 0;
+            if (!a.deductionPerCutoff) a.deductionPerCutoff = a.amount;
+            modified = true;
+          }
+        });
+        if (modified) {
+          localStorage.setItem(STORAGE_KEYS.ADVANCES, JSON.stringify(stored));
+        }
+      } catch (e) {}
     }
     if (!localStorage.getItem(STORAGE_KEYS.DEVICE_CONFIG)) {
       const defaultDevice = {

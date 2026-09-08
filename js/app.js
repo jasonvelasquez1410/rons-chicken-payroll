@@ -247,6 +247,118 @@ function renderApp() {
         </div>
       </div>
 
+      <!-- Employee Profile & Statutory Details Modal -->
+      <div id="employee-modal" class="modal-backdrop">
+        <div class="modal-card" style="max-width: 680px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <h3 style="color: var(--text-primary); font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+              ${ICONS.employee} Staff Profile & Statutory Deduction Settings
+            </h3>
+            <button class="btn-bento btn-bento-dark btn-sm" onclick="closeModal('employee-modal')">✕</button>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
+            Configure staff wage rates, daily meal allowances, and government statutory deduction numbers (SSS, PhilHealth, Pag-IBIG, TIN) or custom deduction amounts.
+          </p>
+
+          <form id="employee-form" onsubmit="handleSaveEmployee(event)">
+            <input type="hidden" id="emp-edit-id">
+
+            <div style="display: grid; gap: 1.25rem;">
+              <!-- Employee Switcher -->
+              <div style="background: var(--bg-surface); padding: 0.75rem 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
+                <label style="font-size: 0.82rem; font-weight: 700; color: var(--text-primary); white-space: nowrap;">Active Staff Member:</label>
+                <select id="emp-select-switcher" onchange="handleEmployeeSelectChange(this.value)" style="flex: 1; padding: 0.5rem 0.75rem; border-radius: var(--radius-sm); background: var(--bg-card-dark); border: 1px solid var(--border-glass); color: var(--text-primary); font-size: 0.85rem;">
+                  ${window.DB.getEmployees().map(e => `
+                    <option value="${e.id}">#${e.id} ${e.name} (${e.position || e.department})</option>
+                  `).join('')}
+                </select>
+              </div>
+
+              <!-- Section 1: Basic Employment & Wage -->
+              <div>
+                <div style="font-size: 0.8rem; font-weight: 800; color: var(--bento-orange); text-transform: uppercase; margin-bottom: 0.6rem; letter-spacing: 0.05em;">
+                  1. Wage & Employment Details
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem;">
+                  <div>
+                    <label style="display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.3rem; color: var(--text-secondary);">Full Name</label>
+                    <input type="text" id="emp-name" required style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.85rem;">
+                  </div>
+                  <div>
+                    <label style="display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.3rem; color: var(--text-secondary);">Position / Role</label>
+                    <input type="text" id="emp-position" required style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.85rem;">
+                  </div>
+                  <div>
+                    <label style="display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.3rem; color: var(--text-secondary);">Daily Wage Rate (₱)</label>
+                    <input type="number" id="emp-daily-rate" step="0.5" required style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.85rem;">
+                  </div>
+                  <div>
+                    <label style="display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.3rem; color: var(--text-secondary);">Daily Meal Allowance (₱)</label>
+                    <input type="number" id="emp-allowance" step="0.5" required style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.85rem;">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section 2: Statutory Numbers & Contribution Settings -->
+              <div>
+                <div style="font-size: 0.8rem; font-weight: 800; color: #a855f7; text-transform: uppercase; margin-bottom: 0.6rem; letter-spacing: 0.05em;">
+                  2. Philippine Statutory Contributions (DOLE / BIR)
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem;">
+                  <div>
+                    <label style="display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.3rem; color: var(--text-secondary);">SSS Number</label>
+                    <input type="text" id="emp-sss-no" placeholder="34-10000000-1" style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.85rem;">
+                  </div>
+                  <div>
+                    <label style="display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.3rem; color: var(--text-secondary);">SSS Deduction (₱/Cutoff or Blank for Auto Table)</label>
+                    <input type="number" id="emp-sss-custom" step="0.5" placeholder="Auto DOLE table" style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.85rem;">
+                  </div>
+
+                  <div>
+                    <label style="display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.3rem; color: var(--text-secondary);">PhilHealth Number</label>
+                    <input type="text" id="emp-philhealth-no" placeholder="12-200000000-3" style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.85rem;">
+                  </div>
+                  <div>
+                    <label style="display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.3rem; color: var(--text-secondary);">PhilHealth Deduction (₱/Cutoff or Blank for Auto 5%)</label>
+                    <input type="number" id="emp-philhealth-custom" step="0.5" placeholder="Auto 5% (2.5% EE)" style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.85rem;">
+                  </div>
+
+                  <div>
+                    <label style="display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.3rem; color: var(--text-secondary);">Pag-IBIG (HDMF) Number</label>
+                    <input type="text" id="emp-pagibig-no" placeholder="1210-30000000-4" style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.85rem;">
+                  </div>
+                  <div>
+                    <label style="display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.3rem; color: var(--text-secondary);">Pag-IBIG Deduction (₱/Cutoff or Blank for ₱100)</label>
+                    <input type="number" id="emp-pagibig-custom" step="0.5" placeholder="Standard ₱100.00" style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.85rem;">
+                  </div>
+
+                  <div>
+                    <label style="display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.3rem; color: var(--text-secondary);">TIN (Tax ID Number)</label>
+                    <input type="text" id="emp-tin-no" placeholder="400-500000-000" style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.85rem;">
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 0.75rem; padding-top: 1.2rem; flex-wrap: wrap;">
+                    <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; color: var(--text-primary); cursor: pointer;">
+                      <input type="checkbox" id="emp-sss-exempt"> Exempt SSS
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; color: var(--text-primary); cursor: pointer;">
+                      <input type="checkbox" id="emp-phic-exempt"> Exempt PHIC
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; color: var(--text-primary); cursor: pointer;">
+                      <input type="checkbox" id="emp-hdmf-exempt"> Exempt HDMF
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 0.5rem;">
+                <button type="button" class="btn-bento btn-bento-dark" onclick="closeModal('employee-modal')">Cancel</button>
+                <button type="submit" class="btn-bento btn-bento-orange" style="font-weight: 800;">${ICONS.check} Save Staff & Update Payroll</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
       <!-- Payslip Printable Modal -->
       <div id="payslip-modal" class="modal-backdrop">
         <div class="modal-card" style="max-width: 760px; background: transparent; border: none; box-shadow: none;">
@@ -303,6 +415,9 @@ function renderManagerBentoDashboard() {
         </div>
       </div>
       <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+        <button class="btn-bento btn-bento-purple" onclick="openEmployeeModal()">
+          ${ICONS.employee} Staff & Statutory
+        </button>
         <button class="btn-bento btn-bento-white" onclick="generateAllBatchPayslips()">
           ${ICONS.print} Batch Print All Payslips (31 Staff)
         </button>
@@ -316,15 +431,15 @@ function renderManagerBentoDashboard() {
     <div class="bento-grid">
       
       <!-- Big Orange Bento Card: Employee Management -->
-      <div class="bento-card bento-orange col-7" onclick="navigateTo('attendance')">
+      <div class="bento-card bento-orange col-7" onclick="openEmployeeModal()" style="cursor: pointer;">
         <div class="bento-card-header">
           <div class="bento-badge-circle">${ICONS.employee}</div>
           <span class="bento-tag">31 Active Staff</span>
         </div>
         <div>
           <div class="bento-value">${employees.length} Staff</div>
-          <div class="bento-title">Employee & Biometrics Management</div>
-          <div class="bento-meta" style="margin-top: 0.4rem;">Cugman Roasters, Kitchen Prep, and Service Counter</div>
+          <div class="bento-title">Staff & Statutory Management</div>
+          <div class="bento-meta" style="margin-top: 0.4rem;">Configure SSS, PhilHealth, Pag-IBIG, TIN, and daily wage rates</div>
         </div>
       </div>
 
@@ -378,6 +493,9 @@ function renderManagerBentoDashboard() {
           ${ICONS.fingerprint} Deli e3960 Attendance Summary (${activeCutoff.name})
         </h3>
         <div style="display: flex; gap: 0.5rem;">
+          <button class="btn-bento btn-bento-purple btn-sm" onclick="openEmployeeModal()">
+            ${ICONS.employee} Staff & Statutory
+          </button>
           <button class="btn-bento btn-bento-orange btn-sm" onclick="generateAllBatchPayslips()">
             ${ICONS.print} Generate All Payslips
           </button>
@@ -397,7 +515,7 @@ function renderManagerBentoDashboard() {
               <th>Overtime</th>
               <th>Night Diff</th>
               <th>Net Pay</th>
-              <th>Generate Payslip</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -412,9 +530,14 @@ function renderManagerBentoDashboard() {
                 <td><span style="color: #a855f7; font-weight: 700;">${r.timecardSummary.totalNightDiffHours}h</span></td>
                 <td style="font-weight: 800; color: var(--accent-emerald);">₱${r.netPay.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
                 <td>
-                  <button class="btn-bento btn-bento-orange btn-sm" style="font-weight: 800;" onclick="showEmployeePayslip(${r.employeeId})">
-                    ${ICONS.print} Generate Payslip
-                  </button>
+                  <div style="display: flex; gap: 0.35rem;">
+                    <button class="btn-bento btn-bento-orange btn-sm" style="font-weight: 800; padding: 0.3rem 0.6rem;" onclick="showEmployeePayslip(${r.employeeId})">
+                      ${ICONS.print} Payslip
+                    </button>
+                    <button class="btn-bento btn-bento-dark btn-sm" style="font-size: 0.72rem; padding: 0.3rem 0.5rem;" onclick="openEmployeeModal(${r.employeeId})" title="Edit Staff & Statutory Settings">
+                      ⚙️
+                    </button>
+                  </div>
                 </td>
               </tr>
             `).join('')}
@@ -436,6 +559,7 @@ function renderBentoAttendance() {
         <p style="color: var(--text-secondary);">Deli e3960 USB Attendance Logs • 31 Cugman Employees</p>
       </div>
       <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+        <button class="btn-bento btn-bento-purple" onclick="openEmployeeModal()">${ICONS.employee} Staff & Statutory</button>
         <button class="btn-bento btn-bento-white" onclick="generateAllBatchPayslips()">${ICONS.print} Generate All Payslips</button>
         <button class="btn-bento btn-bento-dark" onclick="exportAttendanceCSV()">${ICONS.download} Export CSV</button>
         <button class="btn-bento btn-bento-orange" onclick="openUploadModal()">${ICONS.upload} Ingest USB .xls</button>
@@ -456,7 +580,7 @@ function renderBentoAttendance() {
               <th>OT (125%)</th>
               <th>Night Diff (10%)</th>
               <th>Late</th>
-              <th>Generate Payslip</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -475,9 +599,14 @@ function renderBentoAttendance() {
                   <td><span style="color: #a855f7; font-weight: 700;">${tc.totalNightDiffHours}h</span></td>
                   <td>${tc.totalLateMinutes > 0 ? `<span style="color: var(--accent-rose);">${tc.totalLateMinutes}m</span>` : '0m'}</td>
                   <td>
-                    <button class="btn-bento btn-bento-orange btn-sm" style="font-weight: 800;" onclick="showEmployeePayslip(${emp.id})">
-                      ${ICONS.print} Generate Payslip
-                    </button>
+                    <div style="display: flex; gap: 0.35rem;">
+                      <button class="btn-bento btn-bento-orange btn-sm" style="font-weight: 800; padding: 0.3rem 0.6rem;" onclick="showEmployeePayslip(${emp.id})">
+                        ${ICONS.print} Payslip
+                      </button>
+                      <button class="btn-bento btn-bento-dark btn-sm" style="font-size: 0.72rem; padding: 0.3rem 0.5rem;" onclick="openEmployeeModal(${emp.id})" title="Edit Staff & Statutory Settings">
+                        ⚙️
+                      </button>
+                    </div>
                   </td>
                 </tr>
               `;
@@ -499,7 +628,8 @@ function renderBentoPayroll() {
         <p style="color: var(--text-secondary);">${activeCutoff.name} • Ron's Chicken Cugman</p>
       </div>
       <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-        <button class="btn-bento btn-bento-orange" onclick="generateAllBatchPayslips()">${ICONS.print} Print / Generate All Payslips (31 Staff)</button>
+        <button class="btn-bento btn-bento-purple" onclick="openEmployeeModal()">${ICONS.employee} Edit Staff & Statutory</button>
+        <button class="btn-bento btn-bento-orange" onclick="generateAllBatchPayslips()">${ICONS.print} Print All Payslips (31 Staff)</button>
         <button class="btn-bento btn-bento-dark" onclick="exportPayrollCSV()">${ICONS.download} Bank Advice CSV</button>
         <button class="btn-bento btn-bento-purple" onclick="recalculatePayroll()">${ICONS.payroll} Recalculate</button>
       </div>
@@ -522,7 +652,7 @@ function renderBentoPayroll() {
               <th>SSS/PhilH/HDMF</th>
               <th>Vale</th>
               <th>Net Take-Home</th>
-              <th>Generate Payslip</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -541,9 +671,14 @@ function renderBentoPayroll() {
                 <td style="color: var(--accent-rose);">${r.deductions.cashAdvance > 0 ? `₱${r.deductions.cashAdvance.toFixed(2)}` : '-'}</td>
                 <td style="font-weight: 800; color: var(--accent-emerald); font-size: 0.95rem;">₱${r.netPay.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
                 <td>
-                  <button class="btn-bento btn-bento-orange btn-sm" style="font-weight: 800;" onclick="showEmployeePayslip(${r.employeeId})">
-                    ${ICONS.print} Generate Payslip
-                  </button>
+                  <div style="display: flex; gap: 0.35rem;">
+                    <button class="btn-bento btn-bento-orange btn-sm" style="font-weight: 800; padding: 0.3rem 0.6rem;" onclick="showEmployeePayslip(${r.employeeId})">
+                      ${ICONS.print} Payslip
+                    </button>
+                    <button class="btn-bento btn-bento-dark btn-sm" style="font-size: 0.72rem; padding: 0.3rem 0.5rem;" onclick="openEmployeeModal(${r.employeeId})" title="Edit Staff & Statutory Settings">
+                      ⚙️
+                    </button>
+                  </div>
                 </td>
               </tr>
             `).join('')}
@@ -1160,11 +1295,92 @@ function deleteAdvanceEntry(id) {
   }
 }
 
+function openEmployeeModal(employeeId) {
+  const employees = window.DB.getEmployees();
+  if (!employees || employees.length === 0) return;
+  const targetId = employeeId ? Number(employeeId) : (employees[0] ? employees[0].id : 1);
+  handleEmployeeSelectChange(targetId);
+  openModal('employee-modal');
+}
+
+function handleEmployeeSelectChange(employeeId) {
+  const emp = window.DB.getEmployeeById(Number(employeeId));
+  if (!emp) return;
+
+  const editIdEl = document.getElementById('emp-edit-id');
+  const switcherEl = document.getElementById('emp-select-switcher');
+  const nameEl = document.getElementById('emp-name');
+  const posEl = document.getElementById('emp-position');
+  const rateEl = document.getElementById('emp-daily-rate');
+  const allowEl = document.getElementById('emp-allowance');
+  const sssNoEl = document.getElementById('emp-sss-no');
+  const sssCustomEl = document.getElementById('emp-sss-custom');
+  const phicNoEl = document.getElementById('emp-philhealth-no');
+  const phicCustomEl = document.getElementById('emp-philhealth-custom');
+  const hdmfNoEl = document.getElementById('emp-pagibig-no');
+  const hdmfCustomEl = document.getElementById('emp-pagibig-custom');
+  const tinNoEl = document.getElementById('emp-tin-no');
+  const sssExemptEl = document.getElementById('emp-sss-exempt');
+  const phicExemptEl = document.getElementById('emp-phic-exempt');
+  const hdmfExemptEl = document.getElementById('emp-hdmf-exempt');
+
+  if (editIdEl) editIdEl.value = emp.id;
+  if (switcherEl) switcherEl.value = emp.id;
+  if (nameEl) nameEl.value = emp.name || '';
+  if (posEl) posEl.value = emp.position || '';
+  if (rateEl) rateEl.value = emp.dailyRate || 438;
+  if (allowEl) allowEl.value = emp.allowance || 50;
+  if (sssNoEl) sssNoEl.value = emp.sssNumber || '';
+  if (sssCustomEl) sssCustomEl.value = (emp.customSssAmount !== undefined && emp.customSssAmount !== null) ? emp.customSssAmount : '';
+  if (phicNoEl) phicNoEl.value = emp.philHealthNumber || '';
+  if (phicCustomEl) phicCustomEl.value = (emp.customPhilHealthAmount !== undefined && emp.customPhilHealthAmount !== null) ? emp.customPhilHealthAmount : '';
+  if (hdmfNoEl) hdmfNoEl.value = emp.pagIbigNumber || '';
+  if (hdmfCustomEl) hdmfCustomEl.value = (emp.customPagIbigAmount !== undefined && emp.customPagIbigAmount !== null) ? emp.customPagIbigAmount : '';
+  if (tinNoEl) tinNoEl.value = emp.tinNumber || '';
+  if (sssExemptEl) sssExemptEl.checked = !!emp.sssExempt;
+  if (phicExemptEl) phicExemptEl.checked = !!emp.philHealthExempt;
+  if (hdmfExemptEl) hdmfExemptEl.checked = !!emp.pagIbigExempt;
+}
+
+function handleSaveEmployee(event) {
+  event.preventDefault();
+  const empId = Number(document.getElementById('emp-edit-id').value);
+  const emp = window.DB.getEmployeeById(empId);
+  if (!emp) return;
+
+  const sssCustomVal = document.getElementById('emp-sss-custom').value;
+  const phicCustomVal = document.getElementById('emp-philhealth-custom').value;
+  const hdmfCustomVal = document.getElementById('emp-pagibig-custom').value;
+
+  emp.name = document.getElementById('emp-name').value.trim();
+  emp.position = document.getElementById('emp-position').value.trim();
+  emp.dailyRate = parseFloat(document.getElementById('emp-daily-rate').value) || 438;
+  emp.allowance = parseFloat(document.getElementById('emp-allowance').value) || 50;
+  emp.sssNumber = document.getElementById('emp-sss-no').value.trim();
+  emp.customSssAmount = sssCustomVal !== '' ? parseFloat(sssCustomVal) : null;
+  emp.philHealthNumber = document.getElementById('emp-philhealth-no').value.trim();
+  emp.customPhilHealthAmount = phicCustomVal !== '' ? parseFloat(phicCustomVal) : null;
+  emp.pagIbigNumber = document.getElementById('emp-pagibig-no').value.trim();
+  emp.customPagIbigAmount = hdmfCustomVal !== '' ? parseFloat(hdmfCustomVal) : null;
+  emp.tinNumber = document.getElementById('emp-tin-no').value.trim();
+  emp.sssExempt = document.getElementById('emp-sss-exempt').checked;
+  emp.philHealthExempt = document.getElementById('emp-phic-exempt').checked;
+  emp.pagIbigExempt = document.getElementById('emp-hdmf-exempt').checked;
+
+  window.DB.addOrUpdateEmployee(emp);
+  cachedPayrollSummary = window.PayrollEngine.runBranchPayroll(activeCutoff);
+  closeModal('employee-modal');
+  renderApp();
+}
+
 // Global Exports
 window.navigateTo = navigateTo;
 window.setMode = setMode;
 window.openUploadModal = openUploadModal;
 window.openAdvanceModal = openAdvanceModal;
+window.openEmployeeModal = openEmployeeModal;
+window.handleEmployeeSelectChange = handleEmployeeSelectChange;
+window.handleSaveEmployee = handleSaveEmployee;
 window.closeModal = closeModal;
 window.handleFileSelected = handleFileSelected;
 window.handleSaveAdvance = handleSaveAdvance;
@@ -1178,4 +1394,5 @@ window.exportAttendanceCSV = exportAttendanceCSV;
 window.changeStaffUser = changeStaffUser;
 window.staffSelfPunch = staffSelfPunch;
 window.handleBrightnessChange = handleBrightnessChange;
+
 

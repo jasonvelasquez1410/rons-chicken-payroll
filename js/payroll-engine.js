@@ -101,9 +101,26 @@ class PayrollEngine {
     const monthlySalaryEstimated = dailyRate * 26;
 
     // Statutory contributions
-    const sssEE = options.exemptStatutory ? 0 : this.computeSSS(monthlySalaryEstimated);
-    const philHealthEE = options.exemptStatutory ? 0 : this.computePhilHealth(monthlySalaryEstimated);
-    const pagIbigEE = options.exemptStatutory ? 0 : this.computePagIbig();
+    let sssEE = 0;
+    if (!employee.sssExempt && !options.exemptStatutory) {
+      sssEE = (employee.customSssAmount !== undefined && employee.customSssAmount !== null && employee.customSssAmount !== '')
+        ? parseFloat(Number(employee.customSssAmount).toFixed(2))
+        : this.computeSSS(monthlySalaryEstimated);
+    }
+
+    let philHealthEE = 0;
+    if (!employee.philHealthExempt && !options.exemptStatutory) {
+      philHealthEE = (employee.customPhilHealthAmount !== undefined && employee.customPhilHealthAmount !== null && employee.customPhilHealthAmount !== '')
+        ? parseFloat(Number(employee.customPhilHealthAmount).toFixed(2))
+        : this.computePhilHealth(monthlySalaryEstimated);
+    }
+
+    let pagIbigEE = 0;
+    if (!employee.pagIbigExempt && !options.exemptStatutory) {
+      pagIbigEE = (employee.customPagIbigAmount !== undefined && employee.customPagIbigAmount !== null && employee.customPagIbigAmount !== '')
+        ? parseFloat(Number(employee.customPagIbigAmount).toFixed(2))
+        : this.computePagIbig();
+    }
 
     // Cash Advance (Vale)
     const cashAdvanceDeduction = parseFloat((options.cashAdvanceDeduction || 0).toFixed(2));
