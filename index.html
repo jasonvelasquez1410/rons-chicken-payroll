@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="background-color: #080c14; color: #f8fafc; color-scheme: dark;">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -7,30 +7,90 @@
   
   <!-- PWA Meta Tags -->
   <link rel="manifest" href="./manifest.json">
-  <meta name="theme-color" content="#d97706">
+  <meta name="theme-color" content="#ff5500">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Ron's Payroll">
   <link rel="icon" type="image/jpeg" href="assets/logo.jpg">
   <link rel="apple-touch-icon" href="assets/logo.jpg">
 
+  <!-- Critical Inline Styles to Prevent White Screen -->
+  <style>
+    html, body {
+      background-color: #080c14 !important;
+      color: #f8fafc !important;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+
   <!-- Stylesheet -->
   <link rel="stylesheet" href="css/style.css">
 
-  <!-- SheetJS CDN for offline / client-side Excel Parsing (.xls / .xlsx) -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <!-- SheetJS CDN for offline / client-side Excel Parsing (.xls / .xlsx) - Deferred so it does not block rendering -->
+  <script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <!-- Emergency Error Trap & Recovery Script -->
+  <script>
+    window.__ronsAppReady = false;
+
+    window.forceClearAndReload = function() {
+      try {
+        if ('caches' in window) {
+          caches.keys().then(function(names) {
+            return Promise.all(names.map(function(name) { return caches.delete(name); }));
+          }).catch(function() {});
+        }
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(function(regs) {
+            regs.forEach(function(r) { r.unregister(); });
+          }).catch(function() {});
+        }
+      } catch (e) {}
+      window.location.reload(true);
+    };
+
+    function showEmergencyFallback(reason) {
+      if (window.__ronsAppReady) return;
+      var card = document.getElementById('loading-fallback-card');
+      if (card) {
+        card.innerHTML = 
+          '<div style="background: rgba(255, 85, 0, 0.08); border: 1px solid rgba(255, 85, 0, 0.35); border-radius: 18px; padding: 1.75rem; max-width: 440px; margin: 0 auto; text-align: center; box-shadow: 0 16px 36px rgba(0,0,0,0.5);">' +
+            '<div style="width: 52px; height: 52px; border-radius: 50%; background: #ff5500; color: #fff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.5rem; font-weight: 800;">!</div>' +
+            '<div style="font-weight: 800; font-size: 1.15rem; color: #fff; margin-bottom: 0.5rem; font-family: Outfit, sans-serif;">Laptop Cache or Storage Notice</div>' +
+            '<div style="font-size: 0.82rem; color: #94a3b8; line-height: 1.55; margin-bottom: 1.25rem;">The desktop browser has a pending cache refresh or restricted storage. Click below to refresh freshly into the Ron\'s Chicken Manager Portal.</div>' +
+            '<button onclick="forceClearAndReload()" style="background: linear-gradient(135deg, #ff6600, #ff4400); color: #fff; border: none; padding: 0.75rem 1.4rem; font-size: 0.88rem; font-weight: 800; border-radius: 9999px; cursor: pointer; box-shadow: 0 8px 24px rgba(255,85,0,0.4); transition: transform 0.2s ease;">Force Refresh & Clear Cache</button>' +
+          '</div>';
+      }
+    }
+
+    window.onerror = function(msg, url, line) {
+      console.warn("[Ron's Payroll Safe Trap]", msg, "line:", line);
+      if (!window.__ronsAppReady) {
+        setTimeout(function() { showEmergencyFallback(msg); }, 1500);
+      }
+      return false;
+    };
+
+    setTimeout(function() {
+      if (!window.__ronsAppReady) {
+        showEmergencyFallback("Timeout waiting for app init");
+      }
+    }, 4500);
+  </script>
 </head>
-<body>
+<body style="background-color: #080c14; color: #f8fafc; margin: 0; min-height: 100vh;">
   <div id="app-root">
-    <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; font-family: 'Plus Jakarta Sans', sans-serif; color: #ff5500;">
-      <div style="text-align: center;">
-        <div style="width: 48px; height: 48px; border: 4px solid #ff5500; border-top-color: transparent; border-radius: 50%; margin: 0 auto 1rem; animation: spin 1s linear infinite;"></div>
-        <div style="font-weight: 800; font-size: 1.1rem; color: #fff;">RON'S CHICKEN PAYROLL</div>
-        <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 0.3rem;">Loading Cugman Biometric Attendance...</div>
+    <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; font-family: 'Plus Jakarta Sans', sans-serif; color: #ff5500; background: #080c14; padding: 1.5rem;">
+      <div id="loading-fallback-card" style="text-align: center; width: 100%;">
+        <div style="width: 50px; height: 50px; border: 4px solid #ff5500; border-top-color: transparent; border-radius: 50%; margin: 0 auto 1.25rem; animation: spin 0.9s linear infinite;"></div>
+        <div style="font-weight: 800; font-size: 1.15rem; color: #ffffff; letter-spacing: -0.02em;">RON'S CHICKEN PAYROLL</div>
+        <div style="font-size: 0.82rem; color: #94a3b8; margin-top: 0.4rem;">Loading Cugman Biometric Attendance & Staff Records...</div>
       </div>
-      <style>
-        @keyframes spin { to { transform: rotate(360deg); } }
-      </style>
     </div>
   </div>
 

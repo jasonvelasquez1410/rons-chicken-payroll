@@ -1,3 +1,41 @@
+// Resilient storage layer with automatic in-memory fallback for restricted laptop browsers
+const memStorage = new Map();
+const safeStorage = {
+  getItem(key) {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const val = window.localStorage.getItem(key);
+        if (val !== null && val !== undefined) return val;
+      }
+    } catch (e) {}
+    return memStorage.get(key) || null;
+  },
+  setItem(key, val) {
+    const str = String(val);
+    memStorage.set(key, str);
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.setItem(key, str);
+      }
+    } catch (e) {}
+  },
+  removeItem(key) {
+    memStorage.delete(key);
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.removeItem(key);
+      }
+    } catch (e) {}
+  },
+  clear() {
+    memStorage.clear();
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.clear();
+      }
+    } catch (e) {}
+  }
+};
 /**
  * Ron's Chicken Custom Payroll & Biometric Attendance System
  * Database & Persistence Layer (Offline IndexedDB & LocalStorage)
@@ -1903,17 +1941,17 @@ const INITIAL_DATA = {
 
 class DB {
   static init() {
-    if (!localStorage.getItem(STORAGE_KEYS.EMPLOYEES)) {
+    if (!safeStorage.getItem(STORAGE_KEYS.EMPLOYEES)) {
       console.log("[DB] Seeding initial Ron's Chicken employee data...");
-      localStorage.setItem(STORAGE_KEYS.EMPLOYEES, JSON.stringify(INITIAL_DATA.employees));
+      safeStorage.setItem(STORAGE_KEYS.EMPLOYEES, JSON.stringify(INITIAL_DATA.employees));
     }
-    if (!localStorage.getItem(STORAGE_KEYS.SETTINGS)) {
-      localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(DEFAULT_SETTINGS));
+    if (!safeStorage.getItem(STORAGE_KEYS.SETTINGS)) {
+      safeStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(DEFAULT_SETTINGS));
     }
-    if (!localStorage.getItem(STORAGE_KEYS.SHIFTS)) {
-      localStorage.setItem(STORAGE_KEYS.SHIFTS, JSON.stringify(DEFAULT_SHIFTS));
+    if (!safeStorage.getItem(STORAGE_KEYS.SHIFTS)) {
+      safeStorage.setItem(STORAGE_KEYS.SHIFTS, JSON.stringify(DEFAULT_SHIFTS));
     }
-    if (!localStorage.getItem(STORAGE_KEYS.CUTOFFS)) {
+    if (!safeStorage.getItem(STORAGE_KEYS.CUTOFFS)) {
       const defaultCutoff = [
         {
           id: "CO-2026-08-2",
@@ -1925,19 +1963,19 @@ class DB {
           sourceFile: "cugman_(August)Employee Attendance Record.xls"
         }
       ];
-      localStorage.setItem(STORAGE_KEYS.CUTOFFS, JSON.stringify(defaultCutoff));
+      safeStorage.setItem(STORAGE_KEYS.CUTOFFS, JSON.stringify(defaultCutoff));
     }
-    if (!localStorage.getItem(STORAGE_KEYS.ADVANCES)) {
+    if (!safeStorage.getItem(STORAGE_KEYS.ADVANCES)) {
       const defaultAdvances = [
         { id: "VA-101", employeeId: 12, employeeName: "Argie Daliva", type: "Cash Advance (Vale)", date: "2026-08-20", amount: 500, deductionPerCutoff: 500, reason: "Family emergency allowance", status: "Active", deducted: 0 },
         { id: "VA-102", employeeId: 19, employeeName: "Sherwin Cagas", type: "Cash Advance (Vale)", date: "2026-08-25", amount: 350, deductionPerCutoff: 350, reason: "Medicine vale", status: "Active", deducted: 0 },
         { id: "VA-103", employeeId: 31, employeeName: "Josh Abenir", type: "Cash Advance (Vale)", date: "2026-08-28", amount: 400, deductionPerCutoff: 400, reason: "Motorcycle gas vale", status: "Active", deducted: 0 }
       ];
-      localStorage.setItem(STORAGE_KEYS.ADVANCES, JSON.stringify(defaultAdvances));
+      safeStorage.setItem(STORAGE_KEYS.ADVANCES, JSON.stringify(defaultAdvances));
     } else {
       // Auto-migrate any legacy seed entries where deducted was set to amount
       try {
-        const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.ADVANCES)) || [];
+        const stored = JSON.parse(safeStorage.getItem(STORAGE_KEYS.ADVANCES)) || [];
         let modified = false;
         stored.forEach(a => {
           if (a.status === 'Active' && a.deducted === a.amount && (a.id === 'VA-101' || a.id === 'VA-102' || a.id === 'VA-103')) {
@@ -1947,11 +1985,11 @@ class DB {
           }
         });
         if (modified) {
-          localStorage.setItem(STORAGE_KEYS.ADVANCES, JSON.stringify(stored));
+          safeStorage.setItem(STORAGE_KEYS.ADVANCES, JSON.stringify(stored));
         }
       } catch (e) {}
     }
-    if (!localStorage.getItem(STORAGE_KEYS.DEVICE_CONFIG)) {
+    if (!safeStorage.getItem(STORAGE_KEYS.DEVICE_CONFIG)) {
       const defaultDevice = {
         enabled: true,
         deviceName: "Ron's Chicken Biometrics - Cugman Deli e3960",
@@ -1964,20 +2002,20 @@ class DB {
         lastSyncTimestamp: "2026-09-07 01:05:57",
         status: "USB Flash Drive Mode Active (Deli e3960)"
       };
-      localStorage.setItem(STORAGE_KEYS.DEVICE_CONFIG, JSON.stringify(defaultDevice));
+      safeStorage.setItem(STORAGE_KEYS.DEVICE_CONFIG, JSON.stringify(defaultDevice));
     }
-    if (!localStorage.getItem(STORAGE_KEYS.LEAVES)) {
+    if (!safeStorage.getItem(STORAGE_KEYS.LEAVES)) {
       const defaultLeaves = [
         { id: "LV-1", employeeId: 13, employeeName: "Chailene Dolido", type: "Sick Leave", startDate: "2026-08-18", endDate: "2026-08-18", days: 1, reason: "Fever and flu", status: "Approved" }
       ];
-      localStorage.setItem(STORAGE_KEYS.LEAVES, JSON.stringify(defaultLeaves));
+      safeStorage.setItem(STORAGE_KEYS.LEAVES, JSON.stringify(defaultLeaves));
     }
   }
 
   // Employees CRUD
   static getEmployees() {
     try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEYS.EMPLOYEES)) || [];
+      return JSON.parse(safeStorage.getItem(STORAGE_KEYS.EMPLOYEES)) || [];
     } catch (e) {
       return [];
     }
@@ -1989,7 +2027,7 @@ class DB {
   }
 
   static saveEmployees(employees) {
-    localStorage.setItem(STORAGE_KEYS.EMPLOYEES, JSON.stringify(employees));
+    safeStorage.setItem(STORAGE_KEYS.EMPLOYEES, JSON.stringify(employees));
   }
 
   static addOrUpdateEmployee(empData) {
@@ -2034,33 +2072,33 @@ class DB {
   // Settings
   static getSettings() {
     try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEYS.SETTINGS)) || DEFAULT_SETTINGS;
+      return JSON.parse(safeStorage.getItem(STORAGE_KEYS.SETTINGS)) || DEFAULT_SETTINGS;
     } catch (e) {
       return DEFAULT_SETTINGS;
     }
   }
 
   static saveSettings(settings) {
-    localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
+    safeStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
   }
 
   // Shifts
   static getShifts() {
     try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEYS.SHIFTS)) || DEFAULT_SHIFTS;
+      return JSON.parse(safeStorage.getItem(STORAGE_KEYS.SHIFTS)) || DEFAULT_SHIFTS;
     } catch (e) {
       return DEFAULT_SHIFTS;
     }
   }
 
   static saveShifts(shifts) {
-    localStorage.setItem(STORAGE_KEYS.SHIFTS, JSON.stringify(shifts));
+    safeStorage.setItem(STORAGE_KEYS.SHIFTS, JSON.stringify(shifts));
   }
 
   // Cutoffs
   static getCutoffs() {
     try {
-      const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.CUTOFFS));
+      const stored = JSON.parse(safeStorage.getItem(STORAGE_KEYS.CUTOFFS));
       if (stored && Array.isArray(stored) && stored.length > 0) return stored;
     } catch (e) {}
 
@@ -2106,7 +2144,7 @@ class DB {
   }
 
   static saveCutoffs(cutoffs) {
-    localStorage.setItem(STORAGE_KEYS.CUTOFFS, JSON.stringify(cutoffs));
+    safeStorage.setItem(STORAGE_KEYS.CUTOFFS, JSON.stringify(cutoffs));
   }
 
   static addCutoff(cutoff) {
@@ -2124,14 +2162,14 @@ class DB {
   // Cash Advances (Vale)
   static getAdvances() {
     try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEYS.ADVANCES)) || [];
+      return JSON.parse(safeStorage.getItem(STORAGE_KEYS.ADVANCES)) || [];
     } catch (e) {
       return [];
     }
   }
 
   static saveAdvances(advances) {
-    localStorage.setItem(STORAGE_KEYS.ADVANCES, JSON.stringify(advances));
+    safeStorage.setItem(STORAGE_KEYS.ADVANCES, JSON.stringify(advances));
   }
 
   static addAdvance(advance) {
@@ -2158,14 +2196,14 @@ class DB {
   // Leaves
   static getLeaves() {
     try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEYS.LEAVES)) || [];
+      return JSON.parse(safeStorage.getItem(STORAGE_KEYS.LEAVES)) || [];
     } catch (e) {
       return [];
     }
   }
 
   static saveLeaves(leaves) {
-    localStorage.setItem(STORAGE_KEYS.LEAVES, JSON.stringify(leaves));
+    safeStorage.setItem(STORAGE_KEYS.LEAVES, JSON.stringify(leaves));
   }
 
   static addLeave(leave) {
@@ -2177,27 +2215,27 @@ class DB {
   // Device Config
   static getDeviceConfig() {
     try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEYS.DEVICE_CONFIG));
+      return JSON.parse(safeStorage.getItem(STORAGE_KEYS.DEVICE_CONFIG));
     } catch (e) {
       return null;
     }
   }
 
   static saveDeviceConfig(config) {
-    localStorage.setItem(STORAGE_KEYS.DEVICE_CONFIG, JSON.stringify(config));
+    safeStorage.setItem(STORAGE_KEYS.DEVICE_CONFIG, JSON.stringify(config));
   }
 
   // Payroll History
   static getPayrollHistory() {
     try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEYS.PAYROLL_HISTORY)) || [];
+      return JSON.parse(safeStorage.getItem(STORAGE_KEYS.PAYROLL_HISTORY)) || [];
     } catch (e) {
       return [];
     }
   }
 
   static savePayrollHistory(history) {
-    localStorage.setItem(STORAGE_KEYS.PAYROLL_HISTORY, JSON.stringify(history));
+    safeStorage.setItem(STORAGE_KEYS.PAYROLL_HISTORY, JSON.stringify(history));
   }
 
   static addPayrollRecord(record) {
@@ -2217,7 +2255,7 @@ class DB {
       const backupData = this.getFullBackupData(label);
       let snapshots = [];
       try {
-        snapshots = JSON.parse(localStorage.getItem('rons_payroll_autobackup_snapshots')) || [];
+        snapshots = JSON.parse(safeStorage.getItem('rons_payroll_autobackup_snapshots')) || [];
       } catch (e) {
         snapshots = [];
       }
@@ -2235,8 +2273,8 @@ class DB {
         snapshots = snapshots.slice(0, 10);
       }
 
-      localStorage.setItem('rons_payroll_autobackup_snapshots', JSON.stringify(snapshots));
-      localStorage.setItem('rons_payroll_last_autobackup', new Date().toISOString());
+      safeStorage.setItem('rons_payroll_autobackup_snapshots', JSON.stringify(snapshots));
+      safeStorage.setItem('rons_payroll_last_autobackup', new Date().toISOString());
     } catch (err) {
       console.warn("[DB] Auto backup snapshot warning:", err);
     }
@@ -2244,7 +2282,7 @@ class DB {
 
   static getAutoBackups() {
     try {
-      return JSON.parse(localStorage.getItem('rons_payroll_autobackup_snapshots')) || [];
+      return JSON.parse(safeStorage.getItem('rons_payroll_autobackup_snapshots')) || [];
     } catch (e) {
       return [];
     }
@@ -2335,17 +2373,28 @@ class DB {
   // Reset to Default Factory State
   static resetToDefaults() {
     this.autoBackupSnapshot('Pre-Reset Factory Snapshot');
-    localStorage.clear();
+    safeStorage.clear();
     this.init();
   }
 }
 
-// Auto-initialize on load
-DB.init();
-if (typeof DB.requestPersistentStorage === 'function') {
-  DB.requestPersistentStorage().catch(() => {});
-}
-DB.autoBackupSnapshot('App Init Snapshot');
-
+// Expose DB to global window immediately so other modules have access
 window.DB = DB;
+
+// Auto-initialize on load with protective try-catch
+try {
+  DB.init();
+} catch (err) {
+  console.warn("[DB] Initialization safe-recovery:", err);
+}
+
+if (typeof DB.requestPersistentStorage === 'function') {
+  try {
+    DB.requestPersistentStorage().catch(() => {});
+  } catch (e) {}
+}
+
+try {
+  DB.autoBackupSnapshot('App Init Snapshot');
+} catch (e) {}
 

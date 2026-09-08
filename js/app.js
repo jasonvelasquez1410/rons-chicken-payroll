@@ -9,7 +9,14 @@ let currentMode = 'manager'; // 'manager' | 'staff'
 let selectedStaffEmployeeId = 12; // Default to Argie Daliva (Senior Roaster)
 let activeCutoff = null;
 let cachedPayrollSummary = null;
-let currentBrightness = parseInt(localStorage.getItem('rons_payroll_brightness') || '0', 10);
+let currentBrightness = 0;
+try {
+  if (typeof localStorage !== 'undefined') {
+    currentBrightness = parseInt(localStorage.getItem('rons_payroll_brightness') || '0', 10);
+  }
+} catch (e) {
+  currentBrightness = 0;
+}
 
 // SVG Icons
 const ICONS = {
@@ -70,7 +77,11 @@ if (document.readyState === 'loading') {
 function applyBrightness(level) {
   currentBrightness = level;
   document.documentElement.style.setProperty('--brightness-level', level);
-  localStorage.setItem('rons_payroll_brightness', level);
+  try {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('rons_payroll_brightness', level);
+    }
+  } catch (e) {}
   const label = document.getElementById('brightness-label');
   if (label) {
     if (level <= 15) label.textContent = 'Midnight';
@@ -623,6 +634,7 @@ function renderApp() {
       </div>
     `;
   }
+  window.__ronsAppReady = true;
 }
 
 function getBrightnessName(level) {

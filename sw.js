@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rons-chicken-payroll-v3';
+const CACHE_NAME = 'rons-chicken-payroll-v4';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -16,7 +16,9 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
+      return cache.addAll(ASSETS_TO_CACHE).catch((err) => {
+        console.warn('[Service Worker] Asset precache warning:', err);
+      });
     })
   );
 });
@@ -40,6 +42,9 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   
+  // Only intercept http/https schemes
+  if (!event.request.url.startsWith('http')) return;
+
   event.respondWith(
     fetch(event.request)
       .then((networkResponse) => {
@@ -47,16 +52,17 @@ self.addEventListener('fetch', (event) => {
           const responseClone = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, responseClone);
-          });
+          }).catch(() => {});
         }
         return networkResponse;
       })
       .catch(() => {
         return caches.match(event.request).then((cachedResponse) => {
           if (cachedResponse) return cachedResponse;
-          if (event.request.headers.get('accept')?.includes('text/html')) {
+          if (event.request.headers.get('accept')?.includes('text/html') || event.request.mode === 'navigate') {
             return caches.match('./index.html');
           }
+          return new Response('Network offline', { status: 503, headers: { 'Content-Type': 'text/plain' } });
         });
       })
   );
