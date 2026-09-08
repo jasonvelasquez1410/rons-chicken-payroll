@@ -581,6 +581,46 @@ function renderApp() {
           </div>
         </div>
       </div>
+
+      <!-- Add New Cutoff Modal -->
+      <div id="new-cutoff-modal" class="modal-backdrop">
+        <div class="modal-card" style="max-width: 520px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <h3 style="color: var(--text-primary); font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
+              📅 Create New Payroll Cutoff Period
+            </h3>
+            <button class="btn-bento btn-bento-dark btn-sm" onclick="closeModal('new-cutoff-modal')">✕</button>
+          </div>
+          <p style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
+            Define the start and end dates for your upcoming bi-monthly payroll cutoff (e.g. 1st–15th or 16th–end of month).
+          </p>
+
+          <form id="new-cutoff-form" onsubmit="handleSaveNewCutoff(event)">
+            <div style="display: grid; gap: 1rem;">
+              <div>
+                <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-secondary);">Cutoff Display Name</label>
+                <input type="text" id="new-co-name" required placeholder="e.g. September 01 - September 15, 2026 (1st Cutoff)" style="width: 100%; padding: 0.7rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.85rem;">
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem;">
+                <div>
+                  <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-secondary);">Start Date (From)</label>
+                  <input type="date" id="new-co-start" required value="${new Date().toISOString().slice(0, 8) + '01'}" style="width: 100%; padding: 0.7rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.85rem;">
+                </div>
+                <div>
+                  <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-secondary);">End Date (To)</label>
+                  <input type="date" id="new-co-end" required value="${new Date().toISOString().slice(0, 8) + '15'}" style="width: 100%; padding: 0.7rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.85rem;">
+                </div>
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 0.75rem;">
+                <button type="button" class="btn-bento btn-bento-dark" onclick="closeModal('new-cutoff-modal')">Cancel</button>
+                <button type="submit" class="btn-bento btn-bento-orange" style="font-weight: 800;">⚡ Save & Set Active Cutoff</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
     `;
   }
 }
@@ -612,6 +652,44 @@ function renderManagerBentoView() {
    Manager Bento Dashboard & Views
    ========================================================================== */
 
+function renderCutoffControlBar() {
+  const cutoffs = (window.DB && typeof window.DB.getCutoffs === 'function') ? window.DB.getCutoffs() : [];
+  const isCustom = !cutoffs.some(c => c.id === activeCutoff.id);
+
+  return `
+    <div class="cutoff-control-bar" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 0.85rem 1.25rem; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+      <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 0.4rem; color: var(--bento-orange); font-weight: 800; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">
+          📅 Active Payroll Cutoff:
+        </div>
+        <select id="cutoff-preset-selector" onchange="handleCutoffSelectChange(this.value)" style="padding: 0.5rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-card-dark); border: 1px solid var(--border-glass); color: var(--text-primary); font-size: 0.85rem; font-weight: 700; cursor: pointer;">
+          ${cutoffs.map(c => `
+            <option value="${c.id}" ${c.id === activeCutoff.id ? 'selected' : ''}>${c.name}</option>
+          `).join('')}
+          <option value="custom" ${isCustom ? 'selected' : ''}>⚙️ Custom Date Range...</option>
+        </select>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.8rem; color: var(--text-secondary);">
+          <span>From:</span>
+          <input type="date" id="cutoff-start-input" value="${activeCutoff.startDate}" style="padding: 0.45rem 0.65rem; border-radius: var(--radius-sm); background: var(--bg-card-dark); border: 1px solid var(--border-glass); color: var(--text-primary); font-size: 0.82rem; font-weight: 600;">
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.8rem; color: var(--text-secondary);">
+          <span>To:</span>
+          <input type="date" id="cutoff-end-input" value="${activeCutoff.endDate}" style="padding: 0.45rem 0.65rem; border-radius: var(--radius-sm); background: var(--bg-card-dark); border: 1px solid var(--border-glass); color: var(--text-primary); font-size: 0.82rem; font-weight: 600;">
+        </div>
+        <button class="btn-bento btn-bento-orange btn-sm" style="font-weight: 800; padding: 0.45rem 0.85rem; display: inline-flex; align-items: center; gap: 0.35rem;" onclick="handleApplyCustomCutoffDates()" title="Recalculate entire branch payroll and timecards for these dates">
+          ⚡ Apply & Recalculate
+        </button>
+        <button class="btn-bento btn-bento-dark btn-sm" style="padding: 0.45rem 0.75rem;" onclick="openModal('new-cutoff-modal')" title="Save as New Named Cutoff Period">
+          + New Cutoff
+        </button>
+      </div>
+    </div>
+  `;
+}
+
 function renderManagerBentoDashboard() {
   const employees = window.DB.getEmployees();
   const summary = cachedPayrollSummary || window.PayrollEngine.runBranchPayroll(activeCutoff);
@@ -638,6 +716,9 @@ function renderManagerBentoDashboard() {
         </button>
       </div>
     </div>
+
+    <!-- Cutoff Period Controller Bar -->
+    ${renderCutoffControlBar()}
 
     <!-- Mi Nomina Bento Grid Cards -->
     <div class="bento-grid">
@@ -778,6 +859,9 @@ function renderBentoAttendance() {
       </div>
     </div>
 
+    <!-- Cutoff Period Controller Bar -->
+    ${renderCutoffControlBar()}
+
     <div class="data-panel-card">
       <div class="table-responsive">
         <table class="table-bento">
@@ -846,6 +930,9 @@ function renderBentoPayroll() {
         <button class="btn-bento btn-bento-purple" onclick="recalculatePayroll()">${ICONS.payroll} Recalculate</button>
       </div>
     </div>
+
+    <!-- Cutoff Period Controller Bar -->
+    ${renderCutoffControlBar()}
 
     <div class="data-panel-card">
       <div class="table-responsive">
@@ -1714,6 +1801,79 @@ function handleResetFactoryConfirm() {
   }
 }
 
+function handleCutoffSelectChange(cutoffId) {
+  if (cutoffId === 'custom') {
+    const startEl = document.getElementById('cutoff-start-input');
+    if (startEl) startEl.focus();
+    return;
+  }
+  const cutoffs = window.DB.getCutoffs();
+  const selected = cutoffs.find(c => c.id === cutoffId);
+  if (selected) {
+    activeCutoff = selected;
+    cachedPayrollSummary = window.PayrollEngine.runBranchPayroll(activeCutoff);
+    renderApp();
+  }
+}
+
+function handleApplyCustomCutoffDates() {
+  const startEl = document.getElementById('cutoff-start-input');
+  const endEl = document.getElementById('cutoff-end-input');
+  if (!startEl || !endEl) return;
+
+  const startDate = startEl.value;
+  const endDate = endEl.value;
+
+  if (!startDate || !endDate) {
+    alert("Please specify both Start Date and End Date.");
+    return;
+  }
+  if (startDate > endDate) {
+    alert("Start Date cannot be after End Date.");
+    return;
+  }
+
+  activeCutoff = {
+    id: `CO-CUSTOM-${startDate}_${endDate}`,
+    name: `Custom Period (${startDate} to ${endDate})`,
+    startDate: startDate,
+    endDate: endDate
+  };
+
+  cachedPayrollSummary = window.PayrollEngine.runBranchPayroll(activeCutoff);
+  renderApp();
+}
+
+function handleSaveNewCutoff(event) {
+  event.preventDefault();
+  const name = document.getElementById('new-co-name').value.trim();
+  const startDate = document.getElementById('new-co-start').value;
+  const endDate = document.getElementById('new-co-end').value;
+
+  if (!name || !startDate || !endDate) {
+    alert("Please fill in all fields.");
+    return;
+  }
+  if (startDate > endDate) {
+    alert("Start Date cannot be after End Date.");
+    return;
+  }
+
+  const newCutoff = {
+    id: `CO-${Date.now()}`,
+    name: name,
+    startDate: startDate,
+    endDate: endDate,
+    status: 'Open'
+  };
+
+  window.DB.addCutoff(newCutoff);
+  activeCutoff = newCutoff;
+  cachedPayrollSummary = window.PayrollEngine.runBranchPayroll(activeCutoff);
+  closeModal('new-cutoff-modal');
+  renderApp();
+}
+
 // Global Exports
 window.navigateTo = navigateTo;
 window.setMode = setMode;
@@ -1725,6 +1885,9 @@ window.handleDownloadBackup = handleDownloadBackup;
 window.handleImportBackupFile = handleImportBackupFile;
 window.handleRestoreSnapshot = handleRestoreSnapshot;
 window.handleResetFactoryConfirm = handleResetFactoryConfirm;
+window.handleCutoffSelectChange = handleCutoffSelectChange;
+window.handleApplyCustomCutoffDates = handleApplyCustomCutoffDates;
+window.handleSaveNewCutoff = handleSaveNewCutoff;
 window.handleEmployeeSelectChange = handleEmployeeSelectChange;
 window.handleSaveEmployee = handleSaveEmployee;
 window.closeModal = closeModal;
@@ -1740,6 +1903,7 @@ window.exportAttendanceCSV = exportAttendanceCSV;
 window.changeStaffUser = changeStaffUser;
 window.staffSelfPunch = staffSelfPunch;
 window.handleBrightnessChange = handleBrightnessChange;
+
 
 
 

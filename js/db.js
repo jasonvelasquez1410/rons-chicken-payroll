@@ -2060,14 +2060,65 @@ class DB {
   // Cutoffs
   static getCutoffs() {
     try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEYS.CUTOFFS)) || [];
-    } catch (e) {
-      return [];
-    }
+      const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.CUTOFFS));
+      if (stored && Array.isArray(stored) && stored.length > 0) return stored;
+    } catch (e) {}
+
+    const defaultCutoffs = [
+      {
+        id: "CO-2026-08-2",
+        name: "August 16 - September 05, 2026 (Deli e3960 Ingestion)",
+        startDate: "2026-08-16",
+        endDate: "2026-09-05",
+        status: "Processed"
+      },
+      {
+        id: "CO-2026-09-1",
+        name: "September 01 - September 15, 2026 (1st Cutoff)",
+        startDate: "2026-09-01",
+        endDate: "2026-09-15",
+        status: "Open"
+      },
+      {
+        id: "CO-2026-09-2",
+        name: "September 16 - September 30, 2026 (2nd Cutoff)",
+        startDate: "2026-09-16",
+        endDate: "2026-09-30",
+        status: "Upcoming"
+      },
+      {
+        id: "CO-2026-10-1",
+        name: "October 01 - October 15, 2026 (1st Cutoff)",
+        startDate: "2026-10-01",
+        endDate: "2026-10-15",
+        status: "Upcoming"
+      },
+      {
+        id: "CO-2026-10-2",
+        name: "October 16 - October 31, 2026 (2nd Cutoff)",
+        startDate: "2026-10-16",
+        endDate: "2026-10-31",
+        status: "Upcoming"
+      }
+    ];
+    this.saveCutoffs(defaultCutoffs);
+    return defaultCutoffs;
   }
 
   static saveCutoffs(cutoffs) {
     localStorage.setItem(STORAGE_KEYS.CUTOFFS, JSON.stringify(cutoffs));
+  }
+
+  static addCutoff(cutoff) {
+    const cutoffs = this.getCutoffs();
+    const existingIdx = cutoffs.findIndex(c => c.id === cutoff.id);
+    if (existingIdx >= 0) {
+      cutoffs[existingIdx] = { ...cutoffs[existingIdx], ...cutoff };
+    } else {
+      cutoffs.unshift(cutoff);
+    }
+    this.saveCutoffs(cutoffs);
+    this.autoBackupSnapshot(`Added Cutoff ${cutoff.name}`);
   }
 
   // Cash Advances (Vale)
