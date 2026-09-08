@@ -200,6 +200,22 @@ function getBrightnessName(level) {
   return 'Bright';
 }
 
+function renderManagerBentoView() {
+  switch (currentView) {
+    case 'attendance':
+      return renderBentoAttendance();
+    case 'payroll':
+      return renderBentoPayroll();
+    case 'advances':
+      return renderBentoAdvances();
+    case 'device':
+      return renderBentoDevice();
+    case 'dashboard':
+    default:
+      return renderManagerBentoDashboard();
+  }
+}
+
 /* ==========================================================================
    Manager Bento Dashboard & Views
    ========================================================================== */
