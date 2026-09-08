@@ -24,7 +24,8 @@ const ICONS = {
   print: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>`,
   check: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>`,
   settings: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>`,
-  sun: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`
+  sun: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`,
+  book: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`
 };
 
 function initApp() {
@@ -113,6 +114,10 @@ function renderApp() {
         </div>
 
         <div class="header-controls">
+          <button class="btn-bento btn-bento-dark btn-sm" style="padding: 0.45rem 0.85rem; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 0.4rem;" onclick="openModal('guide-modal')" title="View Owner / Admin DOLE & System Guide">
+            ${ICONS.book} Reference Guide
+          </button>
+
           <!-- Real-Time Theme Brightness Slider -->
           <div class="brightness-control-pill" title="Adjust Theme Brightness / Lighting">
             ${ICONS.sun}
@@ -153,6 +158,10 @@ function renderApp() {
         <div class="bottom-nav-item ${currentView === 'device' ? 'active' : ''}" onclick="navigateTo('device')">
           ${ICONS.settings}
           <span>Deli e3960</span>
+        </div>
+        <div class="bottom-nav-item" onclick="openModal('guide-modal')">
+          ${ICONS.book}
+          <span>Guide</span>
         </div>
       </nav>
 
@@ -350,6 +359,20 @@ function renderApp() {
                 </div>
               </div>
 
+              <!-- Statutory Quick Reference Box for Admin/Owner -->
+              <div style="background: rgba(255, 85, 0, 0.05); border: 1px solid rgba(255, 85, 0, 0.2); border-radius: var(--radius-sm); padding: 0.85rem 1rem; font-size: 0.76rem; color: var(--text-secondary); line-height: 1.55;">
+                <div style="font-weight: 800; color: var(--bento-orange); margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.4rem;">
+                  ℹ️ Statutory Deduction Quick Reference (DOLE / BIR):
+                </div>
+                <ul style="padding-left: 1.15rem; margin: 0;">
+                  <li><strong>SSS:</strong> If blank, automatically calculates exact semi-monthly EE share from the official DOLE/SSS table using <code>Daily Rate × 26</code> (~₱258.75 for ₱438/day). Type an amount only if overriding with a custom fixed deduction.</li>
+                  <li><strong>PhilHealth (PHIC):</strong> If blank, automatically applies the statutory 5% premium (2.5% Employee share split semi-monthly = ~₱143.00).</li>
+                  <li><strong>Pag-IBIG (HDMF):</strong> If blank, automatically applies standard statutory ₱100.00 per cutoff (₱200/month).</li>
+                  <li><strong>Withholding Tax:</strong> Minimum wage earners earning ≤ ₱10,417 per cutoff are 100% Tax Exempt under TRAIN Law (₱0.00 tax).</li>
+                  <li><strong>Exemption Checkboxes:</strong> Check "Exempt" if a worker is under probation, apprentice, or pays voluntary contributions outside the branch.</li>
+                </ul>
+              </div>
+
               <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 0.5rem;">
                 <button type="button" class="btn-bento btn-bento-dark" onclick="closeModal('employee-modal')">Cancel</button>
                 <button type="submit" class="btn-bento btn-bento-orange" style="font-weight: 800;">${ICONS.check} Save Staff & Update Payroll</button>
@@ -367,6 +390,86 @@ function renderApp() {
             <button class="btn-bento btn-bento-white btn-sm" onclick="closeModal('payslip-modal')">Close</button>
           </div>
           <div id="payslip-printable-content" class="payslip-printable"></div>
+        </div>
+      </div>
+
+      <!-- Comprehensive System Reference & DOLE Guide Modal -->
+      <div id="guide-modal" class="modal-backdrop">
+        <div class="modal-card" style="max-width: 820px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <h3 style="color: var(--text-primary); font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+              📘 Ron's Chicken Payroll & DOLE System Reference Guide
+            </h3>
+            <button class="btn-bento btn-bento-dark btn-sm" onclick="closeModal('guide-modal')">✕</button>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 1.25rem; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">
+            
+            <!-- Section 1 -->
+            <div style="background: var(--bg-surface); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid var(--bento-orange);">
+              <h4 style="color: var(--text-primary); margin-bottom: 0.4rem; font-size: 0.95rem; font-weight: 800;">1. Biometric Attendance Ingestion (Deli e3960 USB)</h4>
+              <p>The system features 100% offline client-side parsing powered by SheetJS to process raw biometric matrices exported by your standalone Deli e3960 fingerprint attendance machine.</p>
+              <ul style="padding-left: 1.2rem; margin-top: 0.4rem;">
+                <li><strong>USB Flash Drive Export:</strong> Insert a USB drive into the Deli e3960, download the attendance report (e.g. <code>Employee Attendance Record.xls</code>), and upload it here.</li>
+                <li><strong>Automated Calculation:</strong> The parser groups multi-punch timestamps per date, applies shift schedules, automatically deducts a 1-hour lunch break for shifts over 5 hours, and calculates tardiness & overtime.</li>
+              </ul>
+            </div>
+
+            <!-- Section 2 -->
+            <div style="background: var(--bg-surface); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid #a855f7;">
+              <h4 style="color: var(--text-primary); margin-bottom: 0.4rem; font-size: 0.95rem; font-weight: 800;">2. Philippine DOLE & BIR Statutory Payroll Rules</h4>
+              <ul style="padding-left: 1.2rem; margin-top: 0.4rem;">
+                <li><strong>Basic Pay:</strong> Computed as <code>(Daily Rate / 8) × Regular Hours Worked</code>.</li>
+                <li><strong>Overtime Pay (125%):</strong> Hours worked beyond 8 hours are compensated at <code>125% × Hourly Rate</code> per DOLE rules.</li>
+                <li><strong>Night Shift Differential (10%):</strong> Work between <strong>10:00 PM and 6:00 AM</strong> receives an additional 10% premium (essential for night roasting and early morning prep).</li>
+                <li><strong>Daily Meal Allowance:</strong> Standard ₱50.00/day for each day the employee is present.</li>
+                <li><strong>13th Month Pay Accrual:</strong> Accrued continuously on each cutoff at <code>Basic Pay ÷ 12</code>.</li>
+              </ul>
+            </div>
+
+            <!-- Section 3 -->
+            <div style="background: var(--bg-surface); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid var(--accent-emerald);">
+              <h4 style="color: var(--text-primary); margin-bottom: 0.4rem; font-size: 0.95rem; font-weight: 800;">3. Automatic Statutory Deductions (SSS, PhilHealth, Pag-IBIG, Tax)</h4>
+              <ul style="padding-left: 1.2rem; margin-top: 0.4rem;">
+                <li><strong>SSS:</strong> Computed automatically from the official DOLE/SSS table using the employee's monthly equivalent rate (<code>Daily Rate × 26</code>). Split semi-monthly.</li>
+                <li><strong>PhilHealth (PHIC):</strong> Standard statutory 5% premium (2.5% Employee share, semi-monthly).</li>
+                <li><strong>Pag-IBIG (HDMF):</strong> Standard statutory ₱100.00 per cutoff (₱200/month).</li>
+                <li><strong>Withholding Tax:</strong> Evaluated using the BIR TRAIN Law table. Minimum wage earners earning ≤ ₱10,417 per cutoff are <strong>100% Tax Exempt</strong> (₱0.00 tax).</li>
+                <li><strong>Custom Amounts:</strong> Leaving the statutory boxes blank triggers automatic legal calculations. If your store has a specific agreed fixed deduction, simply type the number to override it.</li>
+              </ul>
+            </div>
+
+            <!-- Section 4 -->
+            <div style="background: var(--bg-surface); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid var(--accent-rose);">
+              <h4 style="color: var(--text-primary); margin-bottom: 0.4rem; font-size: 0.95rem; font-weight: 800;">4. Cash Advances (*Vale*) & Emergency Staff Loans</h4>
+              <p>When an employee requests an advance, navigate to the <strong>Vale Ledger</strong> and click <strong>+ New Vale / Loan Entry</strong>:</p>
+              <ul style="padding-left: 1.2rem; margin-top: 0.4rem;">
+                <li>Select the employee, enter the total amount (e.g. ₱1,000.00), and specify the cutoff deduction (e.g. ₱500/cutoff to split over 2 cutoffs, or leave blank for full deduction).</li>
+                <li>The system immediately recalculates payroll and itemizes the exact loan deduction on their official payslip.</li>
+              </ul>
+            </div>
+
+            <!-- Section 5 -->
+            <div style="background: var(--bg-surface); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid #3b82f6;">
+              <h4 style="color: var(--text-primary); margin-bottom: 0.4rem; font-size: 0.95rem; font-weight: 800;">5. Staff Mobile PWA Portal & Smartphone Access</h4>
+              <p>Employees can access their personal timecards, estimated earnings, and printable payslips directly on their smartphones without downloading from an app store:</p>
+              <ol style="padding-left: 1.2rem; margin-top: 0.4rem;">
+                <li><strong>Smartphone Access:</strong> Staff open <code>https://rons-chicken-payroll.vercel.app?view=staff</code> on mobile Chrome (Android) or Safari (iPhone).</li>
+                <li><strong>Install to Home Screen (PWA):</strong>
+                  <ul>
+                    <li><strong>Android (Chrome):</strong> Tap the 3 dots <code>⋮</code> and select <strong>"Install App"</strong> or <strong>"Add to Home Screen"</strong>.</li>
+                    <li><strong>iPhone (Safari):</strong> Tap the <strong>Share</strong> button (box with upward arrow) and select <strong>"Add to Home Screen"</strong>.</li>
+                  </ul>
+                </li>
+                <li><strong>Self-Service:</strong> Staff choose their name or ID from the profile switcher, see their punch logs, view estimated net take-home pay, and view or print their official payslip anytime.</li>
+              </ol>
+            </div>
+
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; margin-top: 1.5rem;">
+            <button class="btn-bento btn-bento-orange" onclick="closeModal('guide-modal')">Got it / Close Guide</button>
+          </div>
         </div>
       </div>
     `;
@@ -886,6 +989,13 @@ function renderStaffBentoPortal() {
             <option value="${e.id}" ${e.id === currentEmp.id ? 'selected' : ''}>#${e.id} ${e.name}</option>
           `).join('')}
         </select>
+      </div>
+
+      <!-- Mobile Smartphone PWA Tip -->
+      <div style="background: rgba(121, 40, 202, 0.12); border: 1px solid rgba(121, 40, 202, 0.3); border-radius: var(--radius-sm); padding: 0.75rem 1rem; margin-bottom: 1.25rem;">
+        <div style="font-size: 0.78rem; color: var(--text-primary); line-height: 1.45;">
+          📱 <strong>Install on your Smartphone:</strong> Tap your mobile browser menu (<strong>⋮</strong> on Android Chrome or <strong>Share</strong> on iPhone Safari) and choose <strong>"Add to Home Screen"</strong> to use as a standalone mobile app!
+        </div>
       </div>
 
       <!-- Bento Cards Stack (Mobile PWA) -->
