@@ -2,97 +2,109 @@
 
 **Business Name:** Ron's Chicken (Lechon Manok & Liempo)  
 **Branch:** Cugman Branch (Cagayan de Oro City, Misamis Oriental, Philippines)  
-**Contact / Info:** 0928 775 6605 • [Facebook Page](https://www.facebook.com/pages/Rons-Chicken/1808066046182615)  
+**Client / Owner Contact:** Sir Irl & Management • 0928 775 6605 • [Facebook Page](https://www.facebook.com/pages/Rons-Chicken/1808066046182615)  
+**Developer:** Jason Jeff D. Velasquez  
 **Live Deployment (Vercel):** [https://rons-chicken-payroll.vercel.app](https://rons-chicken-payroll.vercel.app)  
-**GitHub Repository:** [https://github.com/jasonvelasquez1410/rons-chicken-payroll](https://github.com/jasonvelasquez1410/rons-chicken-payroll)
+**GitHub Repository:** [https://github.com/jasonvelasquez1410/rons-chicken-payroll](https://github.com/jasonvelasquez1410/rons-chicken-payroll)  
 
 ---
 
 ## 1. Project Background & Objective
 
-- **Current Biometric Hardware:** **Deli e3960** (Standalone biometric fingerprint attendance machine, non-WiFi).
-- **Current Process:** Staff log in via the Deli e3960 machine. Attendance records are downloaded manually to a USB flash drive as an Excel spreadsheet (`cugman_(August)Employee Attendance Record.xls`).
-- **Goal:** Provide a modern, offline-first Progressive Web Application (PWA) tailored for Ron's Chicken to ingest Deli e3960 USB attendance exports, automate DOLE/BIR compliant Philippine payroll calculations, offer a mobile staff self-service portal, and prepare for future internet-connected biometric devices.
+- **Current Biometric Hardware:** **Deli e3960** (Standalone fingerprint biometric attendance clock, non-WiFi).
+- **Core Workflow:** Staff punch on the Deli e3960 at Cugman branch. The supervisor downloads the attendance record to a USB flash drive as an Excel spreadsheet (`cugman_(August)Employee Attendance Record.xls`).
+- **Goal Achieved:** A Progressive Web Application (PWA) tailored for Ron's Chicken to ingest Deli e3960 USB attendance exports in under 1 second, automate DOLE/BIR compliant payroll calculations, manage cash advance (*vale*) ledgers, generate single-line print-ready batch payslips, and protect data via continuous local auto-backups with **$0 monthly server/database fees**.
 
 ---
 
-## 2. System Architecture & Tech Stack
+## 2. Core Modules & Implemented Features
 
-- **Frontend Core:** Pure HTML5, Vanilla Modern JavaScript (ES6+), Vanilla CSS (Zero heavy framework overhead).
-- **Spreadsheet Ingestion:** Embedded SheetJS (`xlsx.full.min.js`) for 100% offline client-side parsing of `.xls`, `.xlsx`, and `.csv` files.
-- **Persistence Layer (`js/db.js`):** LocalStorage & IndexedDB holding employee master records (31 staff preloaded), shift schedules, raw biometric punch logs, processed timecards, cutoffs, cash advance (vale) ledger, and settings.
-- **PWA & Offline (`sw.js`, `manifest.json`):** Service Worker with Network-First strategy (v3) ensuring instant updates on Vercel and full offline availability when installed on Android, iOS, Windows, or Tablets.
-- **Vercel Config (`vercel.json`):** Clean routing, manifest headers, and service worker caching headers.
+### A. Deli e3960 Biometric Ingestion (`js/biometric-parser.js`)
+- Parses multi-punch timestamp matrices exported by the Deli e3960.
+- Handles overnight roasting shifts, calculates late/undertime, deducts mandatory 1-hour lunch breaks for shifts > 5 hours, and generates comprehensive timecards for all 31 Cugman staff.
 
----
+### B. Philippine DOLE & BIR Payroll Engine (`js/payroll-engine.js`)
+- **Wages & Premiums:** Daily rate (₱438.00–₱480.00), Regular Overtime (125%), Night Shift Differential (10% from 10 PM–6 AM), and Daily Food Allowance (₱50/day).
+- **Statutory Deductions:** SSS (official contribution brackets), PhilHealth (5% total, 2.5% EE share), Pag-IBIG (₱100/cutoff), and BIR TRAIN Law withholding tax exemptions (minimum wage earners are 100% tax exempt).
+- **13th Month Pay Accrual:** Real-time continuous accrual (`Basic Pay / 12`).
 
-## 3. Philippine DOLE & BIR Payroll Engine (`js/payroll-engine.js`)
+### C. Interactive Cutoff Date Controller Bar (`js/app.js`)
+- Positioned across Overview, Attendance, and Payroll views.
+- **Preset Dropdowns:** Instant switching between `Aug 16 - Sep 05`, `Sep 01 - Sep 15`, `Sep 16 - Sep 30`, `Oct 01 - Oct 15`, `Oct 16 - Oct 31`.
+- **Custom Date Pickers:** `From:` and `To:` date pickers with `⚡ Apply & Recalculate`.
+- **`+ New Cutoff` Modal:** Enables adding and naming future cutoff periods.
 
-- **Wage Rates:** Daily rate (₱438.00 – ₱480.00) / Hourly rate (`Daily Rate / 8`).
-- **DOLE Overtime:** 125% regular OT premium for hours worked beyond 8 hours.
-- **Night Shift Differential:** 10% premium for work between 10:00 PM and 6:00 AM (crucial for late-night roasting and early morning prep shifts).
-- **Allowances & Incentives:** Daily meal/food allowance (₱50/day) and Roaster/Grillmaster performance incentives.
-- **Statutory Deductions:**
-  - **SSS:** Updated contribution schedule with semi-monthly cutoff splitting.
-  - **PhilHealth:** 5% standard rate (2.5% EE share).
-  - **Pag-IBIG (HDMF):** ₱100/cutoff (₱200/month).
-  - **Withholding Tax:** TRAIN Law brackets (minimum wage earners ≤ ₱10,417 per cutoff are 100% exempt).
-- **Cash Advance (Vale):** Integrated vale tracking and automated payroll deduction.
-- **13th Month Pay Accrual:** Real-time calculation (`Basic Pay / 12`).
+### D. Single-Line Print-Ready Batch Payslips (`js/app.js`, `css/style.css`)
+- 1-Click batch payslip generator for all 31 staff.
+- Header date formatting locked to a single line (`white-space: nowrap; flex-shrink: 0; Period: 2026-08-16 to 2026-08-31`) preventing awkward wrapping on printouts.
 
----
+### E. Data Safety & Continuous Auto-Backup Center (`js/db.js`, `js/app.js`)
+- **Client-Side Persistent Storage:** IndexedDB & LocalStorage with `navigator.storage.persist()` (immune to browser eviction during cache cleanups).
+- **Continuous Auto-Snapshots:** Rolling snapshots captured on every attendance upload, staff rate edit, or vale entry.
+- **1-Click Export / Import:** Instant `.json` database download/restore for easy computer transfers and Google Drive backup.
 
-## 4. Deli e3960 Parser & Timekeeping Engine (`js/biometric-parser.js`)
-
-- Ingests the matrix format exported by the Deli e3960 (`User ID:`, `Name:`, `Department:`, dates header `16, 17 ... 31, 1 ... 5`, and multi-line cell timestamps).
-- Groups punches per date, calculates total elapsed work intervals, deducts 1-hour lunch break for shifts > 5 hours, handles overnight cross-midnight shifts, and computes tardiness and undertime against assigned shift schedules.
+### F. Formal Proposal & Quotation Document (`Rons_Chicken_Custom_Payroll_Proposal_Quotation.html` / `.pdf`)
+- Single-page executive proposal with project scope, ₱30,000 quotation breakdown, 2-part milestone payment terms (50% / 50%), and Conforme signature block.
 
 ---
 
-## 5. UI / UX Design: "Mi Nomina" Bento Grid Theme
+## 3. Commercial Terms & Pricing Structure
 
-- **Design Reference:** Inspired by the *Mi Nomina* luxury Bento Grid payroll aesthetic.
-- **Signature Bento Cards:**
-  - 🟧 **Vibrant Tangerine Orange (`#FF5500`):** Employee & Biometrics Management.
-  - 🟪 **Electric Violet Purple (`#7928CA`):** Deli e3960 File Ingestion & Vale Ledger.
-  - ⬜ **High-Contrast Pure White (`#FFFFFF`):** DOLE / BIR Payroll Management & Net Pay Disbursal.
-  - ⬛ **Graphite Obsidian Glass:** Clean data panels and punch logs.
-- **Real-Time Theme Brightness Slider:** Sun icon (`☀️`) dimmer in the header allowing users to slide smoothly between **Midnight (0%)**, **Dark (30%)**, **Ambient (65%)**, and **Bright Light Mode (100%)** with `localStorage` persistence.
-- **1-Click Batch Payslip Generator:** Manager can generate and batch-print all 31 employee payslips in one continuous document.
-- **Staff Mobile PWA Portal:** Mobile-optimized self-service view with digital ID, mobile geofenced punch simulation, daily attendance logs, and personal payslips.
+- **Total One-Time Project Investment:** **₱30,000.00**
+  - Custom Payroll & Biometric Engine (Lifetime Ownership, $0 monthly fees): **₱25,000.00**
+  - Deployment, Onboarding, 1st Cutoff Assistance & 30-Day Warranty: **₱5,000.00**
+- **Milestone Payment Terms (50% / 50%):**
+  - **Milestone 1 (50% - ₱15,000.00):** System Delivery, UAT Access & Demo Acceptance
+  - **Milestone 2 (50% - ₱15,000.00):** Completion of 1st Live Cutoff Payroll Run & Final Turnover
 
 ---
 
-## 6. Directory File Structure
+## 4. Sales & Client Handover Playbook (Sir Irl)
+
+```mermaid
+graph TD
+    A[Step 1: Send Demo Link & Feature Highlights] --> B[Sir Irl Tests System on Phone/PC]
+    B --> C[Sir Irl Replies with Feedback / Questions]
+    C --> D[Step 2: Send 50/50 Milestone Terms & Attach Formal Proposal PDF]
+    D --> E[Step 3: Assist on 1st Live Cutoff & Receive Final Payment]
+```
+
+1. **Step 1 Message:** Send the friendly demo link message with remote payroll instructions.
+2. **Step 2 Message:** Upon his reply, send the pricing summary and attach `Rons_Chicken_Custom_Payroll_Proposal_Quotation_v2.pdf`.
+3. **Step 3 Live Run:** Assist management in running their first actual cutoff with live USB attendance.
+
+---
+
+## 5. File & Directory Structure
 
 ```
-📁 Ron's Chickent Custom Payroll System/
-├── 📄 project.md                       # Project master documentation (this file)
-├── 📄 README.md                        # Deployment & GitHub instructions
-├── 📄 index.html                       # Application shell (Manager & Staff PWA portals)
-├── 📄 manifest.json                    # Web App Manifest for mobile/desktop install
-├── 📄 sw.js                            # Service Worker v3 (Network-First offline caching)
-├── 📄 vercel.json                      # Vercel deployment configuration
-├── 📄 cugman_(August)Employee Attendance Record.xls # Real Deli e3960 attendance source
+📁 Ron's Chicken Custom Payroll System/
+├── 📄 project.md                                       # Master project documentation (this file)
+├── 📄 README.md                                        # Git & setup guide
+├── 📄 Rons_Chicken_Custom_Payroll_Proposal_Quotation.html # Single-page formal proposal source
+├── 📄 Rons_Chicken_Custom_Payroll_Proposal_Quotation_v2.pdf # Print-ready single-page proposal PDF
+├── 📄 index.html                                       # Application shell (PWA)
+├── 📄 manifest.json                                    # PWA manifest
+├── 📄 sw.js                                            # Service Worker (Network-First caching)
+├── 📄 vercel.json                                      # Vercel deployment config
+├── 📄 cugman_(August)Employee Attendance Record.xls    # Real Deli e3960 attendance sample
 ├── 📁 assets/
-│   └── 🖼️ logo.jpg                     # Official Ron's Chicken logo
+│   └── 🖼️ logo.jpg                                     # Ron's Chicken official logo
 ├── 📁 css/
-│   └── 🎨 style.css                    # Mi Nomina Bento Grid & Brightness Dimmer CSS
+│   └── 🎨 style.css                                    # Bento Grid, Theme Dimmer & Print CSS
 └── 📁 js/
-    ├── ⚙️ db.js                        # Offline database with preloaded 31 Cugman staff
-    ├── ⏱️ biometric-parser.js          # Deli e3960 multi-punch Excel parser & timecards
-    ├── 💰 payroll-engine.js           # Philippine DOLE/BIR compliant payroll engine
-    ├── 📡 device-sync.js              # Hardware USB config & Cloud push simulator
-    └── 🚀 app.js                      # Application controller, payslip generator & events
+    ├── ⚙️ db.js                                        # Persistent DB, Auto-Backups & 31 staff
+    ├── ⏱️ biometric-parser.js                          # Deli e3960 Excel parser & timecard engine
+    ├── 💰 payroll-engine.js                            # DOLE/BIR statutory calculation engine
+    ├── 📡 device-sync.js                               # Hardware USB config & Cloud push API
+    └── 🚀 app.js                                       # Cutoff controller, views, payslips & UI
 ```
 
 ---
 
-## 7. Useful Git & Maintenance Commands
+## 6. Resume Instructions (After Laptop Restart)
 
-```bash
-# Push updates to GitHub & auto-deploy to Vercel:
-git add .
-git commit -m "Update message"
-git push origin main
-```
+1. Open workspace: `c:\Users\USER\Documents\Programming Folder Rep\Ron's Chickent Custom Payroll System`
+2. Test live system anytime at: [https://rons-chicken-payroll.vercel.app](https://rons-chicken-payroll.vercel.app)
+3. Proposal PDF file ready to send: `Rons_Chicken_Custom_Payroll_Proposal_Quotation_v2.pdf`
+4. If Sir Irl requests custom adjustments or when his feedback arrives, proceed with live cutoff testing.
