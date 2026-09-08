@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Proposal & Quotation - Ron's Chicken Custom Payroll System</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap');
+
+    :root {
+      --primary: #d97706;
+      --primary-dark: #b45309;
+      --dark: #111827;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-600: #4b5563;
+      --gray-900: #111827;
+      --emerald: #059669;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--gray-900);
+      background: #f1f5f9;
+      padding: 2.5rem 1rem;
+      line-height: 1.6;
+    }
+
+    .document-container {
+      max-width: 850px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 3.5rem 3.5rem;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      border: 1px solid var(--gray-200);
+    }
+
+    /* Print Button Bar */
+    .action-bar {
+      max-width: 850px;
+      margin: 0 auto 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .btn-print {
+      background: #d97706;
+      color: #fff;
+      padding: 0.65rem 1.25rem;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
+    }
+
+    .btn-print:hover {
+      background: #b45309;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 2px solid var(--gray-900);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .brand-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--dark);
+      letter-spacing: -0.02em;
+    }
+
+    .brand-sub {
+      font-size: 0.82rem;
+      color: var(--gray-600);
+      margin-top: 0.25rem;
+    }
+
+    .proposal-meta {
+      text-align: right;
+      font-size: 0.82rem;
+      color: var(--gray-600);
+    }
+
+    .proposal-meta strong {
+      color: var(--dark);
+    }
+
+    .proposal-badge {
+      display: inline-block;
+      background: #fef3c7;
+      color: #92400e;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+
+    /* Client Info */
+    .client-card {
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      font-size: 0.88rem;
+    }
+
+    .client-card h4 {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      color: var(--primary-dark);
+      letter-spacing: 0.05em;
+      margin-bottom: 0.3rem;
+    }
+
+    /* Section Headings */
+    .section-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--dark);
+      border-bottom: 1px solid var(--gray-200);
+      padding-bottom: 0.4rem;
+      margin: 1.75rem 0 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Scope Items */
+    .scope-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .scope-card {
+      background: #fff;
+      border: 1px solid var(--gray-200);
+      border-radius: 8px;
+      padding: 1rem 1.15rem;
+      font-size: 0.84rem;
+    }
+
+    .scope-card strong {
+      display: block;
+      color: var(--dark);
+      font-size: 0.9rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .scope-card p {
+      color: var(--gray-600);
+      line-height: 1.45;
+    }
+
+    /* Pricing Table */
+    .table-pricing {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.25rem 0;
+      font-size: 0.88rem;
+    }
+
+    .table-pricing th {
+      background: var(--dark);
+      color: #ffffff;
+      text-align: left;
+      padding: 0.75rem 1rem;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .table-pricing td {
+      padding: 0.9rem 1rem;
+      border-bottom: 1px solid var(--gray-200);
+      vertical-align: top;
+    }
+
+    .table-pricing tr:last-child td {
+      border-bottom: none;
+    }
+
+    .total-row td {
+      font-weight: 800;
+      font-size: 1.05rem;
+      background: var(--gray-50);
+      color: var(--dark);
+      border-top: 2px solid var(--gray-900);
+    }
+
+    /* Milestone Box */
+    .milestone-box {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin: 1.25rem 0 2rem;
+      font-size: 0.85rem;
+    }
+
+    .milestone-box h4 {
+      color: #92400e;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .milestone-step {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.4rem 0;
+      border-bottom: 1px dashed #fcd34d;
+    }
+
+    .milestone-step:last-child {
+      border-bottom: none;
+    }
+
+    /* Conforme Section */
+    .conforme-section {
+      margin-top: 3rem;
+      border-top: 2px solid var(--gray-900);
+      padding-top: 1.5rem;
+    }
+
+    .conforme-text {
+      font-size: 0.82rem;
+      color: var(--gray-600);
+      margin-bottom: 2rem;
+      line-height: 1.5;
+    }
+
+    .signatures-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+    }
+
+    .sig-box {
+      text-align: left;
+    }
+
+    .sig-line {
+      border-top: 1px solid var(--gray-900);
+      margin-top: 3rem;
+      padding-top: 0.4rem;
+    }
+
+    .sig-name {
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: var(--dark);
+    }
+
+    .sig-title {
+      font-size: 0.8rem;
+      color: var(--gray-600);
+    }
+
+    @media print {
+      body {
+        background: #fff;
+        padding: 0;
+      }
+      .document-container {
+        border: none;
+        box-shadow: none;
+        padding: 1.5rem 1.5rem;
+        max-width: 100%;
+      }
+      .action-bar {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="action-bar">
+    <div style="font-size: 0.85rem; color: #475569;">Ron's Chicken Custom Payroll System • Proposal & Quotation</div>
+    <button class="btn-print" onclick="window.print()">🖨️ Print / Save as PDF</button>
+  </div>
+
+  <div class="document-container">
+    <!-- Header -->
+    <div class="header">
+      <div>
+        <div class="brand-title">RON'S CHICKEN CUSTOM PAYROLL SYSTEM</div>
+        <div class="brand-sub">Biometric Attendance, DOLE/BIR Compliance & Batch Payslip System</div>
+      </div>
+      <div class="proposal-meta">
+        <div class="proposal-badge">Project Proposal & Quotation</div>
+        <div><strong>Doc Ref:</strong> RC-PAY-2026-01</div>
+        <div><strong>Date:</strong> September 08, 2026</div>
+        <div><strong>Valid Until:</strong> October 08, 2026</div>
+      </div>
+    </div>
+
+    <!-- Client & Developer Details -->
+    <div class="client-card">
+      <div>
+        <h4>Prepared For (Client):</h4>
+        <div style="font-weight: 800; font-size: 1rem; color: var(--dark);">Sir Irl & Management</div>
+        <div>Ron's Chicken (Lechon Manok & Liempo)</div>
+        <div>Cugman Branch, Cagayan de Oro City</div>
+      </div>
+      <div>
+        <h4>Project Title & Deployment:</h4>
+        <div style="font-weight: 700;">Custom Payroll & Biometric Attendance PWA</div>
+        <div>Live URL: <a href="https://rons-chicken-payroll.vercel.app" target="_blank" style="color: #d97706; text-decoration: none; font-weight: 600;">rons-chicken-payroll.vercel.app</a></div>
+        <div>Target Device: Deli e3960 Biometrics (USB Mode + Cloud Ready)</div>
+      </div>
+    </div>
+
+    <!-- Executive Summary -->
+    <div class="section-title">1. Project Objective & Scope of Deliverables</div>
+    <p style="font-size: 0.86rem; color: var(--gray-600); margin-bottom: 1.25rem;">
+      To replace tedious manual Excel computations and error-prone payroll processing with a fast, tailored, offline-first Progressive Web Application (PWA) customized specifically for Ron's Chicken Cugman branch.
+    </p>
+
+    <div class="scope-grid">
+      <div class="scope-card">
+        <strong>⚡ 1. Deli e3960 USB Attendance Parser</strong>
+        <p>1-Click ingestion of the raw <code>Employee Attendance Record.xls</code> export. Parses punch intervals, handles overnight roasting shifts, late/undertime, and meal breaks for all 31 staff in under 1 second.</p>
+      </div>
+      <div class="scope-card">
+        <strong>⚖️ 2. DOLE & BIR Statutory Payroll Engine</strong>
+        <p>Automated computation of Daily/Hourly rates, Regular Overtime (125%), Night Shift Differential (10%), Food Allowance (₱50/day), SSS, PhilHealth, Pag-IBIG, and BIR Tax exemptions.</p>
+      </div>
+      <div class="scope-card">
+        <strong>📅 3. Interactive Cutoff Date Controller</strong>
+        <p>Pre-configured standard cutoffs (1st–15th & 16th–end of month) plus custom date pickers with instant recalculation of hours, pay, and payslips.</p>
+      </div>
+      <div class="scope-card">
+        <strong>💳 4. Cash Advance (*Vale*) & Loan Ledger</strong>
+        <p>Full tracking of employee advances and emergency loans with customizable installment splits per cutoff and automatic itemization on payslips.</p>
+      </div>
+      <div class="scope-card">
+        <strong>🖨️ 5. 1-Click Batch Printable Payslips</strong>
+        <p>Standardized, official single-line header payslips ready for bulk printing or thermal/letter paper signatures upon salary disbursement.</p>
+      </div>
+      <div class="scope-card">
+        <strong>🛡️ 6. Continuous Auto-Backup & $0 Server Fees</strong>
+        <p>Automated local snapshots, persistent browser storage protection, and 1-click full <code>.json</code> database export/import with lifetime ownership.</p>
+      </div>
+    </div>
+
+    <!-- Pricing Table -->
+    <div class="section-title">2. Investment & Quotation Summary</div>
+    <table class="table-pricing">
+      <thead>
+        <tr>
+          <th style="width: 70%;">Description of Services & Deliverables</th>
+          <th style="width: 30%; text-align: right;">Amount (PHP)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <strong>Custom Ron's Chicken Payroll & Biometric Attendance System</strong><br>
+            <span style="font-size: 0.8rem; color: var(--gray-600);">
+              • Tailored Deli e3960 Ingestion & DOLE/BIR Calculation Engine<br>
+              • 31 Cugman Branch Staff Preloaded & Configured<br>
+              • Vale/Loan Ledger, Cutoff Controller & Batch Payslip Generator<br>
+              • Progressive Web App (PWA) Offline-Ready on Mobile/Desktop<br>
+              • <strong>Lifetime Ownership with ₱0 Monthly Subscription Fees</strong>
+            </span>
+          </td>
+          <td style="text-align: right; font-weight: 700;">₱25,000.00</td>
+        </tr>
+        <tr>
+          <td>
+            <strong>System Setup, Deployment, Training & 1st Live Cutoff Assistance</strong><br>
+            <span style="font-size: 0.8rem; color: var(--gray-600);">
+              • Vercel Live Cloud Deployment + Offline Local Storage Setup<br>
+              • Operational Walkthrough & Staff / Management Onboarding<br>
+              • Dedicated Assistance during the First Live Cutoff Payroll Run<br>
+              • 30-Day Post-Launch Warranty & Minor Adjustments
+            </span>
+          </td>
+          <td style="text-align: right; font-weight: 700;">₱5,000.00</td>
+        </tr>
+        <tr class="total-row">
+          <td>TOTAL ONE-TIME PROJECT INVESTMENT</td>
+          <td style="text-align: right; color: var(--primary-dark);">₱30,000.00</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Milestone Payment Schedule -->
+    <div class="milestone-box">
+      <h4>💳 Milestone Payment Terms (2-Part Split):</h4>
+      <div class="milestone-step">
+        <span><strong>Milestone 1 (50% Downpayment):</strong> System Delivery, UAT Access & Demo Acceptance</span>
+        <strong style="color: #92400e;">₱15,000.00</strong>
+      </div>
+      <div class="milestone-step">
+        <span><strong>Milestone 2 (50% Final Balance):</strong> Completion of 1st Live Cutoff Run & Turnover</span>
+        <strong style="color: #92400e;">₱15,000.00</strong>
+      </div>
+    </div>
+
+    <!-- Conforme / Signatures -->
+    <div class="conforme-section">
+      <div class="conforme-text">
+        <strong>CONFORME & ACCEPTANCE:</strong><br>
+        By signing below, the Client approves the project scope, quotation, and milestone payment terms specified in this document for the delivery and turnover of the Ron's Chicken Custom Payroll System.
+      </div>
+
+      <div class="signatures-grid">
+        <div class="sig-box">
+          <div style="font-size: 0.78rem; text-transform: uppercase; color: var(--gray-600); margin-bottom: 0.2rem;">Prepared By (Developer):</div>
+          <div class="sig-line">
+            <div class="sig-name">JASON VELASQUEZ</div>
+            <div class="sig-title">Software Developer / System Consultant</div>
+            <div style="font-size: 0.75rem; color: var(--gray-600); margin-top: 0.2rem;">Date: ________________________</div>
+          </div>
+        </div>
+
+        <div class="sig-box">
+          <div style="font-size: 0.78rem; text-transform: uppercase; color: var(--gray-600); margin-bottom: 0.2rem;">Conforme & Approved By (Client):</div>
+          <div class="sig-line">
+            <div class="sig-name">SIR IRL / AUTHORIZED REPRESENTATIVE</div>
+            <div class="sig-title">Owner / Management, Ron's Chicken</div>
+            <div style="font-size: 0.75rem; color: var(--gray-600); margin-top: 0.2rem;">Date: ________________________</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>
