@@ -679,6 +679,13 @@ h1, h2, h3, h4, .brand-title, .bento-title {
   border-bottom: 2px solid #000;
   padding-bottom: 1rem;
   margin-bottom: 1.25rem;
+  gap: 1.5rem;
+}
+
+.payslip-meta-right {
+  text-align: right;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .payslip-brand {

@@ -1383,10 +1383,12 @@ function generatePayslipHTML(employeeId) {
             <p style="font-size: 0.72rem; color: #6b7280;">Deli e3960 Biometric Attendance Verified</p>
           </div>
         </div>
-        <div style="text-align: right;">
-          <div style="font-weight: 800; font-size: 1.1rem; color: #111827;">OFFICIAL PAYSLIP</div>
-          <div style="font-size: 0.75rem; color: #4b5563;">Period: ${activeCutoff.startDate} to ${activeCutoff.endDate}</div>
-          <div style="font-size: 0.72rem; color: #6b7280;">Date Issued: ${new Date().toLocaleDateString()}</div>
+        <div class="payslip-meta-right" style="text-align: right; white-space: nowrap; flex-shrink: 0;">
+          <div style="font-weight: 800; font-size: 1.1rem; color: #111827; letter-spacing: 0.02em;">OFFICIAL PAYSLIP</div>
+          <div style="font-size: 0.78rem; font-weight: 600; color: #374151; white-space: nowrap; margin-top: 0.2rem;">
+            Period: ${activeCutoff.startDate} to ${activeCutoff.endDate}
+          </div>
+          <div style="font-size: 0.72rem; color: #6b7280; white-space: nowrap; margin-top: 0.15rem;">Date Issued: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</div>
         </div>
       </div>
 
