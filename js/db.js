@@ -2073,6 +2073,21 @@ class DB {
     this.saveAdvances(advances);
   }
 
+  static deleteAdvance(id) {
+    let advances = this.getAdvances();
+    advances = advances.filter(a => a.id !== id);
+    this.saveAdvances(advances);
+  }
+
+  static updateAdvance(updated) {
+    const advances = this.getAdvances();
+    const idx = advances.findIndex(a => a.id === updated.id);
+    if (idx >= 0) {
+      advances[idx] = { ...advances[idx], ...updated };
+      this.saveAdvances(advances);
+    }
+  }
+
   // Leaves
   static getLeaves() {
     try {

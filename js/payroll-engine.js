@@ -187,8 +187,11 @@ class PayrollEngine {
 
       // Find active advances for employee
       const empAdvances = advances.filter(a => a.employeeId === emp.id && a.status === "Active");
-      const totalEmpAdvance = empAdvances.reduce((sum, a) => sum + (a.amount - (a.deducted || 0)), 0);
-      const advanceToDeduct = Math.min(totalEmpAdvance, options.maxAdvanceDeduct || 500);
+      const advanceToDeduct = empAdvances.reduce((sum, a) => {
+        const remaining = Math.max(0, (a.amount || 0) - (a.deducted || 0));
+        const perCutoff = a.deductionPerCutoff ? Math.min(a.deductionPerCutoff, remaining) : remaining;
+        return sum + perCutoff;
+      }, 0);
 
       // Run calculation
       const payroll = this.computeEmployeePayroll(emp, timecard, {

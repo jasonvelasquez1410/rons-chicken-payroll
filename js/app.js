@@ -179,6 +179,74 @@ function renderApp() {
         </div>
       </div>
 
+      <!-- Cash Advance / Vale / Loan Modal -->
+      <div id="advance-modal" class="modal-backdrop">
+        <div class="modal-card" style="max-width: 580px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <h3 style="color: var(--text-primary); font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+              ${ICONS.receipt} Add Staff Vale / Loan / Deduction
+            </h3>
+            <button class="btn-bento btn-bento-dark btn-sm" onclick="closeModal('advance-modal')">✕</button>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+            Add a cash advance, emergency loan, or custom deduction. It will automatically deduct from their gross pay and itemize on their payslip.
+          </p>
+
+          <form id="advance-form" onsubmit="handleSaveAdvance(event)">
+            <div style="display: grid; gap: 1rem;">
+              <div>
+                <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--text-secondary);">Select Employee</label>
+                <select id="adv-employee-id" required style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.9rem;">
+                  ${window.DB.getEmployees().map(e => `
+                    <option value="${e.id}">#${e.id} ${e.name} (${e.position || e.department})</option>
+                  `).join('')}
+                </select>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                  <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--text-secondary);">Deduction Type</label>
+                  <select id="adv-type" style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.9rem;">
+                    <option value="Cash Advance (Vale)">Cash Advance (Vale)</option>
+                    <option value="Emergency Staff Loan">Emergency Staff Loan</option>
+                    <option value="Uniform / Equipment">Uniform / Equipment</option>
+                    <option value="Meal / Food Vale">Meal / Food Vale</option>
+                    <option value="Other Custom Deduction">Other Custom Deduction</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--text-secondary);">Date Issued</label>
+                  <input type="date" id="adv-date" required value="${new Date().toISOString().split('T')[0]}" style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.9rem;">
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                  <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--text-secondary);">Total Amount (₱)</label>
+                  <input type="number" id="adv-amount" min="1" step="0.5" required placeholder="e.g. 500" style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.9rem;">
+                </div>
+
+                <div>
+                  <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--text-secondary);">Deduction per Cutoff (₱)</label>
+                  <input type="number" id="adv-cutoff-deduct" min="1" step="0.5" placeholder="Leave blank for full" style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.9rem;">
+                </div>
+              </div>
+
+              <div>
+                <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--text-secondary);">Reason / Remarks</label>
+                <input type="text" id="adv-reason" placeholder="e.g. Medicine, Family emergency, Motorcycle gas vale" style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.9rem;">
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1rem;">
+                <button type="button" class="btn-bento btn-bento-dark" onclick="closeModal('advance-modal')">Cancel</button>
+                <button type="submit" class="btn-bento btn-bento-orange" style="font-weight: 800;">${ICONS.check} Save & Deduct in Payroll</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
       <!-- Payslip Printable Modal -->
       <div id="payslip-modal" class="modal-backdrop">
         <div class="modal-card" style="max-width: 760px; background: transparent; border: none; box-shadow: none;">
@@ -488,14 +556,43 @@ function renderBentoPayroll() {
 
 function renderBentoAdvances() {
   const advances = window.DB.getAdvances();
+  const activeList = advances.filter(a => a.status === 'Active');
+  const activeCount = activeList.length;
+  const totalLoanBalance = activeList.reduce((s, a) => s + Math.max(0, (a.amount || 0) - (a.deducted || 0)), 0);
+  const totalCutoffDeduct = activeList.reduce((s, a) => {
+    const remaining = Math.max(0, (a.amount || 0) - (a.deducted || 0));
+    return s + (a.deductionPerCutoff ? Math.min(a.deductionPerCutoff, remaining) : remaining);
+  }, 0);
 
   return `
     <div class="user-welcome-banner">
       <div>
         <h1 style="color: var(--text-primary); font-size: 1.75rem;">Cash Advances & Vale Ledger</h1>
-        <p style="color: var(--text-secondary);">Track emergency staff loans and automated payroll deductions</p>
+        <p style="color: var(--text-secondary);">Track emergency staff loans, cash advances, and automated payroll deductions</p>
       </div>
-      <button class="btn-bento btn-bento-purple" onclick="alert('Vale ledger synchronized.')">+ New Vale Entry</button>
+      <button class="btn-bento btn-bento-purple" onclick="openAdvanceModal()">+ New Vale / Loan Entry</button>
+    </div>
+
+    <!-- Quick Stats Bento -->
+    <div class="bento-grid" style="margin-bottom: 1.5rem;">
+      <div class="bento-card bento-purple col-4">
+        <div class="bento-badge-circle">${ICONS.receipt}</div>
+        <div class="bento-value">₱${totalLoanBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+        <div class="bento-title">Active Loan Balance</div>
+        <div class="bento-meta">${activeCount} active staff advance requests</div>
+      </div>
+      <div class="bento-card bento-orange col-4">
+        <div class="bento-badge-circle">${ICONS.payroll}</div>
+        <div class="bento-value">₱${totalCutoffDeduct.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+        <div class="bento-title">Cutoff Deduction</div>
+        <div class="bento-meta">Auto-deducted from gross earnings this cutoff</div>
+      </div>
+      <div class="bento-card bento-white col-4" onclick="openAdvanceModal()" style="cursor: pointer;">
+        <div class="bento-badge-circle">${ICONS.check}</div>
+        <div class="bento-value" style="color: #111;">+ Add Entry</div>
+        <div class="bento-title" style="color: #111;">New Vale / Loan</div>
+        <div class="bento-meta" style="color: #6b7280;">Click to record cash advance or loan</div>
+      </div>
     </div>
 
     <div class="data-panel-card">
@@ -505,23 +602,49 @@ function renderBentoAdvances() {
             <tr>
               <th>Vale ID</th>
               <th>Employee Name</th>
+              <th>Type</th>
               <th>Date Issued</th>
-              <th>Amount</th>
-              <th>Reason</th>
+              <th>Total Amount</th>
+              <th>Cutoff Deduction</th>
+              <th>Reason / Remarks</th>
               <th>Status</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            ${advances.map(a => `
+            ${advances.length === 0 ? `
               <tr>
-                <td><strong>${a.id}</strong></td>
-                <td style="font-weight: 700; color: var(--text-primary);">${a.employeeName}</td>
-                <td>${a.date}</td>
-                <td style="font-weight: 800; color: var(--bento-orange);">₱${a.amount.toFixed(2)}</td>
-                <td>${a.reason}</td>
-                <td><span class="pill pill-orange">${a.status}</span></td>
+                <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 2rem;">No cash advance or loan records found. Click <strong>+ New Vale / Loan Entry</strong> to add one.</td>
               </tr>
-            `).join('')}
+            ` : advances.map(a => {
+              const remaining = Math.max(0, (a.amount || 0) - (a.deducted || 0));
+              const cutoffDeduct = a.deductionPerCutoff ? Math.min(a.deductionPerCutoff, remaining) : remaining;
+              const isActive = a.status === 'Active';
+              return `
+                <tr>
+                  <td><strong>${a.id}</strong></td>
+                  <td style="font-weight: 700; color: var(--text-primary);">#${a.employeeId} ${a.employeeName}</td>
+                  <td><span class="pill ${a.type && a.type.includes('Loan') ? 'pill-purple' : 'pill-orange'}">${a.type || 'Cash Advance (Vale)'}</span></td>
+                  <td>${a.date}</td>
+                  <td style="font-weight: 800; color: var(--text-primary);">₱${(a.amount || 0).toFixed(2)}</td>
+                  <td style="font-weight: 700; color: var(--accent-rose);">₱${cutoffDeduct.toFixed(2)}</td>
+                  <td>${a.reason || '-'}</td>
+                  <td>
+                    <span class="pill ${isActive ? 'pill-orange' : 'pill-emerald'}">${a.status}</span>
+                  </td>
+                  <td>
+                    <div style="display: flex; gap: 0.4rem;">
+                      <button class="btn-bento btn-bento-dark btn-sm" style="font-size: 0.72rem; padding: 0.25rem 0.6rem;" onclick="toggleAdvanceStatus('${a.id}')" title="${isActive ? 'Mark as Paid / Settled' : 'Reactivate'}">
+                        ${isActive ? '✓ Settle' : '↺ Reactivate'}
+                      </button>
+                      <button class="btn-bento btn-bento-dark btn-sm" style="font-size: 0.72rem; color: var(--accent-rose); padding: 0.25rem 0.6rem;" onclick="deleteAdvanceEntry('${a.id}')" title="Delete">
+                        ✕
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              `;
+            }).join('')}
           </tbody>
         </table>
       </div>
@@ -740,10 +863,14 @@ function generatePayslipHTML(employeeId) {
   const shifts = window.DB.getShifts();
   const timecard = window.BiometricParser.calculateTimecard(emp, activeCutoff.startDate, activeCutoff.endDate, shifts);
   const advances = window.DB.getAdvances().filter(a => a.employeeId === emp.id && a.status === 'Active');
-  const advanceDeduct = advances.reduce((s, a) => s + (a.amount - (a.deducted || 0)), 0);
+  const advanceDeduct = advances.reduce((sum, a) => {
+    const remaining = Math.max(0, (a.amount || 0) - (a.deducted || 0));
+    const perCutoff = a.deductionPerCutoff ? Math.min(a.deductionPerCutoff, remaining) : remaining;
+    return sum + perCutoff;
+  }, 0);
 
   const payroll = window.PayrollEngine.computeEmployeePayroll(emp, timecard, {
-    cashAdvanceDeduction: Math.min(advanceDeduct, 500),
+    cashAdvanceDeduction: advanceDeduct,
     incentives: (emp.position && emp.position.includes("Grill")) ? 200 : 0
   });
 
@@ -827,10 +954,23 @@ function generatePayslipHTML(employeeId) {
             <span>Pag-IBIG:</span>
             <span>-₱${payroll.deductions.pagIbig.toFixed(2)}</span>
           </div>
-          ${payroll.deductions.cashAdvance > 0 ? `
+          ${advances.map(a => {
+            const remaining = Math.max(0, (a.amount || 0) - (a.deducted || 0));
+            const deduct = a.deductionPerCutoff ? Math.min(a.deductionPerCutoff, remaining) : remaining;
+            if (deduct <= 0) return '';
+            const typeLabel = a.type || 'Cash Advance (Vale)';
+            const reasonLabel = a.reason ? ` (${a.reason})` : '';
+            return `
+              <div class="payslip-row">
+                <span>${typeLabel}${reasonLabel}:</span>
+                <span style="color: var(--accent-rose); font-weight: 700;">-₱${deduct.toFixed(2)}</span>
+              </div>
+            `;
+          }).join('')}
+          ${advances.length === 0 && payroll.deductions.cashAdvance > 0 ? `
             <div class="payslip-row">
               <span>Cash Advance (Vale):</span>
-              <span>-₱${payroll.deductions.cashAdvance.toFixed(2)}</span>
+              <span style="color: var(--accent-rose); font-weight: 700;">-₱${payroll.deductions.cashAdvance.toFixed(2)}</span>
             </div>
           ` : ''}
           <div class="payslip-row payslip-total">
@@ -966,12 +1106,70 @@ function exportAttendanceCSV() {
   a.click();
 }
 
+function openAdvanceModal() {
+  openModal('advance-modal');
+}
+
+function handleSaveAdvance(event) {
+  event.preventDefault();
+  const empId = parseInt(document.getElementById('adv-employee-id').value, 10);
+  const emp = window.DB.getEmployeeById(empId);
+  if (!emp) return;
+
+  const type = document.getElementById('adv-type').value;
+  const date = document.getElementById('adv-date').value;
+  const amount = parseFloat(document.getElementById('adv-amount').value) || 0;
+  const cutoffVal = document.getElementById('adv-cutoff-deduct').value;
+  const cutoffDeduct = cutoffVal ? parseFloat(cutoffVal) : amount;
+  const reason = document.getElementById('adv-reason').value || type;
+
+  const newAdvance = {
+    id: `VA-${Date.now().toString().slice(-4)}`,
+    employeeId: emp.id,
+    employeeName: emp.name,
+    type,
+    date,
+    amount,
+    deductionPerCutoff: cutoffDeduct,
+    deducted: 0,
+    reason,
+    status: 'Active'
+  };
+
+  window.DB.addAdvance(newAdvance);
+  cachedPayrollSummary = window.PayrollEngine.runBranchPayroll(activeCutoff);
+  closeModal('advance-modal');
+  renderApp();
+}
+
+function toggleAdvanceStatus(id) {
+  const advances = window.DB.getAdvances();
+  const adv = advances.find(a => a.id === id);
+  if (!adv) return;
+  adv.status = (adv.status === 'Active') ? 'Settled' : 'Active';
+  window.DB.updateAdvance(adv);
+  cachedPayrollSummary = window.PayrollEngine.runBranchPayroll(activeCutoff);
+  renderApp();
+}
+
+function deleteAdvanceEntry(id) {
+  if (confirm("Are you sure you want to remove this deduction entry?")) {
+    window.DB.deleteAdvance(id);
+    cachedPayrollSummary = window.PayrollEngine.runBranchPayroll(activeCutoff);
+    renderApp();
+  }
+}
+
 // Global Exports
 window.navigateTo = navigateTo;
 window.setMode = setMode;
 window.openUploadModal = openUploadModal;
+window.openAdvanceModal = openAdvanceModal;
 window.closeModal = closeModal;
 window.handleFileSelected = handleFileSelected;
+window.handleSaveAdvance = handleSaveAdvance;
+window.toggleAdvanceStatus = toggleAdvanceStatus;
+window.deleteAdvanceEntry = deleteAdvanceEntry;
 window.showEmployeePayslip = showEmployeePayslip;
 window.generateAllBatchPayslips = generateAllBatchPayslips;
 window.recalculatePayroll = recalculatePayroll;
@@ -980,3 +1178,4 @@ window.exportAttendanceCSV = exportAttendanceCSV;
 window.changeStaffUser = changeStaffUser;
 window.staffSelfPunch = staffSelfPunch;
 window.handleBrightnessChange = handleBrightnessChange;
+
