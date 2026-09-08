@@ -35,10 +35,8 @@ function initApp() {
     }
     applyBrightness(currentBrightness);
 
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('view') === 'staff') {
-      currentMode = 'staff';
-    }
+    // Enforce Manager Portal (Staff smartphone punching disabled per store policy)
+    currentMode = 'manager';
 
     const cutoffs = (window.DB && typeof window.DB.getCutoffs === 'function') ? window.DB.getCutoffs() : [];
     activeCutoff = (cutoffs && cutoffs.length > 0) ? cutoffs[0] : {
@@ -125,9 +123,8 @@ function renderApp() {
             <span id="brightness-label" style="min-width: 46px;">${getBrightnessName(currentBrightness)}</span>
           </div>
 
-          <div class="mode-switch-pill">
-            <button class="mode-pill-btn active" onclick="setMode('manager')">${ICONS.dashboard} Manager</button>
-            <button class="mode-pill-btn" onclick="setMode('staff')">${ICONS.employee} Staff PWA</button>
+          <div class="pill pill-orange" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem;">
+            ${ICONS.dashboard} Manager Portal
           </div>
         </div>
       </header>
@@ -451,18 +448,12 @@ function renderApp() {
 
             <!-- Section 5 -->
             <div style="background: var(--bg-surface); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid #3b82f6;">
-              <h4 style="color: var(--text-primary); margin-bottom: 0.4rem; font-size: 0.95rem; font-weight: 800;">5. Staff Mobile PWA Portal & Smartphone Access</h4>
-              <p>Employees can access their personal timecards, estimated earnings, and printable payslips directly on their smartphones without downloading from an app store:</p>
-              <ol style="padding-left: 1.2rem; margin-top: 0.4rem;">
-                <li><strong>Smartphone Access:</strong> Staff open <code>https://rons-chicken-payroll.vercel.app?view=staff</code> on mobile Chrome (Android) or Safari (iPhone).</li>
-                <li><strong>Install to Home Screen (PWA):</strong>
-                  <ul>
-                    <li><strong>Android (Chrome):</strong> Tap the 3 dots <code>⋮</code> and select <strong>"Install App"</strong> or <strong>"Add to Home Screen"</strong>.</li>
-                    <li><strong>iPhone (Safari):</strong> Tap the <strong>Share</strong> button (box with upward arrow) and select <strong>"Add to Home Screen"</strong>.</li>
-                  </ul>
-                </li>
-                <li><strong>Self-Service:</strong> Staff choose their name or ID from the profile switcher, see their punch logs, view estimated net take-home pay, and view or print their official payslip anytime.</li>
-              </ol>
+              <h4 style="color: var(--text-primary); margin-bottom: 0.4rem; font-size: 0.95rem; font-weight: 800;">5. Physical Biometric Attendance Policy (Mobile Clock-In Disabled)</h4>
+              <p><strong>Mobile smartphone check-in is strictly disabled.</strong> In accordance with store policy, staff must physically report in person to the Cugman branch and punch in/out on the physical Deli e3960 fingerprint biometric machine.</p>
+              <ul style="padding-left: 1.2rem; margin-top: 0.4rem;">
+                <li><strong>No Remote Punching:</strong> To guarantee full attendance accountability and prevent time theft or buddy punching, attendance cannot be logged via mobile phones.</li>
+                <li><strong>Verified Records:</strong> All attendance records originate from the Deli e3960 attendance export, ensuring 100% verified payroll computations.</li>
+              </ul>
             </div>
 
           </div>
@@ -999,18 +990,17 @@ function renderStaffBentoPortal() {
       </div>
 
       <!-- Bento Cards Stack (Mobile PWA) -->
-      <div style="display: flex; flex-direction: column; gap: 1.2rem;">
-
-        <!-- Big Orange Bento: Mobile Time Clock -->
-        <div class="bento-card bento-orange" onclick="staffSelfPunch(${currentEmp.id})">
+        <!-- Deli e3960 Physical Attendance Card -->
+        <div class="bento-card bento-orange" style="cursor: default;">
           <div class="bento-card-header">
             <div class="bento-badge-circle">${ICONS.fingerprint}</div>
-            <span class="bento-tag">Tap to Punch</span>
+            <span class="bento-tag">Physical Biometric Machine</span>
           </div>
           <div>
-            <div class="bento-title">Biometric Time Clock</div>
-            <div class="bento-meta" style="margin-top: 0.4rem;">Tap to record mobile check-in (Cugman Geofenced)</div>
-            <div id="punch-feedback" style="margin-top: 0.75rem; font-weight: 700; font-size: 0.85rem;"></div>
+            <div class="bento-title">Deli e3960 Attendance Machine</div>
+            <div class="bento-meta" style="margin-top: 0.4rem;">
+              Mobile check-in is disabled. Staff must report in person and punch in/out on the Deli e3960 biometric attendance device at the Cugman branch.
+            </div>
           </div>
         </div>
 
