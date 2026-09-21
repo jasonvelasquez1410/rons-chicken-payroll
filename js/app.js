@@ -58,18 +58,13 @@ function initApp() {
       cachedPayrollSummary = window.PayrollEngine.runBranchPayroll(activeCutoff);
     }
 
+    // Service worker disabled for live desktop/mobile synchronization
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js').then((reg) => {
-        reg.update().catch(() => {});
-      }).catch(() => {});
-
-      let refreshing = false;
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!refreshing) {
-          refreshing = true;
-          window.location.reload();
+      navigator.serviceWorker.getRegistrations().then(function(regs) {
+        for (var i = 0; i < regs.length; i++) {
+          regs[i].unregister();
         }
-      });
+      }).catch(function() {});
     }
   } catch (err) {
     console.error("[Ron's Payroll] Init Error:", err);

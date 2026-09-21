@@ -68,8 +68,8 @@ const DEFAULT_SETTINGS = {
   nightDiffEnd: "06:00",
   sssDeductionType: "semimonthly", // deducted every 2nd cutoff or split
   philHealthRate: 0.05, // 5% total (2.5% employee share)
-  pagIbigDeduction: 100, // â‚±100/cutoff (â‚±200/month)
-  currencySymbol: "â‚±"
+  pagIbigDeduction: 100, // ₱100/cutoff (₱200/month)
+  currencySymbol: "₱"
 };
 
 const DEFAULT_SHIFTS = [

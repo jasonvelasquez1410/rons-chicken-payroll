@@ -111,30 +111,29 @@ graph TD
 
 ### Technical Fixes Implemented & Deployed:
 1. **Strict Cache-Control Headers (`vercel.json`):**
-   - Configured `no-cache, no-store, must-revalidate, max-age=0` on `index.html` and `sw.js` to ensure browsers never hold stale worker or shell files.
-2. **Auto-Purge & Direct Network Fetching (`sw.js` & `index.html`):**
-   - Added automatic deregistration of legacy Service Workers on load in `index.html`.
-   - Updated `sw.js` to clear all caches upon activation and route all fetches directly to the live network.
-3. **Non-Blocking Font & Style Assets (`css/style.css` & `index.html`):**
-   - Replaced CSS `@import` with asynchronous `<link rel="preconnect">` in `<head>` to prevent network blocking.
-4. **Resilient Dark Fallbacks:**
-   - Inline dark background (`#080c14`), animated spinner, and emergency manual refresh button placed directly in raw `index.html`.
+   - Configured global `no-cache, no-store, must-revalidate, max-age=0` with `Pragma` and `Expires` headers on all responses so browsers always fetch live files.
+2. **Eliminate SW Re-Registration & ControllerChange Reload Loop (`js/app.js` & `sw.js`):**
+   - Removed SW registration from `app.js` which previously fought with `index.html` unregistration logic.
+   - Configured `sw.js` as an auto self-destruct script that automatically purges all Cache Storage and unregisters itself whenever legacy browsers check it.
+3. **Asset Cache Busting Query Parameters (`index.html`):**
+   - Appended `?v=2.1.0` to `style.css`, `db.js`, `biometric-parser.js`, `payroll-engine.js`, `device-sync.js`, and `app.js` to ensure browsers bypass cached scripts.
+4. **Resolved Quirks Mode & Currency Symbol Encoding:**
+   - Ensured strict standard mode `<!DOCTYPE html>` at byte 0.
+   - Fixed Philippine Peso symbol encoding (`₱`) in `js/db.js`.
 
 ### Key Commits Pushed to `main`:
 - `92b1867`: Anti-white-screen inline styling, safe storage fallback, deferred SheetJS.
 - `0ece806`: Strict no-cache headers in `vercel.json`, SW auto-update controller listener.
 - `6ac5abf`: Non-blocking Google Fonts head links, auto-purge stale SW registrations, direct network fetch in `sw.js`.
+- Latest: Self-destructing SW, asset cache-busting `?v=2.1.0`, fix SW reload loop, and clean Vercel headers.
 
 ---
 
-## 7. Resume & Next Steps Playbook (After Laptop Restart / Shutdown)
+## 7. Client Communication & Reply to Sir Irl
 
-1. **Workspace Location:** `c:\Users\USER\Documents\Programming Folder Rep\Ron's Chickent Custom Payroll System`
-2. **Live URL:** [https://rons-chicken-payroll.vercel.app](https://rons-chicken-payroll.vercel.app)
-3. **Client Testing Checkpoint (Sir Irl):**
-   - **Step 1:** Wait for Sir Irl's reply after testing on **Microsoft Edge** or mobile phone (`https://rons-chicken-payroll.vercel.app`).
-   - **Step 2:** If he provides a screenshot of `F12` Console or confirms it's working in Edge, guide him or address any branch-specific feedback.
-4. **Commercial Handover & Proposal:**
-   - Once Sir Irl is happy seeing the working dashboard on desktop, send the **₱30,000 Quotation & 50/50 Milestone Agreement** (`Rons_Chicken_Custom_Payroll_Proposal_Quotation_v2.pdf`).
-   - Coordinate the 1st live cutoff assist with live USB attendance exports from their Cugman Deli e3960.
+**Suggested Tagalog Reply to Sir Irl:**
+> "Hi Sir Irl, naayos na po! Na-clear na po natin yung legacy service worker cache conflict na nagko-cause ng blank white page sa desktop Chrome/Edge. Paki-refresh po ulit yung link sa Chrome/Edge (or press `Ctrl + F5` minsan lang para ma-load yung updated version):
+> 👉 **https://rons-chicken-payroll.vercel.app**
+> 
+> Makikita niyo na po yung buong Ron's Chicken Cugman Manager Portal at Biometric Attendance Records!"
 

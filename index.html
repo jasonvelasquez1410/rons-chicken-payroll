@@ -33,15 +33,15 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <!-- Stylesheet -->
-  <link rel="stylesheet" href="css/style.css">
+  <!-- Stylesheet with Cache-Buster -->
+  <link rel="stylesheet" href="css/style.css?v=2.1.0">
 
   <!-- SheetJS CDN for offline / client-side Excel Parsing (.xls / .xlsx) - Deferred so it does not block rendering -->
   <script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <!-- Auto-Purge Stale SW & Emergency Error Trap -->
   <script>
-    // Ensure all stale Service Worker registrations from previous test builds are cleanly cleared
+    // Ensure all stale Service Worker registrations & caches from previous builds are cleanly cleared
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(function(registrations) {
         for (var i = 0; i < registrations.length; i++) {
@@ -49,6 +49,12 @@
         }
       }).catch(function() {});
     }
+    if ('caches' in window) {
+      caches.keys().then(function(names) {
+        return Promise.all(names.map(function(name) { return caches.delete(name); }));
+      }).catch(function() {});
+    }
+
     window.__ronsAppReady = false;
 
     window.forceClearAndReload = function() {
@@ -107,11 +113,11 @@
     </div>
   </div>
 
-  <!-- Application Scripts -->
-  <script src="js/db.js"></script>
-  <script src="js/biometric-parser.js"></script>
-  <script src="js/payroll-engine.js"></script>
-  <script src="js/device-sync.js"></script>
-  <script src="js/app.js"></script>
+  <!-- Application Scripts with Cache-Busters -->
+  <script src="js/db.js?v=2.1.0"></script>
+  <script src="js/biometric-parser.js?v=2.1.0"></script>
+  <script src="js/payroll-engine.js?v=2.1.0"></script>
+  <script src="js/device-sync.js?v=2.1.0"></script>
+  <script src="js/app.js?v=2.1.0"></script>
 </body>
 </html>
