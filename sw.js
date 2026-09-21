@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rons-chicken-payroll-v4';
+const CACHE_NAME = 'rons-chicken-payroll-v5';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
