@@ -102,9 +102,39 @@ graph TD
 
 ---
 
-## 6. Resume Instructions (After Laptop Restart)
+## 6. Incident Log & Technical Resolution (Desktop Cache & Blank Screen)
 
-1. Open workspace: `c:\Users\USER\Documents\Programming Folder Rep\Ron's Chickent Custom Payroll System`
-2. Test live system anytime at: [https://rons-chicken-payroll.vercel.app](https://rons-chicken-payroll.vercel.app)
-3. Proposal PDF file ready to send: `Rons_Chicken_Custom_Payroll_Proposal_Quotation_v2.pdf`
-4. If Sir Irl requests custom adjustments or when his feedback arrives, proceed with live cutoff testing.
+### Issue Summary:
+- **Reported By:** Sir Irl (Client Management)
+- **Symptom:** Desktop Google Chrome loading a solid white screen (`rons-chicken-payroll.vercel.app`) with no theme background or spinner.
+- **Root Cause:** Sir Irl's desktop Chrome held onto an older Service Worker / HTTP cache from a previous build. Because PWAs prioritize cached assets, standard refreshes (`F5`) loaded the stale cached build instead of pulling new files from Vercel.
+
+### Technical Fixes Implemented & Deployed:
+1. **Strict Cache-Control Headers (`vercel.json`):**
+   - Configured `no-cache, no-store, must-revalidate, max-age=0` on `index.html` and `sw.js` to ensure browsers never hold stale worker or shell files.
+2. **Auto-Purge & Direct Network Fetching (`sw.js` & `index.html`):**
+   - Added automatic deregistration of legacy Service Workers on load in `index.html`.
+   - Updated `sw.js` to clear all caches upon activation and route all fetches directly to the live network.
+3. **Non-Blocking Font & Style Assets (`css/style.css` & `index.html`):**
+   - Replaced CSS `@import` with asynchronous `<link rel="preconnect">` in `<head>` to prevent network blocking.
+4. **Resilient Dark Fallbacks:**
+   - Inline dark background (`#080c14`), animated spinner, and emergency manual refresh button placed directly in raw `index.html`.
+
+### Key Commits Pushed to `main`:
+- `92b1867`: Anti-white-screen inline styling, safe storage fallback, deferred SheetJS.
+- `0ece806`: Strict no-cache headers in `vercel.json`, SW auto-update controller listener.
+- `6ac5abf`: Non-blocking Google Fonts head links, auto-purge stale SW registrations, direct network fetch in `sw.js`.
+
+---
+
+## 7. Resume & Next Steps Playbook (After Laptop Restart / Shutdown)
+
+1. **Workspace Location:** `c:\Users\USER\Documents\Programming Folder Rep\Ron's Chickent Custom Payroll System`
+2. **Live URL:** [https://rons-chicken-payroll.vercel.app](https://rons-chicken-payroll.vercel.app)
+3. **Client Testing Checkpoint (Sir Irl):**
+   - **Step 1:** Wait for Sir Irl's reply after testing on **Microsoft Edge** or mobile phone (`https://rons-chicken-payroll.vercel.app`).
+   - **Step 2:** If he provides a screenshot of `F12` Console or confirms it's working in Edge, guide him or address any branch-specific feedback.
+4. **Commercial Handover & Proposal:**
+   - Once Sir Irl is happy seeing the working dashboard on desktop, send the **₱30,000 Quotation & 50/50 Milestone Agreement** (`Rons_Chicken_Custom_Payroll_Proposal_Quotation_v2.pdf`).
+   - Coordinate the 1st live cutoff assist with live USB attendance exports from their Cugman Deli e3960.
+
