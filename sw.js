@@ -28,42 +28,22 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cache) => {
-          if (cache !== CACHE_NAME) {
-            console.log('[Service Worker] Deleting old cache', cache);
-            return caches.delete(cache);
-          }
+          console.log('[Service Worker] Clearing cache', cache);
+          return caches.delete(cache);
         })
       );
     }).then(() => self.clients.claim())
   );
 });
 
-// Network first, fallback to cache for fresh deployment updates
+// Always direct to network to prevent stale offline locks
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
-  
-  // Only intercept http/https schemes
   if (!event.request.url.startsWith('http')) return;
 
   event.respondWith(
-    fetch(event.request)
-      .then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200) {
-          const responseClone = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseClone);
-          }).catch(() => {});
-        }
-        return networkResponse;
-      })
-      .catch(() => {
-        return caches.match(event.request).then((cachedResponse) => {
-          if (cachedResponse) return cachedResponse;
-          if (event.request.headers.get('accept')?.includes('text/html') || event.request.mode === 'navigate') {
-            return caches.match('./index.html');
-          }
-          return new Response('Network offline', { status: 503, headers: { 'Content-Type': 'text/plain' } });
-        });
-      })
+    fetch(event.request).catch(() => {
+      return caches.match(event.request);
+    })
   );
 });

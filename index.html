@@ -28,14 +28,27 @@
     @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 
+  <!-- Fonts (Non-blocking) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
   <!-- Stylesheet -->
   <link rel="stylesheet" href="css/style.css">
 
   <!-- SheetJS CDN for offline / client-side Excel Parsing (.xls / .xlsx) - Deferred so it does not block rendering -->
   <script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-  <!-- Emergency Error Trap & Recovery Script -->
+  <!-- Auto-Purge Stale SW & Emergency Error Trap -->
   <script>
+    // Ensure all stale Service Worker registrations from previous test builds are cleanly cleared
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for (var i = 0; i < registrations.length; i++) {
+          registrations[i].unregister();
+        }
+      }).catch(function() {});
+    }
     window.__ronsAppReady = false;
 
     window.forceClearAndReload = function() {
