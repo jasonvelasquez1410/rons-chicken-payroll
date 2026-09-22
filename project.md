@@ -137,3 +137,41 @@ graph TD
 > 
 > Makikita niyo na po yung buong Ron's Chicken Cugman Manager Portal at Biometric Attendance Records!"
 
+---
+
+## 8. 🔔 PRIORITY REMINDER FOR NEXT SESSION: Firebase Real-Time Cloud Sync
+
+> [!IMPORTANT]
+> **TOP RESUME ITEM:** When resuming this project with the developer/user, **REMIND THE USER TO INTEGRATE FIREBASE CLOUD SYNC**.
+> 
+> **Why:** Currently, the system stores data in local device storage (IndexedDB/localStorage). If Sir Irl uploads attendance on his laptop, he won't see it on his smartphone unless we enable Firebase Cloud Sync.
+
+### 📋 Firebase Cloud Sync Blueprint (100% Free / $0 Monthly Cost):
+- **Service:** Google Firebase Firestore (Spark Plan - Free Forever)
+- **Quotas vs. Usage:**
+  - Free Tier: 50,000 reads/day, 20,000 writes/day, 1 GB storage.
+  - Ron's Chicken Usage (31 staff): ~200 reads/day, ~30 writes/day, ~150 KB storage (fits within 0.015% of free tier).
+- **Core Collections to Sync:**
+  1. `branches/cugman/employees` (Staff profiles, daily rates, SSS/PhilHealth/Pag-IBIG IDs)
+  2. `branches/cugman/attendance` (Biometric raw punches & timecard matrices)
+  3. `branches/cugman/cutoffs` (Active & historical payroll cutoff periods)
+  4. `branches/cugman/advances` (Cash advance / *vale* ledger)
+  5. `branches/cugman/settings` (Holiday multipliers, night diff, meal allowance rules)
+- **Architecture Pattern:**
+  - **Hybrid Offline-First:** Read/write locally first with IndexedDB, sync to Firebase Firestore asynchronously in background using `onSnapshot` listeners.
+  - If store WiFi/internet drops, manager can still calculate payroll and upload USB records without interruption; records sync automatically when internet returns.
+
+---
+
+## 9. Quick Resume Summary & Verification Checklist
+
+1. **Workspace:** `c:\Users\USER\Documents\Programming Folder Rep\Ron's Chickent Custom Payroll System`
+2. **Live URL:** [https://rons-chicken-payroll.vercel.app](https://rons-chicken-payroll.vercel.app)
+3. **GitHub Repo:** `jasonvelasquez1410/rons-chicken-payroll` (`main` branch)
+4. **Current Status:** 
+   - ✅ Desktop blank screen fixed (SW self-destructed, asset cache-busting `?v=2.1.0` active).
+   - ✅ USB Biometric parser, DOLE payroll calculations, and printable batch payslips all working.
+   - ⏳ Awaiting Sir Irl's UAT feedback & approval on desktop.
+   - 🔜 **Next Action:** Set up Firebase Firestore sync config upon user prompt.
+
+
