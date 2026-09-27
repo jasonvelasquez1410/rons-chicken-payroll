@@ -2026,8 +2026,15 @@ class DB {
     return employees.find(e => e.id === Number(id));
   }
 
+  static triggerCloudSync() {
+    if (typeof window !== 'undefined' && window.FirebaseSync && typeof window.FirebaseSync.pushLocalToCloud === 'function') {
+      window.FirebaseSync.pushLocalToCloud().catch(() => {});
+    }
+  }
+
   static saveEmployees(employees) {
     safeStorage.setItem(STORAGE_KEYS.EMPLOYEES, JSON.stringify(employees));
+    this.triggerCloudSync();
   }
 
   static addOrUpdateEmployee(empData) {
@@ -2080,6 +2087,7 @@ class DB {
 
   static saveSettings(settings) {
     safeStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
+    this.triggerCloudSync();
   }
 
   // Shifts
@@ -2093,6 +2101,7 @@ class DB {
 
   static saveShifts(shifts) {
     safeStorage.setItem(STORAGE_KEYS.SHIFTS, JSON.stringify(shifts));
+    this.triggerCloudSync();
   }
 
   // Cutoffs
@@ -2145,6 +2154,7 @@ class DB {
 
   static saveCutoffs(cutoffs) {
     safeStorage.setItem(STORAGE_KEYS.CUTOFFS, JSON.stringify(cutoffs));
+    this.triggerCloudSync();
   }
 
   static addCutoff(cutoff) {
@@ -2170,6 +2180,7 @@ class DB {
 
   static saveAdvances(advances) {
     safeStorage.setItem(STORAGE_KEYS.ADVANCES, JSON.stringify(advances));
+    this.triggerCloudSync();
   }
 
   static addAdvance(advance) {
@@ -2204,6 +2215,7 @@ class DB {
 
   static saveLeaves(leaves) {
     safeStorage.setItem(STORAGE_KEYS.LEAVES, JSON.stringify(leaves));
+    this.triggerCloudSync();
   }
 
   static addLeave(leave) {
@@ -2223,6 +2235,7 @@ class DB {
 
   static saveDeviceConfig(config) {
     safeStorage.setItem(STORAGE_KEYS.DEVICE_CONFIG, JSON.stringify(config));
+    this.triggerCloudSync();
   }
 
   // Payroll History
@@ -2236,6 +2249,7 @@ class DB {
 
   static savePayrollHistory(history) {
     safeStorage.setItem(STORAGE_KEYS.PAYROLL_HISTORY, JSON.stringify(history));
+    this.triggerCloudSync();
   }
 
   static addPayrollRecord(record) {

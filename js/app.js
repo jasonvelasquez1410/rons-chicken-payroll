@@ -161,6 +161,15 @@ function renderApp() {
         </div>
 
         <div class="header-controls">
+          <div id="firebase-sync-pill" class="pill pill-dark" style="font-size: 0.76rem; padding: 0.45rem 0.85rem; display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer;" onclick="openModal('cloud-sync-modal')" title="Click to view Multi-Device Cloud Sync Status">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: #64748b; display: inline-block;"></span>
+            <span style="color: #94a3b8; font-weight: 600;">Local Device</span>
+          </div>
+
+          <button class="btn-bento btn-bento-dark btn-sm" style="padding: 0.45rem 0.85rem; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 0.4rem;" onclick="openModal('cloud-sync-modal')" title="Configure Real-Time Multi-Device Cloud Synchronization">
+            ☁️ Cloud Sync
+          </button>
+
           <button class="btn-bento btn-bento-dark btn-sm" style="padding: 0.45rem 0.85rem; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 0.4rem;" onclick="openModal('backup-modal')" title="Backup & Restore Full Payroll Database">
             ${ICONS.database} Backup & Data
           </button>
@@ -667,6 +676,90 @@ function renderApp() {
               </div>
             </div>
           </form>
+        </div>
+      </div>
+
+      <!-- Real-Time Firebase Cloud Sync Modal -->
+      <div id="cloud-sync-modal" class="modal-backdrop">
+        <div class="modal-card" style="max-width: 680px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <h3 style="color: var(--text-primary); font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+              ☁️ Multi-Device Real-Time Cloud Sync
+            </h3>
+            <button class="btn-bento btn-bento-dark btn-sm" onclick="closeModal('cloud-sync-modal')">✕</button>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+            <!-- Cloud Status Card -->
+            <div style="background: rgba(121, 40, 202, 0.08); border: 1px solid rgba(121, 40, 202, 0.3); border-radius: var(--radius-md); padding: 1rem 1.25rem;">
+              <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <div style="width: 10px; height: 10px; border-radius: 50%; background: ${window.FirebaseSync && window.FirebaseSync.isInitialized ? '#10b981' : '#64748b'}; box-shadow: 0 0 10px ${window.FirebaseSync && window.FirebaseSync.isInitialized ? '#10b981' : '#64748b'};"></div>
+                  <strong style="color: var(--text-primary); font-size: 0.9rem;">
+                    ${window.FirebaseSync && window.FirebaseSync.isInitialized ? 'Cloud Sync Status: CONNECTED & LIVE' : 'Cloud Sync Status: LOCAL OFFLINE MODE'}
+                  </strong>
+                </div>
+                <span class="pill ${window.FirebaseSync && window.FirebaseSync.isInitialized ? 'pill-emerald' : 'pill-dark'}" style="font-size: 0.72rem;">
+                  ${window.FirebaseSync && window.FirebaseSync.isInitialized ? 'Google Firestore Real-Time' : 'Not Connected'}
+                </span>
+              </div>
+              <p style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.5rem; line-height: 1.45;">
+                Syncs all 31 staff records, daily wage rates, attendance logs, and vale deductions automatically across your Laptop, Mobile Smartphone, and Tablet in real-time ($0 monthly cost via Google Firebase Spark Tier).
+              </p>
+            </div>
+
+            <!-- Firebase Config Input Box -->
+            <form id="firebase-config-form" onsubmit="handleSaveFirebaseConfig(event)">
+              <div style="display: grid; gap: 1rem;">
+                <div>
+                  <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-secondary);">
+                    Paste Firebase Config (JSON or JavaScript snippet)
+                  </label>
+                  <textarea id="firebase-config-input" rows="6" placeholder='Paste your firebaseConfig here, e.g.:
+{
+  "apiKey": "AIzaSy...",
+  "authDomain": "rons-chicken-payroll.firebaseapp.com",
+  "projectId": "rons-chicken-payroll",
+  "storageBucket": "rons-chicken-payroll.appspot.com",
+  "messagingSenderId": "123456789",
+  "appId": "1:123456789:web:abcdef"
+}' style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-family: monospace; font-size: 0.8rem; resize: vertical; line-height: 1.4;">${window.FirebaseSync && window.FirebaseSync.getSavedConfig() ? JSON.stringify(window.FirebaseSync.getSavedConfig(), null, 2) : ''}</textarea>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+                  <div style="display: flex; gap: 0.5rem;">
+                    ${window.FirebaseSync && window.FirebaseSync.isInitialized ? `
+                      <button type="button" class="btn-bento btn-bento-dark btn-sm" onclick="handleManualCloudSync()" style="font-size: 0.78rem; font-weight: 700;">
+                        ↺ Force Sync Now
+                      </button>
+                      <button type="button" class="btn-bento btn-bento-dark btn-sm" onclick="handleDisconnectFirebase()" style="font-size: 0.78rem; color: var(--accent-rose);">
+                        Disconnect
+                      </button>
+                    ` : ''}
+                  </div>
+
+                  <div style="display: flex; gap: 0.75rem;">
+                    <button type="button" class="btn-bento btn-bento-dark" onclick="closeModal('cloud-sync-modal')">Cancel</button>
+                    <button type="submit" class="btn-bento btn-bento-purple" style="font-weight: 800;">
+                      ☁️ Save & Connect Cloud Sync
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+
+            <!-- Quick Setup Guide for Developer & Sir Irl -->
+            <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 1rem 1.15rem; font-size: 0.76rem; color: var(--text-secondary); line-height: 1.55;">
+              <strong style="color: var(--bento-orange); display: block; margin-bottom: 0.35rem;">
+                📋 3-Step Free Firebase Project Setup:
+              </strong>
+              <ol style="padding-left: 1.2rem; margin: 0;">
+                <li>Go to <strong><a href="https://console.firebase.google.com" target="_blank" style="color: var(--bento-orange); text-decoration: underline;">console.firebase.google.com</a></strong> and click <strong>"Add project"</strong> (Name: <em>rons-chicken-payroll</em>).</li>
+                <li>Click <strong>Firestore Database</strong> > <strong>Create Database</strong> > Choose <strong>"Start in test mode"</strong>.</li>
+                <li>Go to <strong>Project Settings (⚙️)</strong> > <strong>General</strong> > Under <em>"Your apps"</em> click Web (<strong>&lt;/&gt;</strong>) > Copy the <code>firebaseConfig</code> object and paste it above!</li>
+              </ol>
+            </div>
+          </div>
         </div>
       </div>
     `;
@@ -1937,6 +2030,74 @@ function handleSaveNewCutoff(event) {
   renderApp();
 }
 
+/* ==========================================================================
+   Firebase Cloud Sync Handlers
+   ========================================================================== */
+
+async function handleSaveFirebaseConfig(event) {
+  event.preventDefault();
+  const rawInput = document.getElementById('firebase-config-input').value.trim();
+  if (!rawInput) {
+    alert("Please paste your Firebase configuration object or JSON.");
+    return;
+  }
+
+  try {
+    let parsedConfig = null;
+    if (rawInput.startsWith('{') && rawInput.endsWith('}')) {
+      // JSON format
+      parsedConfig = JSON.parse(rawInput);
+    } else {
+      // Clean JS snippet format e.g. const firebaseConfig = { ... };
+      const jsonLike = rawInput
+        .replace(/^[^{]*{/, '{')
+        .replace(/}[^}]*$/, '}')
+        .replace(/([a-zA-Z0-9_]+)\s*:/g, '"$1":')
+        .replace(/'/g, '"')
+        .replace(/,\s*([}\]])/g, '$1');
+      parsedConfig = JSON.parse(jsonLike);
+    }
+
+    if (!parsedConfig || !parsedConfig.projectId || !parsedConfig.apiKey) {
+      throw new Error("Missing required 'apiKey' or 'projectId' in Firebase config.");
+    }
+
+    const success = await window.FirebaseSync.init(parsedConfig);
+    if (success) {
+      await window.FirebaseSync.pushLocalToCloud(true);
+      alert("✓ Successfully connected to Google Firebase Cloud Sync!\nYour records will now sync across all devices in real-time.");
+      closeModal('cloud-sync-modal');
+      renderApp();
+    } else {
+      alert("Could not connect to Firebase with the provided config. Please check your credentials.");
+    }
+  } catch (err) {
+    alert("Error parsing Firebase configuration:\n" + err.message + "\n\nTip: You can copy and paste the exact firebaseConfig object from Firebase Console.");
+  }
+}
+
+function handleDisconnectFirebase() {
+  if (confirm("Are you sure you want to disconnect Cloud Sync? The app will operate in local offline mode.")) {
+    window.FirebaseSync.removeConfig();
+    alert("Disconnected from Cloud Sync.");
+    closeModal('cloud-sync-modal');
+    renderApp();
+  }
+}
+
+async function handleManualCloudSync() {
+  if (!window.FirebaseSync || !window.FirebaseSync.isInitialized) {
+    alert("Cloud Sync is not configured yet. Please enter your Firebase project credentials.");
+    return;
+  }
+  const ok = await window.FirebaseSync.pushLocalToCloud();
+  if (ok) {
+    alert("✓ Local database pushed and synchronized with Cloud Firestore successfully!");
+  } else {
+    alert("Sync error. Please check your internet connection and Firestore rules.");
+  }
+}
+
 // Global Exports
 window.navigateTo = navigateTo;
 window.setMode = setMode;
@@ -1966,6 +2127,9 @@ window.exportAttendanceCSV = exportAttendanceCSV;
 window.changeStaffUser = changeStaffUser;
 window.staffSelfPunch = staffSelfPunch;
 window.handleBrightnessChange = handleBrightnessChange;
+window.handleSaveFirebaseConfig = handleSaveFirebaseConfig;
+window.handleDisconnectFirebase = handleDisconnectFirebase;
+window.handleManualCloudSync = handleManualCloudSync;
 
 
 
