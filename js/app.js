@@ -161,12 +161,12 @@ function renderApp() {
         </div>
 
         <div class="header-controls">
-          <div id="firebase-sync-pill" class="pill pill-dark" style="font-size: 0.76rem; padding: 0.45rem 0.85rem; display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer;" onclick="openModal('cloud-sync-modal')" title="Click to view Multi-Device Cloud Sync Status">
+          <div id="firebase-sync-pill" class="pill pill-dark" style="font-size: 0.76rem; padding: 0.45rem 0.85rem; display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer;" onclick="openCloudSyncModal()" title="Click to view Multi-Device Cloud Sync Status">
             <span style="width: 8px; height: 8px; border-radius: 50%; background: #64748b; display: inline-block;"></span>
             <span style="color: #94a3b8; font-weight: 600;">Local Device</span>
           </div>
 
-          <button class="btn-bento btn-bento-dark btn-sm" style="padding: 0.45rem 0.85rem; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 0.4rem;" onclick="openModal('cloud-sync-modal')" title="Configure Real-Time Multi-Device Cloud Synchronization">
+          <button class="btn-bento btn-bento-dark btn-sm" style="padding: 0.45rem 0.85rem; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 0.4rem;" onclick="openCloudSyncModal()" title="Configure Real-Time Multi-Device Cloud Synchronization">
             ☁️ Cloud Sync
           </button>
 
@@ -691,7 +691,7 @@ function renderApp() {
 
           <div style="display: flex; flex-direction: column; gap: 1.25rem;">
             <!-- Cloud Status Card -->
-            <div style="background: rgba(121, 40, 202, 0.08); border: 1px solid rgba(121, 40, 202, 0.3); border-radius: var(--radius-md); padding: 1rem 1.25rem;">
+            <div id="modal-cloud-status-card" style="background: rgba(121, 40, 202, 0.08); border: 1px solid rgba(121, 40, 202, 0.3); border-radius: var(--radius-md); padding: 1rem 1.25rem;">
               <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
                   <div style="width: 10px; height: 10px; border-radius: 50%; background: ${window.FirebaseSync && window.FirebaseSync.isInitialized ? '#10b981' : '#64748b'}; box-shadow: 0 0 10px ${window.FirebaseSync && window.FirebaseSync.isInitialized ? '#10b981' : '#64748b'};"></div>
@@ -2098,6 +2098,13 @@ async function handleManualCloudSync() {
   }
 }
 
+function openCloudSyncModal() {
+  if (window.FirebaseSync && typeof window.FirebaseSync.updateStatusPill === 'function') {
+    window.FirebaseSync.updateStatusPill(window.FirebaseSync.isInitialized ? 'connected' : 'disconnected');
+  }
+  openModal('cloud-sync-modal');
+}
+
 // Global Exports
 window.navigateTo = navigateTo;
 window.setMode = setMode;
@@ -2105,6 +2112,7 @@ window.openUploadModal = openUploadModal;
 window.openAdvanceModal = openAdvanceModal;
 window.openEmployeeModal = openEmployeeModal;
 window.openBackupModal = openBackupModal;
+window.openCloudSyncModal = openCloudSyncModal;
 window.handleDownloadBackup = handleDownloadBackup;
 window.handleImportBackupFile = handleImportBackupFile;
 window.handleRestoreSnapshot = handleRestoreSnapshot;
