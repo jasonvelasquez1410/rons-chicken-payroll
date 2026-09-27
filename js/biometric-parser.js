@@ -4,6 +4,17 @@
  */
 
 class BiometricParser {
+  static async ensureSheetJS() {
+    if (typeof window !== 'undefined' && typeof window.XLSX !== 'undefined') return true;
+    return new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => reject(new Error("Unable to download SheetJS parser library. Please check your internet connection."));
+      document.head.appendChild(script);
+    });
+  }
+
   /**
    * Parse an Excel / CSV File or Buffer
    * @param {ArrayBuffer|File} fileData 
@@ -11,7 +22,7 @@ class BiometricParser {
    */
   static async parseFile(fileData) {
     if (typeof XLSX === 'undefined') {
-      throw new Error("SheetJS library is required for parsing spreadsheet files.");
+      await this.ensureSheetJS();
     }
 
     const data = new Uint8Array(fileData);

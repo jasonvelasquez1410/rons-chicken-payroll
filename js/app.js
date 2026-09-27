@@ -36,6 +36,38 @@ const ICONS = {
   database: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>`
 };
 
+function safeGetEmployees() {
+  try {
+    return (window.DB && typeof window.DB.getEmployees === 'function') ? window.DB.getEmployees() : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function safeGetShifts() {
+  try {
+    return (window.DB && typeof window.DB.getShifts === 'function') ? window.DB.getShifts() : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function safeGetCutoffs() {
+  try {
+    return (window.DB && typeof window.DB.getCutoffs === 'function') ? window.DB.getCutoffs() : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function safeGetAdvances() {
+  try {
+    return (window.DB && typeof window.DB.getAdvances === 'function') ? window.DB.getAdvances() : [];
+  } catch (e) {
+    return [];
+  }
+}
+
 function initApp() {
   try {
     if (window.DB && typeof window.DB.init === 'function') {
@@ -228,7 +260,7 @@ function renderApp() {
               <div>
                 <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--text-secondary);">Select Employee</label>
                 <select id="adv-employee-id" required style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.9rem;">
-                  ${window.DB.getEmployees().map(e => `
+                  ${safeGetEmployees().map(e => `
                     <option value="${e.id}">#${e.id} ${e.name} (${e.position || e.department})</option>
                   `).join('')}
                 </select>
@@ -299,7 +331,7 @@ function renderApp() {
               <div style="background: var(--bg-surface); padding: 0.75rem 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
                 <label style="font-size: 0.82rem; font-weight: 700; color: var(--text-primary); white-space: nowrap;">Active Staff Member:</label>
                 <select id="emp-select-switcher" onchange="handleEmployeeSelectChange(this.value)" style="flex: 1; padding: 0.5rem 0.75rem; border-radius: var(--radius-sm); background: var(--bg-card-dark); border: 1px solid var(--border-glass); color: var(--text-primary); font-size: 0.85rem;">
-                  ${window.DB.getEmployees().map(e => `
+                  ${safeGetEmployees().map(e => `
                     <option value="${e.id}">#${e.id} ${e.name} (${e.position || e.department})</option>
                   `).join('')}
                 </select>
@@ -708,8 +740,8 @@ function renderCutoffControlBar() {
 }
 
 function renderManagerBentoDashboard() {
-  const employees = window.DB.getEmployees();
-  const summary = cachedPayrollSummary || window.PayrollEngine.runBranchPayroll(activeCutoff);
+  const employees = safeGetEmployees();
+  const summary = cachedPayrollSummary || (window.PayrollEngine && typeof window.PayrollEngine.runBranchPayroll === 'function' ? window.PayrollEngine.runBranchPayroll(activeCutoff) : { totals: { net: 0, gross: 0 }, records: [] });
 
   return `
     <!-- Top Welcome Banner -->
@@ -859,8 +891,8 @@ function renderManagerBentoDashboard() {
 }
 
 function renderBentoAttendance() {
-  const employees = window.DB.getEmployees();
-  const shifts = window.DB.getShifts();
+  const employees = safeGetEmployees();
+  const shifts = safeGetShifts();
 
   return `
     <div class="user-welcome-banner">
@@ -1006,7 +1038,7 @@ function renderBentoPayroll() {
 }
 
 function renderBentoAdvances() {
-  const advances = window.DB.getAdvances();
+  const advances = safeGetAdvances();
   const activeList = advances.filter(a => a.status === 'Active');
   const activeCount = activeList.length;
   const totalLoanBalance = activeList.reduce((s, a) => s + Math.max(0, (a.amount || 0) - (a.deducted || 0)), 0);
@@ -1209,9 +1241,9 @@ function renderBentoDevice() {
    ========================================================================== */
 
 function renderStaffBentoPortal() {
-  const employees = window.DB.getEmployees();
-  const currentEmp = window.DB.getEmployeeById(selectedStaffEmployeeId) || employees[0];
-  const shifts = window.DB.getShifts();
+  const employees = safeGetEmployees();
+  const currentEmp = (window.DB && typeof window.DB.getEmployeeById === 'function' ? window.DB.getEmployeeById(selectedStaffEmployeeId) : null) || employees[0] || { id: 1, name: "Staff Member", position: "Staff", dailyRate: 438 };
+  const shifts = safeGetShifts();
   const timecard = window.BiometricParser.calculateTimecard(currentEmp, activeCutoff.startDate, activeCutoff.endDate, shifts);
   const payroll = window.PayrollEngine.computeEmployeePayroll(currentEmp, timecard, {
     cashAdvanceDeduction: 0,
@@ -1526,12 +1558,12 @@ function showEmployeePayslip(employeeId) {
 }
 
 function generateAllBatchPayslips() {
-  const employees = window.DB.getEmployees();
+  const employees = safeGetEmployees();
   const content = document.getElementById('payslip-printable-content');
   if (!content) return;
 
   const activeEmployees = employees.filter(e => {
-    const shifts = window.DB.getShifts();
+    const shifts = safeGetShifts();
     const tc = window.BiometricParser.calculateTimecard(e, activeCutoff.startDate, activeCutoff.endDate, shifts);
     return tc.daysPresent > 0 || (e.attendanceLogs && e.attendanceLogs.length > 0);
   });
@@ -1608,7 +1640,7 @@ function exportPayrollCSV() {
 }
 
 function exportAttendanceCSV() {
-  const employees = window.DB.getEmployees();
+  const employees = safeGetEmployees();
   let csv = "Employee ID,Name,Date,Time,Punch Source\n";
   employees.forEach(e => {
     (e.attendanceLogs || []).forEach(p => {
@@ -1630,7 +1662,7 @@ function openAdvanceModal() {
 function handleSaveAdvance(event) {
   event.preventDefault();
   const empId = parseInt(document.getElementById('adv-employee-id').value, 10);
-  const emp = window.DB.getEmployeeById(empId);
+  const emp = (window.DB && typeof window.DB.getEmployeeById === 'function') ? window.DB.getEmployeeById(empId) : null;
   if (!emp) return;
 
   const type = document.getElementById('adv-type').value;
@@ -1653,32 +1685,44 @@ function handleSaveAdvance(event) {
     status: 'Active'
   };
 
-  window.DB.addAdvance(newAdvance);
-  cachedPayrollSummary = window.PayrollEngine.runBranchPayroll(activeCutoff);
+  if (window.DB && typeof window.DB.addAdvance === 'function') {
+    window.DB.addAdvance(newAdvance);
+  }
+  if (window.PayrollEngine && typeof window.PayrollEngine.runBranchPayroll === 'function') {
+    cachedPayrollSummary = window.PayrollEngine.runBranchPayroll(activeCutoff);
+  }
   closeModal('advance-modal');
   renderApp();
 }
 
 function toggleAdvanceStatus(id) {
-  const advances = window.DB.getAdvances();
+  const advances = safeGetAdvances();
   const adv = advances.find(a => a.id === id);
   if (!adv) return;
   adv.status = (adv.status === 'Active') ? 'Settled' : 'Active';
-  window.DB.updateAdvance(adv);
-  cachedPayrollSummary = window.PayrollEngine.runBranchPayroll(activeCutoff);
+  if (window.DB && typeof window.DB.updateAdvance === 'function') {
+    window.DB.updateAdvance(adv);
+  }
+  if (window.PayrollEngine && typeof window.PayrollEngine.runBranchPayroll === 'function') {
+    cachedPayrollSummary = window.PayrollEngine.runBranchPayroll(activeCutoff);
+  }
   renderApp();
 }
 
 function deleteAdvanceEntry(id) {
   if (confirm("Are you sure you want to remove this deduction entry?")) {
-    window.DB.deleteAdvance(id);
-    cachedPayrollSummary = window.PayrollEngine.runBranchPayroll(activeCutoff);
+    if (window.DB && typeof window.DB.deleteAdvance === 'function') {
+      window.DB.deleteAdvance(id);
+    }
+    if (window.PayrollEngine && typeof window.PayrollEngine.runBranchPayroll === 'function') {
+      cachedPayrollSummary = window.PayrollEngine.runBranchPayroll(activeCutoff);
+    }
     renderApp();
   }
 }
 
 function openEmployeeModal(employeeId) {
-  const employees = window.DB.getEmployees();
+  const employees = safeGetEmployees();
   if (!employees || employees.length === 0) return;
   const targetId = employeeId ? Number(employeeId) : (employees[0] ? employees[0].id : 1);
   handleEmployeeSelectChange(targetId);

@@ -34,14 +34,25 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
   <!-- Stylesheet with Cache-Buster -->
-  <link rel="stylesheet" href="css/style.css?v=2.1.0">
+  <link rel="stylesheet" href="css/style.css?v=2.2.0">
 
-  <!-- SheetJS CDN for offline / client-side Excel Parsing (.xls / .xlsx) - Deferred so it does not block rendering -->
-  <script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
-  <!-- Auto-Purge Stale SW & Emergency Error Trap -->
+  <!-- Resilient Startup & Auto Cache Clearing -->
   <script>
-    // Ensure all stale Service Worker registrations & caches from previous builds are cleanly cleared
+    // Handle URL emergency reset (?reset=1 or ?clear=1)
+    if (window.location.search.indexOf('reset=1') !== -1 || window.location.search.indexOf('clear=1') !== -1) {
+      try {
+        if ('localStorage' in window) localStorage.clear();
+        if ('sessionStorage' in window) sessionStorage.clear();
+        if ('caches' in window) {
+          caches.keys().then(function(names) {
+            names.forEach(function(n) { caches.delete(n); });
+          });
+        }
+      } catch (e) {}
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    // Unregister legacy Service Workers
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(function(registrations) {
         for (var i = 0; i < registrations.length; i++) {
@@ -49,6 +60,8 @@
         }
       }).catch(function() {});
     }
+
+    // Clean old caches
     if ('caches' in window) {
       caches.keys().then(function(names) {
         return Promise.all(names.map(function(name) { return caches.delete(name); }));
@@ -59,6 +72,8 @@
 
     window.forceClearAndReload = function() {
       try {
+        if ('localStorage' in window) localStorage.clear();
+        if ('sessionStorage' in window) sessionStorage.clear();
         if ('caches' in window) {
           caches.keys().then(function(names) {
             return Promise.all(names.map(function(name) { return caches.delete(name); }));
@@ -70,36 +85,8 @@
           }).catch(function() {});
         }
       } catch (e) {}
-      window.location.reload(true);
+      window.location.href = window.location.pathname + '?t=' + Date.now();
     };
-
-    function showEmergencyFallback(reason) {
-      if (window.__ronsAppReady) return;
-      var card = document.getElementById('loading-fallback-card');
-      if (card) {
-        card.innerHTML = 
-          '<div style="background: rgba(255, 85, 0, 0.08); border: 1px solid rgba(255, 85, 0, 0.35); border-radius: 18px; padding: 1.75rem; max-width: 440px; margin: 0 auto; text-align: center; box-shadow: 0 16px 36px rgba(0,0,0,0.5);">' +
-            '<div style="width: 52px; height: 52px; border-radius: 50%; background: #ff5500; color: #fff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.5rem; font-weight: 800;">!</div>' +
-            '<div style="font-weight: 800; font-size: 1.15rem; color: #fff; margin-bottom: 0.5rem; font-family: Outfit, sans-serif;">Laptop Cache or Storage Notice</div>' +
-            '<div style="font-size: 0.82rem; color: #94a3b8; line-height: 1.55; margin-bottom: 1.25rem;">The desktop browser has a pending cache refresh or restricted storage. Click below to refresh freshly into the Ron\'s Chicken Manager Portal.</div>' +
-            '<button onclick="forceClearAndReload()" style="background: linear-gradient(135deg, #ff6600, #ff4400); color: #fff; border: none; padding: 0.75rem 1.4rem; font-size: 0.88rem; font-weight: 800; border-radius: 9999px; cursor: pointer; box-shadow: 0 8px 24px rgba(255,85,0,0.4); transition: transform 0.2s ease;">Force Refresh & Clear Cache</button>' +
-          '</div>';
-      }
-    }
-
-    window.onerror = function(msg, url, line) {
-      console.warn("[Ron's Payroll Safe Trap]", msg, "line:", line);
-      if (!window.__ronsAppReady) {
-        setTimeout(function() { showEmergencyFallback(msg); }, 1500);
-      }
-      return false;
-    };
-
-    setTimeout(function() {
-      if (!window.__ronsAppReady) {
-        showEmergencyFallback("Timeout waiting for app init");
-      }
-    }, 4500);
   </script>
 </head>
 <body style="background-color: #080c14; color: #f8fafc; margin: 0; min-height: 100vh;">
@@ -114,10 +101,10 @@
   </div>
 
   <!-- Application Scripts with Cache-Busters -->
-  <script src="js/db.js?v=2.1.0"></script>
-  <script src="js/biometric-parser.js?v=2.1.0"></script>
-  <script src="js/payroll-engine.js?v=2.1.0"></script>
-  <script src="js/device-sync.js?v=2.1.0"></script>
-  <script src="js/app.js?v=2.1.0"></script>
+  <script src="js/db.js?v=2.2.0"></script>
+  <script src="js/biometric-parser.js?v=2.2.0"></script>
+  <script src="js/payroll-engine.js?v=2.2.0"></script>
+  <script src="js/device-sync.js?v=2.2.0"></script>
+  <script src="js/app.js?v=2.2.0"></script>
 </body>
 </html>
