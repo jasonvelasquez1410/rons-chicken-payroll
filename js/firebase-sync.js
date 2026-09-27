@@ -8,6 +8,16 @@ const FIREBASE_STORAGE_KEY = 'rons_payroll_firebase_config_v1';
 const SYNC_COLLECTION = 'branches';
 const SYNC_DOC_ID = 'cugman_branch';
 
+const DEFAULT_FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDOCehcvMJlR-dnQL2JqQGrz3UJb1pgMmw",
+  authDomain: "rons-chicken-payroll.firebaseapp.com",
+  projectId: "rons-chicken-payroll",
+  storageBucket: "rons-chicken-payroll.firebasestorage.app",
+  messagingSenderId: "638631328440",
+  appId: "1:638631328440:web:a24ac1117d61821e31124d",
+  measurementId: "G-3REF4JJG00"
+};
+
 class FirebaseSync {
   static isInitialized = false;
   static isSyncing = false;
@@ -17,10 +27,9 @@ class FirebaseSync {
   static getSavedConfig() {
     try {
       const stored = localStorage.getItem(FIREBASE_STORAGE_KEY);
-      return stored ? JSON.parse(stored) : null;
-    } catch (e) {
-      return null;
-    }
+      if (stored) return JSON.parse(stored);
+    } catch (e) {}
+    return DEFAULT_FIREBASE_CONFIG;
   }
 
   static saveConfig(config) {
