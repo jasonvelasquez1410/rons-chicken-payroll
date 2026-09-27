@@ -166,10 +166,6 @@ function renderApp() {
             <span style="color: #94a3b8; font-weight: 600;">Local Device</span>
           </div>
 
-          <button class="btn-bento btn-bento-dark btn-sm" style="padding: 0.45rem 0.85rem; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 0.4rem;" onclick="openCloudSyncModal()" title="Configure Real-Time Multi-Device Cloud Synchronization">
-            ☁️ Cloud Sync
-          </button>
-
           <button class="btn-bento btn-bento-dark btn-sm" style="padding: 0.45rem 0.85rem; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 0.4rem;" onclick="openModal('backup-modal')" title="Backup & Restore Full Payroll Database">
             ${ICONS.database} Backup & Data
           </button>

@@ -215,6 +215,12 @@ class FirebaseSync {
           <span style="color: #f59e0b; font-weight: 700;">Syncing Cloud...</span>
         `;
         pill.title = "Connecting / Syncing with Google Cloud Firestore...";
+      } else if (status === 'offline') {
+        pill.innerHTML = `
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #f59e0b; box-shadow: 0 0 8px #f59e0b; display: inline-block;"></span>
+          <span style="color: #f59e0b; font-weight: 700;">Offline (Queued)</span>
+        `;
+        pill.title = "Offline mode active. All attendance & payroll edits are saved locally and will auto-sync when internet reconnects.";
       } else if (status === 'error') {
         pill.innerHTML = `
           <span style="width: 8px; height: 8px; border-radius: 50%; background: #ef4444; display: inline-block;"></span>
@@ -245,6 +251,19 @@ class FirebaseSync {
             Connected to project: <code>rons-chicken-payroll</code>. Real-time multi-device sync is active across your Laptop, Smartphone, and Tablet.
           </p>
         `;
+      } else if (status === 'offline') {
+        modalStatus.innerHTML = `
+          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <div style="width: 10px; height: 10px; border-radius: 50%; background: #f59e0b; box-shadow: 0 0 10px #f59e0b;"></div>
+              <strong style="color: var(--text-primary); font-size: 0.9rem;">Cloud Sync Status: OFFLINE MODE (QUEUED)</strong>
+            </div>
+            <span class="pill pill-orange" style="font-size: 0.72rem;">Offline Capable</span>
+          </div>
+          <p style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.5rem; line-height: 1.45;">
+            Internet is currently disconnected. All timecards, wage edits, and attendance uploads are saved safely in local storage and will automatically push to the cloud once reconnected.
+          </p>
+        `;
       } else if (status === 'syncing' || status === 'connecting') {
         modalStatus.innerHTML = `
           <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
@@ -273,8 +292,20 @@ class FirebaseSync {
 // Attach to window
 window.FirebaseSync = FirebaseSync;
 
-// Auto-initialize if config is already saved
-if (typeof document !== 'undefined') {
+// Auto-initialize and listen for online/offline events
+if (typeof window !== 'undefined') {
+  window.addEventListener('online', () => {
+    console.log("[FirebaseSync] Device is back online. Syncing changes...");
+    FirebaseSync.init().then(() => {
+      FirebaseSync.pushLocalToCloud();
+    });
+  });
+
+  window.addEventListener('offline', () => {
+    console.log("[FirebaseSync] Device is offline. Operating in offline local storage mode.");
+    FirebaseSync.updateStatusPill('offline');
+  });
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => FirebaseSync.init());
   } else {
