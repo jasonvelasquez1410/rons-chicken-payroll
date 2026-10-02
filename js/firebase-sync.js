@@ -18,15 +18,21 @@ const DEFAULT_FIREBASE_CONFIG = {
   measurementId: "G-3REF4JJG00"
 };
 
-class FirebaseSync {
-  static isInitialized = false;
-  static isSyncing = false;
-  static db = null;
-  static unsubscribeListener = null;
+function getSafeStorage() {
+  if (typeof window !== 'undefined' && window.safeStorage) {
+    return window.safeStorage;
+  }
+  return {
+    getItem(k) { try { return localStorage.getItem(k); } catch(e) { return null; } },
+    setItem(k, v) { try { localStorage.setItem(k, v); } catch(e) {} },
+    removeItem(k) { try { localStorage.removeItem(k); } catch(e) {} }
+  };
+}
 
+class FirebaseSync {
   static getSavedConfig() {
     try {
-      const stored = localStorage.getItem(FIREBASE_STORAGE_KEY);
+      const stored = getSafeStorage().getItem(FIREBASE_STORAGE_KEY);
       if (stored) return JSON.parse(stored);
     } catch (e) {}
     return DEFAULT_FIREBASE_CONFIG;
@@ -34,7 +40,7 @@ class FirebaseSync {
 
   static saveConfig(config) {
     try {
-      localStorage.setItem(FIREBASE_STORAGE_KEY, JSON.stringify(config));
+      getSafeStorage().setItem(FIREBASE_STORAGE_KEY, JSON.stringify(config));
       return true;
     } catch (e) {
       return false;
@@ -43,14 +49,14 @@ class FirebaseSync {
 
   static removeConfig() {
     try {
-      localStorage.removeItem(FIREBASE_STORAGE_KEY);
-      if (this.unsubscribeListener) {
-        this.unsubscribeListener();
-        this.unsubscribeListener = null;
+      getSafeStorage().removeItem(FIREBASE_STORAGE_KEY);
+      if (FirebaseSync.unsubscribeListener) {
+        FirebaseSync.unsubscribeListener();
+        FirebaseSync.unsubscribeListener = null;
       }
-      this.isInitialized = false;
-      this.db = null;
-      this.updateStatusPill('disconnected');
+      FirebaseSync.isInitialized = false;
+      FirebaseSync.db = null;
+      FirebaseSync.updateStatusPill('disconnected');
     } catch (e) {}
   }
 
@@ -136,14 +142,14 @@ class FirebaseSync {
         const remoteData = doc.data();
         if (remoteData && remoteData.payload) {
           const lastRemoteUpdated = remoteData.updatedAt || 0;
-          const lastLocalUpdated = parseInt(localStorage.getItem('rons_payroll_last_local_edit') || '0', 10);
+          const lastLocalUpdated = parseInt(getSafeStorage().getItem('rons_payroll_last_local_edit') || '0', 10);
 
           // If remote is newer than local or if local has never synced, apply it
           if (lastRemoteUpdated > lastLocalUpdated) {
             console.log("[FirebaseSync] Ingesting newer real-time data from Cloud...");
             if (window.DB && typeof window.DB.importBackupJson === 'function') {
               window.DB.importBackupJson(remoteData.payload);
-              localStorage.setItem('rons_payroll_last_local_edit', lastRemoteUpdated.toString());
+              getSafeStorage().setItem('rons_payroll_last_local_edit', lastRemoteUpdated.toString());
               if (typeof window.renderApp === 'function') {
                 window.renderApp();
               }
@@ -171,7 +177,7 @@ class FirebaseSync {
     try {
       this.updateStatusPill('syncing');
       const now = Date.now();
-      localStorage.setItem('rons_payroll_last_local_edit', now.toString());
+      getSafeStorage().setItem('rons_payroll_last_local_edit', now.toString());
 
       const fullData = (window.DB && typeof window.DB.getFullBackupData === 'function')
         ? window.DB.getFullBackupData('Cloud Live Sync')
@@ -288,6 +294,11 @@ class FirebaseSync {
     }
   }
 }
+
+FirebaseSync.isInitialized = false;
+FirebaseSync.isSyncing = false;
+FirebaseSync.db = null;
+FirebaseSync.unsubscribeListener = null;
 
 // Attach to window
 window.FirebaseSync = FirebaseSync;

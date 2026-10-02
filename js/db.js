@@ -36,6 +36,9 @@ const safeStorage = {
     } catch (e) {}
   }
 };
+if (typeof window !== 'undefined') {
+  window.safeStorage = safeStorage;
+}
 /**
  * Ron's Chicken Custom Payroll & Biometric Attendance System
  * Database & Persistence Layer (Offline IndexedDB & LocalStorage)
