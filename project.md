@@ -5,6 +5,7 @@
 **Client / Owner Contact:** Sir Irl & Management • 0928 775 6605 • [Facebook Page](https://www.facebook.com/pages/Rons-Chicken/1808066046182615)  
 **Developer:** Jason Jeff D. Velasquez  
 **Live Deployment (Vercel):** [https://rons-chicken-payroll.vercel.app](https://rons-chicken-payroll.vercel.app)  
+**Emergency Cache Reset Link:** [https://rons-chicken-payroll.vercel.app/?reset=1](https://rons-chicken-payroll.vercel.app/?reset=1)  
 **GitHub Repository:** [https://github.com/jasonvelasquez1410/rons-chicken-payroll](https://github.com/jasonvelasquez1410/rons-chicken-payroll)  
 
 ---
@@ -13,7 +14,7 @@
 
 - **Hardware Environment:** **Deli e3960** (Standalone fingerprint biometric attendance clock, non-WiFi).
 - **Core Workflow:** Staff punch on the Deli e3960 at Cugman branch. The supervisor exports the attendance record to a USB flash drive as an Excel spreadsheet (`cugman_(August)Employee Attendance Record.xls`).
-- **Goal Achieved:** A Progressive Web Application (PWA) tailored for Ron's Chicken to ingest Deli e3960 USB attendance exports in under 1 second, automate DOLE/BIR compliant payroll calculations, manage cash advance (*vale*) ledgers, generate single-line print-ready batch payslips, and synchronize data across all devices in real time with **$0 monthly server/database fees** (Google Firebase Spark Free Tier).
+- **Goal Achieved:** A high-performance Progressive Web Application (PWA) tailored for Ron's Chicken to ingest Deli e3960 USB attendance exports in under 1 second, automate DOLE/BIR compliant payroll calculations, manage cash advance (*vale*) ledgers, generate single-line print-ready batch payslips, and synchronize data across all devices in real time with **$0 monthly server/database fees** (Google Firebase Spark Free Tier).
 
 ---
 
@@ -103,34 +104,43 @@ graph TD
 ├── 📄 README.md                                        # Git & setup guide
 ├── 📄 Rons_Chicken_Custom_Payroll_Proposal_Quotation.html # Single-page formal proposal source
 ├── 📄 Rons_Chicken_Custom_Payroll_Proposal_Quotation_v2.pdf # Print-ready single-page proposal PDF
-├── 📄 index.html                                       # Application shell (PWA)
+├── 📄 index.html                                       # Application shell (PWA) with anti-cache headers & recovery card
 ├── 📄 manifest.json                                    # PWA manifest
-├── 📄 sw.js                                            # Service Worker (Auto-cache purge & network-first)
+├── 📄 sw.js                                            # Service Worker (Self-destruct & cache purge script)
 ├── 📄 vercel.json                                      # Vercel deployment & strict cache headers
 ├── 📄 cugman_(August)Employee Attendance Record.xls    # Real Deli e3960 attendance sample
 ├── 📁 assets/
 │   └── 🖼️ logo.jpg                                     # Ron's Chicken official logo
 ├── 📁 css/
-│   └── 🎨 style.css                                    # Bento Grid, Theme Dimmer & Print CSS
+│   └── 🎨 style.css                                    # Bento Grid, Theme Dimmer & Print CSS (v3.1.0)
 └── 📁 js/
-    ├── ⚙️ db.js                                        # Persistent DB, Auto-Backups, 31 Staff Profiles
+    ├── ⚙️ db.js                                        # Persistent DB, Auto-Backups, 31 Staff Profiles, SafeStorage Fallback
     ├── ⏱️ biometric-parser.js                          # Deli e3960 Excel parser & timecard engine
     ├── 💰 payroll-engine.js                            # DOLE/BIR statutory calculation engine & semi-monthly split
-    ├── ☁️ firebase-sync.js                             # Real-time multi-device cloud synchronization
+    ├── ☁️ firebase-sync.js                             # Real-time multi-device cloud synchronization (Firestore)
     ├── 📡 device-sync.js                               # Hardware USB config & Cloud push API
-    └── 🚀 app.js                                       # Cutoff controller, views, payslips & UI
+    └── 🚀 app.js                                       # Cutoff controller, views, payslips & UI router
 ```
 
 ---
 
 ## 6. Incident Log & Technical Resolutions
 
-1. **Desktop Chrome/Edge Loading Issue:**
-   - **Root Cause:** Legacy Service Worker held stale cached scripts; false-alarm 4.5s timeout trap triggered warning modals on slow network queries.
-   - **Resolution:** Removed aggressive timeout alert, made SheetJS load on-demand, added defensive database getters, configured `sw.js` self-destruct/cache purge, and added strict cache headers in `vercel.json`.
-2. **Cross-Device Data Consistency:**
-   - **Root Cause:** Standalone IndexedDB kept records isolated to the specific browser/device.
-   - **Resolution:** Integrated Firebase Firestore Cloud Sync (`js/firebase-sync.js`) with automatic push on every database save and real-time `onSnapshot` listener.
+### Incident 1: Cross-Device Data Consistency
+- **Root Cause:** Standalone IndexedDB kept records isolated to the specific browser/device.
+- **Resolution:** Integrated Firebase Firestore Cloud Sync (`js/firebase-sync.js`) with automatic push on every database save and real-time `onSnapshot` listener.
+
+### Incident 2: White Screen on Laptop / Edge Browser
+- **Symptoms:** Laptop browser (Edge/Chrome) displayed a blank white screen when opening the Vercel link.
+- **Root Cause:**
+  1. **Legacy Service Worker & Disk Cache Persistence:** In earlier builds, the browser registered a Service Worker that cached the old offline app shell. When the user navigated to the URL or pressed standard reload (`F5`), Edge served the stale cached worker from disk rather than querying Vercel.
+  2. **Storage Access Denials:** In restricted browser security modes or privacy modes, synchronous calls to `window.localStorage` could throw unhandled DOMExceptions.
+- **Resolutions Implemented:**
+  1. **Anti-Cache Headers & Cache Busters (v3.1.0):** Added strict HTTP `<meta>` tags (`no-cache, no-store, must-revalidate, max-age=0`) and bumped all script and stylesheet query parameters to `?v=3.1.0`.
+  2. **Self-Destructing Service Worker (`sw.js`):** Script immediately unregisters all active service worker registrations and executes `caches.delete()` for all legacy offline caches.
+  3. **Universal `safeStorage` Layer (`js/db.js`):** Implemented in-memory fallback (`Map`) wrapped in `try/catch` so the app runs smoothly even if cookies/localStorage are blocked.
+  4. **Emergency URL Reset Parameter (`?reset=1`):** Navigating to `https://rons-chicken-payroll.vercel.app/?reset=1` automatically clears local storage, deletes caches, unregisters old workers, and boots up clean.
+  5. **Watchdog Auto-Recovery UI (`index.html`):** If initialization takes longer than 2.5s, the system displays an interactive recovery card with `⚡ Launch System Now` and `🔄 Reset Cache & Fresh Reload` buttons instead of an empty screen.
 
 ---
 
@@ -138,15 +148,20 @@ graph TD
 
 When you turn on your laptop and resume work:
 
-1. **Open the Project Folder:**
-   - Open VS Code / IDE in `c:\Users\USER\Documents\Programming Folder Rep\Ron's Chickent Custom Payroll System`.
+1. **Open the Project Folder in IDE:**
+   - Open folder: `c:\Users\USER\Documents\Programming Folder Rep\Ron's Chickent Custom Payroll System`.
+
 2. **Verify Live App Status:**
-   - Open [https://rons-chicken-payroll.vercel.app](https://rons-chicken-payroll.vercel.app) in your browser.
+   - Open: [https://rons-chicken-payroll.vercel.app](https://rons-chicken-payroll.vercel.app) in your browser.
    - Check the top navbar: it should display `🟢 Cloud Synced`.
-3. **Sir Irl Client Follow-up:**
-   - Ask Sir Irl if he has tested the live link on his laptop or phone.
-   - If Sir Irl is ready to test a live cutoff:
-     - Remind him he can drag-and-drop or upload their latest USB attendance file from the Deli e3960.
-     - Remind him that SSS / PhilHealth deductions are already automatically cut in half per cutoff (15th and 30th/31st), and he can customize or override any amount in **Staff & Statutory** anytime.
-4. **Milestone 1 Payment & Proposal Signing:**
-   - Send the formal single-page quotation PDF (`Rons_Chicken_Custom_Payroll_Proposal_Quotation_v2.pdf`) for Conforme signing and Milestone 1 downpayment (₱15,000).
+
+3. **Assisting Sir Irl on his Laptop:**
+   - If Sir Irl still has a cached screen from an earlier session, provide him with either:
+     - **Link:** [https://rons-chicken-payroll.vercel.app/?reset=1](https://rons-chicken-payroll.vercel.app/?reset=1)
+     - **Keyboard Shortcut in Edge:** Press **`Ctrl + Shift + R`** (or **`Ctrl + F5`**) to hard-refresh.
+     - **InPrivate Window:** Press **`Ctrl + Shift + N`** and open the link.
+
+4. **Sir Irl Live Cutoff & Handover:**
+   - Guide Sir Irl to drag-and-drop or upload their latest USB attendance file from the Deli e3960.
+   - Confirm statutory split deductions (50% on the 15th, 50% on the 30th/31st) or apply any custom peso overrides.
+   - Present the formal proposal PDF (`Rons_Chicken_Custom_Payroll_Proposal_Quotation_v2.pdf`) for Conforme signing and Milestone 1 payment (₱15,000.00).
