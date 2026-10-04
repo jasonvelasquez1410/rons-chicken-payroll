@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Ron's Chicken - Custom Biometric Payroll & Timekeeping System</title>
   
+  <!-- Strict Anti-Cache Meta Tags to prevent Edge/Chrome disk caching -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+
   <!-- PWA Meta Tags -->
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#ff5500">
@@ -14,7 +19,7 @@
   <link rel="icon" type="image/jpeg" href="assets/logo.jpg">
   <link rel="apple-touch-icon" href="assets/logo.jpg">
 
-  <!-- Critical Inline Styles to Prevent White Screen -->
+  <!-- Critical Inline Styles to Prevent White Screen Under Any Circumstance -->
   <style>
     html, body {
       background-color: #080c14 !important;
@@ -33,8 +38,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <!-- Stylesheet with Cache-Buster -->
-  <link rel="stylesheet" href="css/style.css?v=2.3.0">
+  <!-- Stylesheet with Cache-Buster v3.1.0 -->
+  <link rel="stylesheet" href="css/style.css?v=3.1.0">
 
   <!-- Resilient Startup, Crash Protection & Auto Cache Clearing -->
   <script>
@@ -157,12 +162,12 @@
     </div>
   </div>
 
-  <!-- Application Scripts with Cache-Busters -->
-  <script src="js/db.js?v=2.3.0"></script>
-  <script src="js/biometric-parser.js?v=2.3.0"></script>
-  <script src="js/payroll-engine.js?v=2.3.0"></script>
-  <script src="js/device-sync.js?v=2.3.0"></script>
-  <script src="js/firebase-sync.js?v=2.3.0"></script>
-  <script src="js/app.js?v=2.3.0"></script>
+  <!-- Application Scripts with Cache-Busters v3.1.0 -->
+  <script src="js/db.js?v=3.1.0"></script>
+  <script src="js/biometric-parser.js?v=3.1.0"></script>
+  <script src="js/payroll-engine.js?v=3.1.0"></script>
+  <script src="js/device-sync.js?v=3.1.0"></script>
+  <script src="js/firebase-sync.js?v=3.1.0"></script>
+  <script src="js/app.js?v=3.1.0"></script>
 </body>
 </html>
