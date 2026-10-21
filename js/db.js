@@ -2345,7 +2345,26 @@ class DB {
     }
     // ERP Deductions Ledger (Utang, CA, Shortages, Lacking Products)
     if (!safeStorage.getItem(STORAGE_KEYS.DEDUCTIONS)) {
-      safeStorage.setItem(STORAGE_KEYS.DEDUCTIONS, JSON.stringify(DEFAULT_DEDUCTIONS));
+      const existingAdvances = this.getAdvances();
+      if (existingAdvances && existingAdvances.length > 0) {
+        const migrated = existingAdvances.map(a => ({
+          id: a.id || `DED-${Date.now()}-${Math.floor(Math.random()*1000)}`,
+          employeeId: a.employeeId,
+          employeeName: a.employeeName,
+          category: a.category || (a.type && a.type.toLowerCase().includes('loan') ? 'Utang' : 'CA'),
+          type: a.type || "Cash Advance (Vale)",
+          date: a.date || new Date().toISOString().split('T')[0],
+          amount: a.amount || 0,
+          deductionPerCutoff: a.deductionPerCutoff || a.amount,
+          deducted: a.deducted || 0,
+          reason: a.reason || "Staff cash advance / vale",
+          status: a.status || "Active",
+          loggedBy: a.loggedBy || "Management"
+        }));
+        safeStorage.setItem(STORAGE_KEYS.DEDUCTIONS, JSON.stringify(migrated));
+      } else {
+        safeStorage.setItem(STORAGE_KEYS.DEDUCTIONS, JSON.stringify(DEFAULT_DEDUCTIONS));
+      }
     }
     // ERP Lechon & Liempo Daily Inventory
     if (!safeStorage.getItem(STORAGE_KEYS.INVENTORY)) {
