@@ -18,18 +18,12 @@ try {
   currentBrightness = 0;
 }
 
-let isTerminalLocked = false;
-try {
-  if (typeof sessionStorage !== 'undefined') {
-    isTerminalLocked = sessionStorage.getItem('rons_terminal_locked') === '1';
-  }
-} catch (e) {
-  isTerminalLocked = false;
-}
+let isTerminalLocked = true; // Always require login on initial load/launch/refresh
 
 function lockTerminal() {
   isTerminalLocked = true;
   try {
+    sessionStorage.removeItem('rons_session_active');
     sessionStorage.setItem('rons_terminal_locked', '1');
   } catch (e) {}
   renderApp();
@@ -224,8 +218,8 @@ function renderApp() {
             <span style="font-size: 0.68rem; opacity: 0.8;">(${currentUser.role === 'admin' ? 'Owner' : (currentUser.role === 'kitchen' ? 'Kitchen' : 'Cashier')})</span>
           </div>
 
-          <button class="btn-bento btn-bento-dark btn-sm" style="padding: 0.45rem 0.75rem; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 0.35rem;" onclick="lockTerminal()" title="Lock terminal screen (requires 4-digit PIN to unlock)">
-            🔒 Lock
+          <button class="btn-bento btn-bento-dark btn-sm" style="padding: 0.45rem 0.85rem; font-size: 0.78rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.4rem; border: 1px solid rgba(255,85,0,0.35);" onclick="lockTerminal()" title="Lock terminal screen and return to Login Screen">
+            🔒 Log Out / Lock
           </button>
 
           <div id="firebase-sync-pill" class="pill pill-dark" style="font-size: 0.76rem; padding: 0.45rem 0.85rem; display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer;" onclick="openCloudSyncModal()" title="Click to view Multi-Device Cloud Sync Status">
