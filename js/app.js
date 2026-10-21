@@ -915,20 +915,15 @@ function renderApp() {
 
               <div>
                 <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--text-secondary);">4-Digit PIN Code</label>
-                <input type="password" id="switch-user-pin" maxlength="6" placeholder="PIN: Sir Irl (8888), Cashier 1 (1111), Cashier 2 (2222)" style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 1.1rem; letter-spacing: 0.2em; text-align: center;">
+                <input type="password" id="switch-user-pin" maxlength="6" placeholder="Enter 4-digit PIN" style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 1.1rem; letter-spacing: 0.2em; text-align: center;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.4rem; font-size: 0.75rem; color: var(--text-muted);">
-                  <span>Default PINs: Sir Irl (8888) • Cashier 1 (1111) • Cashier 2 (2222) • Cashier 3 (3333)</span>
+                  <span>Enter your confidential 4-digit security PIN.</span>
                 </div>
               </div>
 
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; flex-wrap: wrap; gap: 0.5rem;">
-                <button type="button" class="btn-bento btn-bento-dark btn-sm" onclick="ErpModules.quickSwitchUser(document.getElementById('switch-user-select').value)">
-                  ⚡ Quick Switch (Bypass PIN)
-                </button>
-                <div style="display: flex; gap: 0.5rem;">
-                  <button type="button" class="btn-bento btn-bento-dark" onclick="closeModal('switch-user-modal')">Cancel</button>
-                  <button type="submit" class="btn-bento btn-bento-orange" style="font-weight: 800;">Unlock &amp; Switch</button>
-                </div>
+              <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 1rem; gap: 0.5rem;">
+                <button type="button" class="btn-bento btn-bento-dark" onclick="closeModal('switch-user-modal')">Cancel</button>
+                <button type="submit" class="btn-bento btn-bento-orange" style="font-weight: 800;">Unlock &amp; Switch</button>
               </div>
             </div>
           </form>
@@ -1478,8 +1473,8 @@ function renderManagerBentoView() {
                 The <strong>AI Financial Analyst &amp; CFO Advisor</strong> is reserved exclusively for Manager/Owner access (Sir Irl). Cashiers and Kitchen staff do not have authorization to view store margins or converse with the AI.
               </p>
               <div style="display: flex; justify-content: center; gap: 0.75rem;">
-                <button class="btn-bento btn-bento-orange" onclick="lockTerminal()">
-                  👑 Unlock with Manager PIN (8888)
+                <button class="btn-bento btn-bento-orange" onclick="lockTerminal('usr_admin')">
+                  👑 Switch to Manager Account
                 </button>
                 <button class="btn-bento btn-bento-dark" onclick="navigateTo('dashboard')">
                   Return to Dashboard
@@ -1507,8 +1502,8 @@ function renderManagerBentoView() {
                 Confidential employee salaries, daily wage rates, and DOLE payslip generation are locked to authorized management accounts.
               </p>
               <div style="display: flex; justify-content: center; gap: 0.75rem;">
-                <button class="btn-bento btn-bento-orange" onclick="lockTerminal()">
-                  👑 Unlock with Manager PIN (8888)
+                <button class="btn-bento btn-bento-orange" onclick="lockTerminal('usr_admin')">
+                  👑 Switch to Manager Account
                 </button>
                 <button class="btn-bento btn-bento-dark" onclick="navigateTo('dashboard')">
                   Return to Dashboard

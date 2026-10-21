@@ -668,8 +668,8 @@ window.ErpModules = (function() {
                 <strong style="color: var(--text-primary);">${u.cashierShift || u.title || 'General Operations'}</strong>
               </div>
               <div style="display: flex; justify-content: space-between;">
-                <span style="color: var(--text-muted);">4-Digit PIN:</span>
-                <strong style="color: var(--bento-orange); letter-spacing: 0.15em;">${u.pin ? '•••• (' + u.pin + ')' : '••••'}</strong>
+                <span style="color: var(--text-muted);">Security PIN:</span>
+                <strong style="color: var(--bento-orange); letter-spacing: 0.15em;">•••• (Protected)</strong>
               </div>
             </div>
 
@@ -714,8 +714,8 @@ window.ErpModules = (function() {
               <button class="btn-bento btn-bento-dark btn-sm" style="flex: 1.2; font-weight: 700;" onclick="ErpModules.openEditUserModal('${u.id}')">
                 ⚙️ Customize Permissions &amp; PIN
               </button>
-              <button class="btn-bento btn-bento-orange btn-sm" style="flex: 0.8;" onclick="ErpModules.quickSwitchUser('${u.id}')">
-                ⚡ Switch
+              <button class="btn-bento btn-bento-orange btn-sm" style="flex: 0.8;" onclick="window.lockTerminal('${u.id}')">
+                🔒 Switch
               </button>
             </div>
           </div>
@@ -752,7 +752,7 @@ window.ErpModules = (function() {
             <button class="btn-bento btn-bento-dark btn-sm" onclick="ErpModules.openSwitchUserModal()">
               🔒 Lock / Handover Shift
             </button>
-            <button class="btn-bento btn-bento-orange btn-sm" onclick="ErpModules.quickSwitchUser('usr_admin')">
+            <button class="btn-bento btn-bento-orange btn-sm" onclick="window.lockTerminal('usr_admin')">
               👑 Owner Mode
             </button>
           </div>
@@ -869,7 +869,7 @@ window.ErpModules = (function() {
             <button class="btn-bento btn-bento-dark btn-sm" onclick="window.lockTerminal()">
               🔒 Lock Terminal
             </button>
-            <button class="btn-bento btn-bento-orange btn-sm" onclick="ErpModules.quickSwitchUser('usr_admin')">
+            <button class="btn-bento btn-bento-orange btn-sm" onclick="window.lockTerminal('usr_admin')">
               👑 Manager Login
             </button>
           </div>
@@ -1063,21 +1063,11 @@ window.ErpModules = (function() {
               <button type="button" class="btn-bento btn-bento-dark" style="font-size: 1.25rem; font-weight: 700; padding: 0.75rem;" onclick="ErpModules.handleLockScreenKeypad('0')">0</button>
               <button type="button" class="btn-bento btn-bento-orange" style="font-size: 1.1rem; font-weight: 800; padding: 0.75rem;" onclick="ErpModules.handleLockScreenUnlock()" title="Unlock">🔓</button>
             </div>
-
-            <!-- PIN Hint & Quick Bypass -->
-            <div style="display: flex; flex-direction: column; gap: 0.45rem; align-items: center;">
-              <div id="lock-hero-pin-hint" style="font-size: 0.75rem; color: var(--text-muted); background: var(--bg-surface); padding: 0.3rem 0.75rem; border-radius: 999px; border: 1px solid var(--border-subtle);">
-                Default PIN: ${selected.pin || '8888'}
-              </div>
-              <button type="button" class="btn-bento btn-bento-dark btn-sm" onclick="ErpModules.quickUnlockSelectedUser('${selected.id}')" style="font-size: 0.76rem;">
-                ⚡ Quick Unlock (Bypass PIN)
-              </button>
-            </div>
           </div>
 
           <!-- Bottom Footer Information -->
           <div style="font-size: 0.74rem; color: var(--text-muted); line-height: 1.5;">
-            👑 <strong>Sir Irl (8888):</strong> Full Executive Access &amp; AI Advisor • 💳 <strong>Cashiers (1111/2222/3333):</strong> POS Remittances &amp; Inventory • 👨‍🍳 <strong>Kitchen (4444):</strong> Spit Roasting
+            🔒 <strong>Confidential Terminal:</strong> Access is restricted based on confidential PINs assigned by Sir Irl.
           </div>
         </div>
       </div>
@@ -1444,8 +1434,6 @@ window.ErpModules = (function() {
       if (heroName) heroName.textContent = user.name;
       if (heroRole) heroRole.textContent = user.cashierShift || user.title || user.role;
       if (heroAvatar) heroAvatar.textContent = user.avatar || '👤';
-      const hintEl = document.getElementById('lock-hero-pin-hint');
-      if (hintEl) hintEl.textContent = `Default PIN: ${user.pin || '8888'}`;
     }
 
     const cards = document.querySelectorAll('.lock-user-card');
