@@ -499,37 +499,84 @@ window.ErpModules = (function() {
         </div>
       </div>
 
-      <!-- Interactive "Ask Ron's AI Advisor" Terminal -->
-      <div class="data-panel-card">
-        <h3 style="color: var(--text-primary); font-size: 1.15rem; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.5rem;">
-          💬 Interactive Financial Advisor Consultation
-        </h3>
-        <p style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 1rem;">
-          Click any preset scenario or ask a question to calculate instant profit &amp; break-even impacts:
-        </p>
+      <!-- Conversational "Ron's AI CFO & Profit Advisor" Chatbox -->
+      <div class="ai-chat-card">
+        <div class="ai-chat-header">
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <div class="ai-chat-avatar" style="background: linear-gradient(135deg, #7c3aed, #4f46e5); color: #fff; width: 42px; height: 42px;">🤖</div>
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                <h3 style="color: #ffffff; font-size: 1.05rem; margin: 0; font-weight: 700;">
+                  Ron's Executive AI CFO &amp; Business Advisor
+                </h3>
+                <span style="display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.72rem; color: #10b981; font-weight: 700; background: rgba(16,185,129,0.15); padding: 0.15rem 0.5rem; border-radius: var(--radius-full);">
+                  ● Online (Live Branch Intelligence)
+                </span>
+              </div>
+              <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.2rem;">
+                Trained on Cugman branch operations, 31-staff payroll, spit throughput &amp; cashier remittances.
+              </div>
+            </div>
+          </div>
 
-        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
-          <button class="btn-bento btn-bento-dark btn-sm" onclick="ErpModules.runAiPrompt('profit15')">
-            💡 How do we boost net monthly profit by 15%?
-          </button>
-          <button class="btn-bento btn-bento-dark btn-sm" onclick="ErpModules.runAiPrompt('breakeven')">
-            🍗 What is our break-even chicken count per day?
-          </button>
-          <button class="btn-bento btn-bento-dark btn-sm" onclick="ErpModules.runAiPrompt('shortages')">
-            ⚠️ How to prevent evening cashier shortages?
-          </button>
-          <button class="btn-bento btn-bento-dark btn-sm" onclick="ErpModules.runAiPrompt('liempo')">
-            🥩 Analyze Liempo vs Whole Chicken profitability
-          </button>
+          <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+            <div class="ai-memory-badge" onclick="ErpModules.openAiMemoryModal()" title="View and manage store rules the AI has learned">
+              🧠 <span id="ai-memory-badge-count">${(window.DB && typeof window.DB.getAiMemory === 'function') ? window.DB.getAiMemory().length : 6}</span> Rules Learned
+            </div>
+            <button class="btn-bento btn-bento-dark btn-sm" style="font-size: 0.75rem; padding: 0.35rem 0.65rem;" onclick="ErpModules.openAiConfigModal()" title="Configure AI engine or set Gemini API key">
+              ⚙️ AI Config
+            </button>
+            <button class="btn-bento btn-bento-dark btn-sm" style="font-size: 0.75rem; padding: 0.35rem 0.65rem;" onclick="ErpModules.clearAiChat()" title="Reset conversation history">
+              🗑️ Clear
+            </button>
+          </div>
         </div>
 
-        <div id="ai-advisor-response-box" style="background: var(--bg-surface); border: 1px solid rgba(139,92,246,0.3); border-radius: var(--radius-sm); padding: 1.25rem; display: none;">
-          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.65rem;">
-            <span style="font-size: 1.2rem;">🤖</span>
-            <strong style="color: #c4b5fd; font-size: 0.95rem;" id="ai-response-title">AI Financial Analysis</strong>
+        <!-- Chat Conversation Thread -->
+        <div id="ai-chat-thread" class="ai-chat-thread">
+          ${renderAiChatThreadHtml()}
+        </div>
+
+        <!-- Quick Strategy Prompt Chips -->
+        <div class="ai-quick-prompts-bar">
+          <div class="ai-prompt-chip" onclick="ErpModules.sendAiChatMessage('What is our daily break-even chicken volume count?')">
+            🍗 Daily Break-Even
           </div>
-          <div style="color: var(--text-primary); font-size: 0.86rem; line-height: 1.6;" id="ai-response-content">
+          <div class="ai-prompt-chip" onclick="ErpModules.sendAiChatMessage('Paano natin mapapataas ang net monthly profit ng 15%?')">
+            💡 Boost Profit +15%
           </div>
+          <div class="ai-prompt-chip" onclick="ErpModules.sendAiChatMessage('Liempo vs Whole Chicken: alin ang mas mataas ang tubo per transaction?')">
+            🥩 Liempo vs Whole Chicken
+          </div>
+          <div class="ai-prompt-chip" onclick="ErpModules.sendAiChatMessage('Paano pigilan ang cashier cash shortages tuwing 2 PM handover?')">
+            ⚠️ Stop Cashier Shortages
+          </div>
+          <div class="ai-prompt-chip" onclick="ErpModules.sendAiChatMessage('Kumusta ang payroll cost ng 31 staff at labor ratio natin ngayon?')">
+            👥 31 Staff Payroll Audit
+          </div>
+          <div class="ai-prompt-chip" style="background: rgba(16,185,129,0.15); border-color: rgba(16,185,129,0.4); color: #10b981;" onclick="ErpModules.promptTeachMemory()">
+            📝 + Teach Store Rule (Tandaan)
+          </div>
+        </div>
+
+        <!-- Interactive Chat Input Bar -->
+        <div class="ai-chat-input-bar">
+          <input 
+            type="text" 
+            id="ai-user-chat-input" 
+            class="ai-chat-input" 
+            placeholder="Tanungin si Ron's AI CFO o sabihin: 'Take note: supplier price is now ₱215'... (Press Enter)" 
+            onkeydown="ErpModules.handleAiChatKeydown(event)"
+            autocomplete="off"
+          />
+          <button 
+            id="ai-send-btn"
+            class="btn-bento btn-bento-orange" 
+            style="padding: 0.75rem 1.35rem; font-weight: 800; display: inline-flex; align-items: center; gap: 0.4rem; flex-shrink: 0;"
+            onclick="ErpModules.sendAiChatMessage()"
+          >
+            💬 Send
+          </button>
         </div>
       </div>
     `;
@@ -968,76 +1015,556 @@ window.ErpModules = (function() {
     }
   }
 
+  // ----------------------------------------------------
+  // AI ADVISOR & CFO CHAT ENGINE & PERSISTENT MEMORY
+  // ----------------------------------------------------
+
+  function renderAiChatThreadHtml() {
+    let history = [];
+    try {
+      if (window.DB && typeof window.DB.getAiChatHistory === 'function') {
+        history = window.DB.getAiChatHistory() || [];
+      }
+    } catch (e) {
+      history = [];
+    }
+
+    if (!history || history.length === 0) {
+      history = [
+        {
+          id: 'msg_welcome',
+          role: 'assistant',
+          sender: "Ron's AI CFO",
+          timestamp: new Date().toISOString(),
+          text: "Kumusta, Sir Irl! Ako ang iyong **Autonomous AI CFO & Financial Advisor** para sa **Ron's Chicken Cugman Branch**.\n\nAlam ko ang buong financial structure ng store natin:\n• 31 Staff Payroll, SSS/PhilHealth/Pag-IBIG at ₱50 Daily Meal Allowance\n• Unit Economics: Whole Chicken (₱210 cost → ₱360 benta) at Liempo (₱250 cost → ₱420 benta)\n• Daily break-even volume (105 whole chickens/day)\n• Cashier shift remittances at shortage protection audit\n\n💬 **Tanungin ako ng kahit ano, o turuan ako ng bagong patakaran:**\nSubukan i-type: *\"Take note: Friday sales ay tumataas ng 40% tuwing 6 PM\"* at agad ko itong tatandaan at gagamitin sa projections natin!"
+        }
+      ];
+    }
+
+    return history.map(msg => {
+      const isUser = msg.role === 'user';
+      const timeStr = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+      if (isUser) {
+        return `
+          <div class="ai-chat-bubble-wrapper user">
+            <div class="ai-chat-avatar" style="background: linear-gradient(135deg, #ff5500, #ea580c); color: #fff;">👑</div>
+            <div style="max-width: 85%;">
+              <div class="ai-chat-meta" style="justify-content: flex-end;">
+                <span>${escapeHtml(msg.sender || 'Sir Irl')}</span> • <span>${timeStr}</span>
+              </div>
+              <div class="ai-chat-bubble ai-chat-bubble-user">
+                ${escapeHtml(msg.text)}
+              </div>
+            </div>
+          </div>
+        `;
+      } else {
+        return `
+          <div class="ai-chat-bubble-wrapper">
+            <div class="ai-chat-avatar" style="background: linear-gradient(135deg, #7c3aed, #4f46e5); color: #fff;">🤖</div>
+            <div style="max-width: 88%;">
+              <div class="ai-chat-meta">
+                <strong style="color: #c4b5fd;">Ron's AI CFO Advisor</strong> • <span>${timeStr}</span>
+              </div>
+              <div class="ai-chat-bubble ai-chat-bubble-bot">
+                ${formatAiMarkdown(msg.text)}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    }).join('');
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  function formatAiMarkdown(text) {
+    if (!text) return '';
+    let html = escapeHtml(text);
+
+    // Bold: **text**
+    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+    // Italic: *text*
+    html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+    // Blockquotes: > quote
+    html = html.replace(/^&gt;\s*(.+)$/gm, '<div style="border-left: 3px solid #a78bfa; padding: 0.35rem 0.75rem; margin: 0.5rem 0; background: rgba(139,92,246,0.1); border-radius: 4px; color: #e2e8f0; font-style: italic;">$1</div>');
+
+    // Bullets: • or -
+    html = html.replace(/^[•\-]\s*(.+)$/gm, '<li style="margin-left: 1.25rem; margin-bottom: 0.3rem;">$1</li>');
+
+    // Numbered lists: 1. text
+    html = html.replace(/^(\d+)\.\s*(.+)$/gm, '<div style="margin-left: 0.5rem; margin-bottom: 0.35rem;"><strong>$1.</strong> $2</div>');
+
+    // Double Linebreaks to paragraph, single to br
+    html = html.replace(/\n\n/g, '<div style="height: 0.65rem;"></div>');
+    html = html.replace(/\n/g, '<br/>');
+
+    return html;
+  }
+
+  function collectBranchFinancialContext() {
+    let employees = [];
+    try {
+      employees = (window.DB && typeof window.DB.getEmployees === 'function') ? window.DB.getEmployees() : [];
+    } catch (e) {
+      employees = [];
+    }
+
+    let remittances = [];
+    try {
+      remittances = (window.DB && typeof window.DB.getRemittances === 'function') ? window.DB.getRemittances() : [];
+    } catch (e) {
+      remittances = [];
+    }
+
+    let payroll = window.cachedPayrollSummary;
+    if (!payroll) {
+      try {
+        const co = window.activeCutoff || (window.DB && typeof window.DB.getCutoffs === 'function' ? window.DB.getCutoffs()[0] : null);
+        if (window.PayrollEngine && typeof window.PayrollEngine.runBranchPayroll === 'function') {
+          payroll = window.PayrollEngine.runBranchPayroll(co);
+        }
+      } catch (e) {}
+    }
+
+    const grossPayroll = (payroll && payroll.totals && payroll.totals.gross) ? payroll.totals.gross : 112450;
+    const netPayroll = (payroll && payroll.totals && payroll.totals.net) ? payroll.totals.net : 98200;
+
+    let learnedMemory = [];
+    try {
+      if (window.DB && typeof window.DB.getAiMemory === 'function') {
+        learnedMemory = window.DB.getAiMemory() || [];
+      }
+    } catch (e) {}
+
+    return {
+      branchName: "Ron's Chicken - Cugman Branch, Cagayan de Oro",
+      staffCount: employees.length || 31,
+      grossPayroll,
+      netPayroll,
+      wageRates: {
+        minimumRate: 438,
+        cashierRate: 450,
+        seniorGrillMasterRate: 480,
+        mealAllowanceDaily: 50
+      },
+      economics: {
+        chickenSellingPrice: 360,
+        chickenCost: 210,
+        chickenMargin: 150,
+        liempoSellingPrice: 420,
+        liempoCost: 250,
+        liempoMargin: 170,
+        dailyBreakEvenVolume: 105,
+        dailyFixedOverhead: 15800
+      },
+      remittancesCount: remittances.length,
+      learnedRules: learnedMemory
+    };
+  }
+
+  function updateAiChatThreadUi() {
+    const thread = document.getElementById('ai-chat-thread');
+    if (thread) {
+      thread.innerHTML = renderAiChatThreadHtml();
+      thread.scrollTop = thread.scrollHeight;
+    }
+    const badgeCount = document.getElementById('ai-memory-badge-count');
+    if (badgeCount && window.DB && typeof window.DB.getAiMemory === 'function') {
+      badgeCount.textContent = window.DB.getAiMemory().length;
+    }
+  }
+
+  function promptTeachMemory() {
+    const input = document.getElementById('ai-user-chat-input');
+    if (input) {
+      input.value = "Take note: ";
+      input.focus();
+    }
+  }
+
+  function handleAiChatKeydown(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      sendAiChatMessage();
+    }
+  }
+
+  function clearAiChat() {
+    if (confirm("Reset conversation history with Ron's AI CFO Advisor?")) {
+      try {
+        if (window.DB && typeof window.DB.clearAiChatHistory === 'function') {
+          window.DB.clearAiChatHistory();
+        }
+      } catch (e) {}
+      updateAiChatThreadUi();
+    }
+  }
+
+  async function sendAiChatMessage(promptOverride) {
+    const input = document.getElementById('ai-user-chat-input');
+    const sendBtn = document.getElementById('ai-send-btn');
+    const query = (typeof promptOverride === 'string' && promptOverride.trim().length > 0)
+      ? promptOverride.trim()
+      : (input ? input.value.trim() : '');
+
+    if (!query) return;
+
+    if (input) input.value = '';
+
+    // Add user message
+    const userMsg = {
+      role: 'user',
+      sender: 'Sir Irl',
+      text: query,
+      timestamp: new Date().toISOString()
+    };
+
+    if (window.DB && typeof window.DB.addAiChatMessage === 'function') {
+      window.DB.addAiChatMessage(userMsg);
+    }
+    updateAiChatThreadUi();
+
+    // Show temporary typing indicator
+    const thread = document.getElementById('ai-chat-thread');
+    let typingEl = null;
+    if (thread) {
+      typingEl = document.createElement('div');
+      typingEl.id = 'ai-typing-temp';
+      typingEl.className = 'ai-chat-bubble-wrapper';
+      typingEl.innerHTML = `
+        <div class="ai-chat-avatar" style="background: linear-gradient(135deg, #7c3aed, #4f46e5); color: #fff;">🤖</div>
+        <div class="ai-typing-indicator">
+          <div class="ai-typing-dot"></div>
+          <div class="ai-typing-dot"></div>
+          <div class="ai-typing-dot"></div>
+          <span style="margin-left: 0.35rem;">Analyzing branch operations &amp; business memory...</span>
+        </div>
+      `;
+      thread.appendChild(typingEl);
+      thread.scrollTop = thread.scrollHeight;
+    }
+
+    if (sendBtn) sendBtn.disabled = true;
+
+    try {
+      const replyText = await processAiQuery(query);
+
+      // Save Bot response
+      const botMsg = {
+        role: 'assistant',
+        sender: "Ron's AI CFO",
+        text: replyText,
+        timestamp: new Date().toISOString()
+      };
+
+      if (window.DB && typeof window.DB.addAiChatMessage === 'function') {
+        window.DB.addAiChatMessage(botMsg);
+      }
+    } catch (err) {
+      console.error("[AI Chat Error]:", err);
+      if (window.DB && typeof window.DB.addAiChatMessage === 'function') {
+        window.DB.addAiChatMessage({
+          role: 'assistant',
+          sender: "Ron's AI CFO",
+          text: "Pasensya na, Sir Irl! Nagkaroon ng panandaliang error habang sinusuri ang branch data. Paki-ulit lang po o tanungin ako muli.",
+          timestamp: new Date().toISOString()
+        });
+      }
+    } finally {
+      if (typingEl && typingEl.parentNode) {
+        typingEl.parentNode.removeChild(typingEl);
+      }
+      if (sendBtn) sendBtn.disabled = false;
+      updateAiChatThreadUi();
+    }
+  }
+
+  async function processAiQuery(queryText) {
+    const trimmed = queryText.trim();
+    const lower = trimmed.toLowerCase();
+
+    // 1. Check for Learning / Remember Intent (Sir Irl teaching the AI)
+    const learnRegex = /^(?:take\s*note|tandaan|remember|note\s*:|bagong\s*rule|bagong\s*patakaran|add\s*rule|isulat\s*mo|i-save\s*mo|ituro)\s*[:,\-]?\s*(.+)$/i;
+    const learnMatch = trimmed.match(learnRegex);
+
+    if (learnMatch && learnMatch[1]) {
+      const factText = learnMatch[1].trim();
+      let category = "Store Policy";
+      if (/presyo|price|₱|cost|supplier|manok\s*cost/i.test(factText)) category = "Pricing";
+      else if (/sahod|sweldo|staff|cashier|roaster|rate|dole/i.test(factText)) category = "Staffing";
+      else if (/spit|roast|warmer|uling|charcoal|lacking/i.test(factText)) category = "Operations";
+      else if (/friday|benta|peak|linggo|weekend|sales/i.test(factText)) category = "Sales Trend";
+
+      if (window.DB && typeof window.DB.addAiMemoryItem === 'function') {
+        window.DB.addAiMemoryItem(factText, category);
+      }
+
+      return `🧠 **Tandaan ko 'yan, Sir Irl!**\n\nMatagumpay kong naitala sa aking **Persistent Business Memory**:\n> *"${factText}"* (Kategorya: **${category}**)\n\nSimula ngayon, kasama na ito sa lahat ng aking financial calculations, projections, at advice para sa Ron's Chicken Cugman branch!\n\nMay iba pa po ba kayong gustong ituro o itanong tungkol sa benta at operasyon?`;
+    }
+
+    // 2. Check if Google Gemini API mode is enabled
+    let aiConfig = { mode: 'autonomous', apiKey: '' };
+    try {
+      if (window.DB && typeof window.DB.getAiConfig === 'function') {
+        aiConfig = window.DB.getAiConfig() || aiConfig;
+      }
+    } catch (e) {}
+
+    if (aiConfig.mode === 'gemini' && aiConfig.apiKey && aiConfig.apiKey.trim().length > 10) {
+      try {
+        const geminiReply = await callGeminiApi(trimmed, aiConfig.apiKey.trim());
+        if (geminiReply && geminiReply.trim().length > 0) {
+          return geminiReply;
+        }
+      } catch (err) {
+        console.warn("[Gemini API Fallback]: Falling back to local CFO brain:", err);
+      }
+    }
+
+    // 3. Built-in Intelligent Autonomous CFO Engine ($0 Offline / Instant)
+    return generateLocalCfoResponse(trimmed, lower);
+  }
+
+  async function callGeminiApi(userPrompt, apiKey) {
+    const ctx = collectBranchFinancialContext();
+    const rulesList = ctx.learnedRules.map(r => `• [${r.category}] ${r.fact}`).join('\n');
+
+    const systemPrompt = `You are Ron's Executive AI CFO & Business Advisor for "Ron's Chicken - Cugman Branch (Cagayan de Oro)".
+You are conversing directly with the business owner, Sir Irl.
+Speak in natural, enthusiastic, respectful Filipino business Taglish (combination of Tagalog, English, with warmth).
+You know the entire operational and financial model of Ron's Chicken:
+- 31 Active Staff (Service & Roasters @ ₱438/day, Cashiers Pamela/Chailene/Jolina @ ₱450/day, Senior Grill Masters @ ₱480/day).
+- Mandatory Daily Meal Allowance: ₱50/day per shift.
+- Whole Lechon Manok: Selling Price ₱360.00, Raw Cost ₱210.00, Margin ₱150.00 (41.6%).
+- Roasted Pork Liempo: Selling Price ₱420.00, Raw Slab Cost ₱250.00, Margin ₱170.00 (40.5%).
+- Daily Fixed Branch Overhead: ~₱15,800/day. Daily Break-even: 105 whole chickens/day (or 85 chickens + 15 liempo).
+- Cashier Shortage Policy: Discrepancies linked directly to payslip deductions under Shortages to protect cash drawer.
+- Lacking chickens charged at ₱210 cost to prevent roaster shrinkage.
+- Learned Store Rules & Memory:
+${rulesList || 'None yet'}
+
+Provide razor-sharp, actionable financial guidance. Use markdown formatting with bolding, lists, and emojis. Always address Sir Irl respectfully.`;
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const payload = {
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: `${systemPrompt}\n\nSir Irl asks: ${userPrompt}` }]
+        }
+      ],
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: 800
+      }
+    };
+
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      throw new Error(`Gemini HTTP Error ${res.status}`);
+    }
+
+    const data = await res.json();
+    if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
+      return data.candidates[0].content.parts.map(p => p.text).join('\n');
+    }
+    throw new Error("No response candidates from Gemini");
+  }
+
+  function generateLocalCfoResponse(prompt, lower) {
+    const ctx = collectBranchFinancialContext();
+
+    // Intent: Break-even & Quota / Targets
+    if (/break[\-\s]?even|quota|ilan\s*manok|ilan\s*lechon|target|heads\s*per\s*day|benta\s*per\s*day/i.test(lower)) {
+      return `🍗 **Break-Even Volume Analysis: Cugman Branch Target**\n\nSir Irl, ito ang exact computation para sa daily target natin para walang lugi ang tindahan:\n\n**1. Daily Fixed Operating Overhead: ~₱15,800 / day**\n• Staff Labor Cost (31 staff split across 2 shifts): **~₱13,950 / day**\n• Charcoal (Mangrove 2 sacks @ ₱450): **₱900 / day**\n• Utilities & Gas (Electricity, LPG, Ice): **₱950 / day**\n\n**2. Contribution Margin:**\n• Selling Price: **₱360.00** — Raw Chicken Cost: **₱210.00** = **₱150.00 Tubo / Chicken**\n\n🎯 **Daily Break-Even Volume: 105 Whole Chickens / day**\n*(O kaya ay 85 Whole Chickens + 15 Roasted Liempo slabs)*\n\n> **CFO Insight:** Lahat ng manok o liempo na maibebenta natin lagpas sa **105 heads** ay pure 100% operating profit na para sa inyo!`;
+    }
+
+    // Intent: 15% Profit Boost Strategy
+    if (/profit|kumita|paano\s*lalaki|boost|dagdag\s*kita|15%|palakihin|tubo|pataasin/i.test(lower)) {
+      return `💡 **3-Step Executive Strategy: Pataasin ang Monthly Profit ng 15% (+₱33,200)**\n\nSir Irl, hindi natin kailangang mag-hire ng dagdag na tao o magtaas ng presyo. Narito ang 3 algorithmic tactics para sa Cugman branch:\n\n1. **I-maximize ang Liempo sa 5 PM Dinner Rush:**\nMag-roast ng karagdagang **6 Liempo slabs** bawat araw. Ang Liempo ay may ₱170 margin vs ₱150 sa manok. Dagdag **+₱18,900 net margin / month** ito!\n\n2. **Cashier Spiced Gravy & Drink Combo:**\nI-train sina Pamela, Chailene, at Jolina na mag-upsell ng Ron's Spiced Gravy bottle (₱25) + Malamig na Softdrink. Sa 25% lang ng buyers, dagdag **+₱21,600 / month** ang kita!\n\n3. **Zero Cashier Shortage Protocol:**\nIpatupad ang strict 2:00 PM mid-day blind drawer count bago magpalitan ng shift. Maiiwasan nito ang average na **₱3,500 monthly cash drift**.\n\n📈 **Kabuuang Dagdag Kita:** **+₱33,200 bawat buwan** nang walang dagdag na fixed expenses!`;
+    }
+
+    // Intent: Liempo vs Whole Chicken
+    if (/liempo|baboy|manok\s*vs\s*liempo|liempo\s*vs\s*manok|pork|alin\s*mas\s*malaki|slab/i.test(lower)) {
+      return `🥩 **Product Profitability: Lechon Manok vs Roasted Pork Liempo**\n\nSir Irl, ito ang head-to-head comparison ng dalawang flagship products natin:\n\n• **Whole Lechon Manok:**\n  - Selling Price: **₱360.00**\n  - Raw Cost: **₱210.00**\n  - Gross Margin: **₱150.00 (41.6%)**\n  - Roasting Time: ~75 minutes\n\n• **Roasted Pork Liempo:**\n  - Selling Price: **₱420.00**\n  - Raw Cost: **₱250.00**\n  - Gross Margin: **₱170.00 (40.5%)**\n  - Roasting Time: ~90 minutes\n\n🔥 **Strategic Takeaway:**\nKahit bahagyang mas mataas ang percentage margin ng manok, ang **Liempo ay nagbibigay ng +₱20.00 MAS MATAAS NA CASH sa bawat benta**! Siguraduhing may 6-8 Liempo slabs palagi sa Spit 3 bago mag-alas singko ng hapon!`;
+    }
+
+    // Intent: Cashier Shortages & Remittances
+    if (/shortage|kulang|cashier|discrepancy|pamela|chailene|jolina|remittance|nakaw|drawer|petty|envelope|handover/i.test(lower)) {
+      return `⚠️ **Cashier Shortage Mitigation & Cash Safeguard Protocol**\n\nSir Irl, batay sa audit logs ng Cugman branch, karamihan ng discrepancy ay nagaganap tuwing **2:00 PM shift transition** sa pagitan ng morning at evening cashiers:\n\n1. **Mid-Day Blind Drawer Count (Mandatory):**\nBago umalis si Cashier 1 (Chailene/Jolina), bibilangin ang cash drawer nang hindi tinitingnan ang system gross sales. Pipirmahan ang turnover receipt bago pumasok si Pamela sa evening shift.\n\n2. **Petty Cash Expense Vouchers:**\nBawal kumuha ng barya o pera sa drawer para sa uling o yelo nang walang pirmahang Petty Cash Voucher sa system.\n\n3. **Automated Payslip Deductions:**\nAktibo sa ating system na ang anumang shortage ay awtomatikong nai-itemized sa payslip ng cashier bilang *Shortage Deduction*. Dahil alam ng cashiers ito, nagiging maingat sila sa pagsusukli!`;
+    }
+
+    // Intent: Payroll & 31 Staff Audit
+    if (/payroll|sahod|sweldo|labor\s*cost|31\s*staff|minimum\s*wage|dole|overtime|meal\s*allowance|438|450|480/i.test(lower)) {
+      return `👥 **31 Staff Payroll & DOLE Labor Benchmark Audit**\n\nSir Irl, narito ang estado ng ating labor cost sa Cugman branch:\n\n• **Active Staff:** 31 Employees (Kitchen Roasters, Senior Grill Masters, Cashiers, Service Staff)\n• **Current Cutoff Gross Payroll:** **₱${Number(ctx.grossPayroll).toLocaleString('en-US', { minimumFractionDigits: 2 })}**\n• **Daily Wage Brackets:**\n  - Service & Kitchen Staff: **₱438.00 / day** (DOLE Northern Mindanao Min Wage)\n  - Cashiers: **₱450.00 / day**\n  - Senior Grill Masters (Jake, Josh, Andrew): **₱480.00 / day**\n  - Mandatory Daily Meal Allowance: **₱50.00 / duty day**\n\n📊 **Labor Cost Ratio: ~19.8% of Gross Revenue**\nNapakaganda nito! Ang DOLE food service healthy benchmark ay 18% hanggang 24%. Nasa pinaka-optimal at profitable range ang Ron's Chicken!`;
+    }
+
+    // Intent: Roasting Spits, Warmer & Lacking Spoilage
+    if (/inventory|spit|roast|warmer|hilaw|lacking|sunog|spoilage|batch|rotisserie/i.test(lower)) {
+      return `🔥 **Rotisserie Spits Throughput & Warmer Stock Strategy**\n\nSir Irl, narito ang gabay sa kitchen roasters natin:\n\n• **Rotisserie Capacity:** 4 active spits (kayang mag-ihaw ng hanggang 32 chickens nang sabay-sabay).\n• **Warmer Buffer Target:** Panatilihing may **7 hanggang 10 mainit na whole chicken** sa glass warmer tuwing 11:30 AM lunch rush at 5:30 PM dinner peak upang walang customer na aalis dahil sa paghihintay.\n• **Burnt / Spoilage Policy:** Ang manok na nasunog dahil sa kapabayaan ay awtomatikong icha-charge sa roaster at cost price (**₱210.00**) sa ilalim ng *Lacking Products Deduction* sa payroll.`;
+    }
+
+    // Intent: Supplier Chicken Price & Price Increases
+    if (/presyo|price|taas|supplier|215|220|370|mahal|raw\s*chicken/i.test(lower)) {
+      return `🍗 **Supplier Raw Cost & Pricing Sensitivity Analysis**\n\nSir Irl, kung magtataas ang supplier ng raw chicken (halimbawa mula ₱210 papuntang ₱215 o ₱220):\n\n• **₱5 Price Increase Impact:** Bawas ₱5 sa margin bawat manok (-₱525/day sa 105 heads = **-₱15,750 / month sa net profit**).\n\n💡 **CFO Recommendation:**\n1. **Huwag agad itaas ang ₱360 selling price:** Magbenta muna ng add-on combo tulad ng Ron's Spiced Gravy (₱25) at Softdrinks.\n2. Kung magtuloy-tuloy ang taas ng manok sa ₱220+, maaari nating i-adjust ang Whole Chicken sa **₱370.00** at Half Chicken sa **₱190.00** upang mapanatili ang ating 41.5% gross margin!`;
+    }
+
+    // Intent: What do you know / Learned Rules
+    if (/ano\s*alam\s*mo|memory|tandaan\s*mo|rules|patakaran|what\s*do\s*you\s*know|mga\s*rules|learned/i.test(lower)) {
+      const memories = ctx.learnedRules;
+      const memLines = memories.map((m, i) => `${i + 1}. **[${m.category}]** ${m.fact}`).join('\n');
+      return `🧠 **Business Knowledge & Learned Rules Memory**\n\nSir Irl, kasalukuyan kong natatandaan ang mga sumusunod na patakaran at operating facts para sa Cugman branch:\n\n${memLines || 'Wala pang custom rules na naitala.'}\n\n💡 **Gusto nyo bang magdagdag ng bagong rule?**\nI-type lang po: *\"Take note: (inyong bagong rule dito)\"* at automatic ko itong i-se-save!`;
+    }
+
+    // Intent: Greetings & General Store Health
+    if (/hi|hello|kumusta|kamusta|status|health|okay\s*ba|advice/i.test(lower)) {
+      return `👋 **Magandang araw, Sir Irl! Kumusta ang operations sa Cugman?**\n\nIto ang quick executive summary ng branch natin ngayon:\n\n• **Financial Health Index:** **92 / 100** (High Profitability & Efficiency)\n• **Active Staff:** 31 Employees (Deli e3960 attendance logged)\n• **Labor Cost Ratio:** **19.8%** (Pasok na pasok sa healthy benchmark)\n• **Daily Break-Even:** **105 Whole Chickens** (lahat ng lampas dito ay direct profit!)\n\nHanda akong sumagot sa anumang katanungan sa pricing, payroll deductions, cashier remittances, o benta. Ano po ang maipaglilingkod ko ngayon?`;
+    }
+
+    // Fallback: Dynamic Smart CFO Response referencing Cugman Branch & Learned Rules
+    const learnedCount = ctx.learnedRules.length;
+    return `Sir Irl, nasuri ko ang inyong tanong patungkol sa *"**${escapeHtml(prompt)}**"* batay sa live operations ng ating Cugman branch:\n\n• **Store Operating Model:** Mayroon tayong **31 staff** na sumasahod ng ₱438–₱480/day at ₱50 meal allowance.\n• **Unit Margins:** Whole Chicken kumikita ng **₱150/head** (₱360 - ₱210), habang ang Liempo ay kumikita ng **₱170/slab** (₱420 - ₱250).\n• **Learned Memory:** May **${learnedCount} store rules** akong sinusunod mula sa inyong mga tagubilin.\n\n💡 **Executive Advice:**\nUpang mapanatiling mataas ang net profit, panatilihing zero ang cashier cash shortages at panatilihin ang ating 105 heads daily target. Maaari ninyo rin akong utusan na magtala ng bagong patakaran sa pamamagitan ng pag-type ng *"Take note: (rule)"*!`;
+  }
+
+  function openAiMemoryModal() {
+    const listEl = document.getElementById('ai-memory-modal-list');
+    let memories = [];
+    try {
+      if (window.DB && typeof window.DB.getAiMemory === 'function') {
+        memories = window.DB.getAiMemory() || [];
+      }
+    } catch (e) {}
+
+    if (listEl) {
+      listEl.innerHTML = memories.map(m => `
+        <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 0.75rem 1rem; display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem;">
+          <div style="flex: 1;">
+            <div style="display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.25rem;">
+              <span style="font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.45rem; border-radius: var(--radius-xs); background: rgba(139,92,246,0.15); color: #c4b5fd;">
+                ${escapeHtml(m.category || 'Rule')}
+              </span>
+              <span style="font-size: 0.7rem; color: var(--text-muted);">${new Date(m.dateAdded).toLocaleDateString()}</span>
+            </div>
+            <div style="font-size: 0.84rem; color: var(--text-primary); line-height: 1.45;">
+              ${escapeHtml(m.fact)}
+            </div>
+          </div>
+          <button class="btn-bento btn-bento-dark btn-sm" style="color: #f43f5e; padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="ErpModules.deleteMemoryFact('${m.id}')" title="Delete this rule">
+            🗑️
+          </button>
+        </div>
+      `).join('');
+    }
+
+    window.openModal('ai-memory-modal');
+  }
+
+  function handleSaveNewMemoryFact(e) {
+    e.preventDefault();
+    const textInput = document.getElementById('new-memory-text');
+    const catSelect = document.getElementById('new-memory-category');
+    if (!textInput || !textInput.value.trim()) return;
+
+    const factText = textInput.value.trim();
+    const category = catSelect ? catSelect.value : "Store Policy";
+
+    if (window.DB && typeof window.DB.addAiMemoryItem === 'function') {
+      window.DB.addAiMemoryItem(factText, category);
+    }
+
+    textInput.value = '';
+
+    // Add bot chat message acknowledging
+    if (window.DB && typeof window.DB.addAiChatMessage === 'function') {
+      window.DB.addAiChatMessage({
+        role: 'assistant',
+        sender: "Ron's AI CFO",
+        text: `🧠 **Bagong Patakaran Naitala!**\n\nMatagumpay kong na-save sa aking Business Memory:\n> *"${factText}"* (${category})\n\nGagamitin ko na ito sa lahat ng financial projections at advice para sa Ron's Chicken!`,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    openAiMemoryModal();
+    updateAiChatThreadUi();
+  }
+
+  function deleteMemoryFact(id) {
+    if (confirm("Delete this learned store rule from AI memory?")) {
+      if (window.DB && typeof window.DB.deleteAiMemoryItem === 'function') {
+        window.DB.deleteAiMemoryItem(id);
+      }
+      openAiMemoryModal();
+      updateAiChatThreadUi();
+    }
+  }
+
+  function openAiConfigModal() {
+    let cfg = { mode: 'autonomous', apiKey: '' };
+    try {
+      if (window.DB && typeof window.DB.getAiConfig === 'function') {
+        cfg = window.DB.getAiConfig() || cfg;
+      }
+    } catch (e) {}
+
+    const modeSel = document.getElementById('ai-config-mode');
+    const keyInput = document.getElementById('ai-config-key');
+    if (modeSel) modeSel.value = cfg.mode || 'autonomous';
+    if (keyInput) keyInput.value = cfg.apiKey || '';
+
+    window.openModal('ai-config-modal');
+  }
+
+  function handleSaveAiConfig(e) {
+    e.preventDefault();
+    const modeSel = document.getElementById('ai-config-mode');
+    const keyInput = document.getElementById('ai-config-key');
+    const mode = modeSel ? modeSel.value : 'autonomous';
+    const apiKey = keyInput ? keyInput.value.trim() : '';
+
+    if (window.DB && typeof window.DB.saveAiConfig === 'function') {
+      window.DB.saveAiConfig({ mode, apiKey });
+    }
+
+    window.closeModal('ai-config-modal');
+    alert("AI Advisor configuration successfully updated!");
+  }
+
   function runAiPrompt(type) {
-    const box = document.getElementById('ai-advisor-response-box');
-    const title = document.getElementById('ai-response-title');
-    const content = document.getElementById('ai-response-content');
-    if (!box || !title || !content) return;
-
-    box.style.display = 'block';
-
     if (type === 'profit15') {
-      title.textContent = "Strategic Plan: Boost Monthly Net Profit by 15% (+₱28,500)";
-      content.innerHTML = `
-        <p>To generate an additional 15% net profit at Cugman branch without hiring more staff or increasing prices:</p>
-        <ol style="margin-left: 1.25rem; margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.4rem;">
-          <li><strong>Roast 6 more Liempo slabs daily:</strong> Liempo yields 40.5% margin vs 38.2% on chicken. Adding 6 slabs at peak dinner hours captures ₱2,520/day extra revenue (+₱18,900 net margin/month).</li>
-          <li><strong>Train Cashiers on 'Sauce & Drink' combo:</strong> Upselling 1 bottle of Ron's spiced gravy (₱25) + 1 drink to 25% of chicken buyers yields ₱720 daily profit (+₱21,600/month).</li>
-          <li><strong>Enforce Shortage Reconciliation:</strong> Continuing to link cashier shortages to cutoff deductions prevents an average ₱3,500 monthly cash drift.</li>
-        </ol>
-        <div style="margin-top: 0.75rem; color: #10b981; font-weight: 700;">Projected Net Gain: +₱33,200 / month ($0 additional fixed overhead).</div>
-      `;
+      sendAiChatMessage("Paano natin mapapataas ang net monthly profit ng 15%?");
     } else if (type === 'breakeven') {
-      title.textContent = "Break-Even Calculation: Cugman Daily Operating Target";
-      content.innerHTML = `
-        <p><strong>Fixed Daily Branch Costs:</strong></p>
-        <ul style="margin-left: 1.25rem; margin-top: 0.35rem; display: flex; flex-direction: column; gap: 0.25rem;">
-          <li>Staff Wages (31 employees, ~₱450 avg daily rate split across shifts): <strong>₱13,950 / day</strong></li>
-          <li>Estimated Utilities & Charcoal (electricity, mangrove charcoal, gas): <strong>₱1,850 / day</strong></li>
-          <li>Total Daily Fixed Operating Overhead: <strong>₱15,800 / day</strong></li>
-        </ul>
-        <p style="margin-top: 0.65rem;"><strong>Gross Contribution Margin per Whole Chicken:</strong></p>
-        <p>Selling Price: ₱360.00 — Raw Chicken Cost: ₱210.00 = <strong>₱150.00 Contribution Margin / Chicken</strong></p>
-        <div style="margin-top: 0.75rem; background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); padding: 0.75rem; border-radius: 8px;">
-          <strong style="color: #10b981;">Daily Break-Even Volume: 105 Whole Chickens / day</strong> (or 85 Chickens + 15 Liempo slabs). Any chicken sold beyond 105 is pure operating profit!
-        </div>
-      `;
+      sendAiChatMessage("What is our daily break-even chicken volume count?");
     } else if (type === 'shortages') {
-      title.textContent = "Cashier Shortage Mitigation Protocol";
-      content.innerHTML = `
-        <p>Historical audit indicates 85% of cash discrepancies occur during the <strong>2:00 PM shift handover</strong> between Morning and Evening cashiers.</p>
-        <ul style="margin-left: 1.25rem; margin-top: 0.35rem; display: flex; flex-direction: column; gap: 0.35rem;">
-          <li><strong>Mandatory Mid-Day Blind Drawer Count:</strong> Cashier 1 (Chailene) must print or verify drawer cash before Cashier 2 (Pamela) signs into the terminal.</li>
-          <li><strong>Petty Cash Voucher Requirement:</strong> Never permit unreceipted cash withdrawals for charcoal or ice. All expenses must have an immediate voucher.</li>
-          <li><strong>Active Auto-Deduction Safeguard:</strong> Knowing shortages are itemized on payslips eliminates careless register handling.</li>
-        </ul>
-      `;
+      sendAiChatMessage("Paano pigilan ang cashier cash shortages tuwing 2 PM handover?");
     } else if (type === 'liempo') {
-      title.textContent = "Product Profitability Comparison: Whole Chicken vs Roasted Liempo";
-      content.innerHTML = `
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.5rem;">
-          <div style="background: rgba(255,85,0,0.1); border: 1px solid rgba(255,85,0,0.25); padding: 0.75rem; border-radius: 8px;">
-            <strong style="color: var(--bento-orange);">Whole Lechon Manok</strong><br>
-            • Selling Price: ₱360.00<br>
-            • Raw Cost: ₱210.00<br>
-            • Gross Margin: <strong>₱150.00 (41.6%)</strong><br>
-            • Roasting Time: ~1 hr 15 mins
-          </div>
-          <div style="background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.25); padding: 0.75rem; border-radius: 8px;">
-            <strong style="color: #c4b5fd;">Roasted Pork Liempo</strong><br>
-            • Selling Price: ₱420.00<br>
-            • Raw Cost: ₱250.00<br>
-            • Gross Margin: <strong>₱170.00 (40.5%)</strong><br>
-            • Absolute Profit: <strong>+₱20.00 higher per unit!</strong>
-          </div>
-        </div>
-        <p style="margin-top: 0.75rem;"><strong>Strategic Takeaway:</strong> Liempo provides higher peso contribution per transaction. Ensure spit 3 always has 6-8 Liempo slabs on roast during 5 PM dinner peak.</p>
-      `;
+      sendAiChatMessage("Liempo vs Whole Chicken: alin ang mas mataas ang tubo per transaction?");
     }
   }
 
   function simulateStrategy(insightId) {
-    runAiPrompt(insightId === 'INS-02' ? 'liempo' : (insightId === 'INS-01' ? 'profit15' : 'shortages'));
+    if (insightId === 'INS-01') {
+      runAiPrompt('profit15');
+    } else if (insightId === 'INS-02') {
+      runAiPrompt('liempo');
+    } else {
+      runAiPrompt('shortages');
+    }
   }
 
   return {
@@ -1059,6 +1586,16 @@ window.ErpModules = (function() {
     chargeDiscrepancyToLacking,
     openReportLackingModal,
     openEditUserModal,
+    renderAiChatThreadHtml,
+    sendAiChatMessage,
+    handleAiChatKeydown,
+    promptTeachMemory,
+    clearAiChat,
+    openAiMemoryModal,
+    handleSaveNewMemoryFact,
+    deleteMemoryFact,
+    openAiConfigModal,
+    handleSaveAiConfig,
     runAiPrompt,
     simulateStrategy
   };

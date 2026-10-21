@@ -55,6 +55,9 @@ const STORAGE_KEYS = {
   INVENTORY: 'rons_erp_inventory_v2', // Daily Lechon & Liempo Stock, batches, variance
   REMITTANCES: 'rons_erp_remittances_v2', // Cashier Shift Remittances & Sales
   AI_ADVISORY: 'rons_erp_ai_advisory_v2', // AI Financial Analyst State & Simulations
+  AI_CHAT_HISTORY: 'rons_erp_ai_chat_history_v2', // Conversational message thread
+  AI_MEMORY: 'rons_erp_ai_business_memory_v2', // Learned business facts & rules
+  AI_CONFIG: 'rons_erp_ai_config_v2', // Optional Gemini API key & settings
   SETTINGS: 'rons_payroll_settings_v1',
   PAYROLL_HISTORY: 'rons_payroll_history_v1',
   DEVICE_CONFIG: 'rons_payroll_device_config_v1',
@@ -405,6 +408,68 @@ const DEFAULT_AI_ADVISORY = {
     }
   ]
 };
+
+const DEFAULT_AI_MEMORY = [
+  {
+    id: "mem_1",
+    category: "Operations",
+    title: "Cugman Highway Location & Peak Rush",
+    fact: "Located along National Highway in Cugman, Cagayan de Oro. Peak customer takeout traffic occurs between 5:15 PM and 6:45 PM daily.",
+    dateAdded: "2026-09-01",
+    addedBy: "System Setup"
+  },
+  {
+    id: "mem_2",
+    category: "Cost & Margin",
+    title: "Whole Chicken Cost & Pricing",
+    fact: "Whole Lechon Manok sells for ₱360.00. Raw chicken supplier cost is ₱210.00, yielding ₱150.00 gross margin (41.6%).",
+    dateAdded: "2026-09-01",
+    addedBy: "System Setup"
+  },
+  {
+    id: "mem_3",
+    category: "Cost & Margin",
+    title: "Roasted Pork Liempo Cost & Pricing",
+    fact: "Roasted Pork Liempo sells for ₱420.00. Raw pork cost is ₱250.00, yielding ₱170.00 gross margin (40.5%).",
+    dateAdded: "2026-09-01",
+    addedBy: "System Setup"
+  },
+  {
+    id: "mem_4",
+    category: "Break-Even",
+    title: "Daily Operating Break-Even Volume",
+    fact: "Daily fixed overhead (staff wages + charcoal + utilities) is ~₱15,800/day. Daily break-even volume is 105 Whole Chickens, or 85 Chickens + 15 Liempo slabs.",
+    dateAdded: "2026-09-01",
+    addedBy: "System Setup"
+  },
+  {
+    id: "mem_5",
+    category: "Personnel",
+    title: "Staff & Shift Structure",
+    fact: "31 active employees with DOLE standard daily rates (₱438–₱480/day) plus ₱50 daily meal allowance. Overtime rate is 125%, Night diff is 10% (10 PM–6 AM).",
+    dateAdded: "2026-09-01",
+    addedBy: "System Setup"
+  },
+  {
+    id: "mem_6",
+    category: "Security",
+    title: "Cashier Shift Handover & Shortage Rule",
+    fact: "Cashier 1 (Chailene) does morning shift; Cashier 2 (Pamela) does evening shift. Handover is at 2:00 PM with mandatory drawer verification. Cash shortages are automatically charged to staff deductions.",
+    dateAdded: "2026-09-01",
+    addedBy: "System Setup"
+  }
+];
+
+const DEFAULT_AI_CHAT_HISTORY = [
+  {
+    id: "msg_welcome",
+    role: "assistant",
+    timestamp: "Just now",
+    date: "2026-10-21",
+    text: "Mabuhay Sir Irl! Ako ang iyong **Autonomous CFO & Financial Advisor** para sa Ron's Chicken (Cugman Branch).\n\nKabisado ko ang real-time payroll ng ating 31 staff, lechon manok at liempo inventory, daily roasting batches, at cashier remittances. Maaari mo akong tanungin sa Taglish o English tungkol sa kita, break-even targets, food costs, o turuan ng mga bagong patakaran sa tindahan. Paano kita matutulungan ngayon?"
+  }
+];
+
 
 const INITIAL_DATA = {
     "branch":  "Cugman Branch (Cagayan de Oro)",
@@ -2378,6 +2443,21 @@ class DB {
     if (!safeStorage.getItem(STORAGE_KEYS.AI_ADVISORY)) {
       safeStorage.setItem(STORAGE_KEYS.AI_ADVISORY, JSON.stringify(DEFAULT_AI_ADVISORY));
     }
+    // ERP AI Business Memory & Conversational Thread
+    if (!safeStorage.getItem(STORAGE_KEYS.AI_MEMORY)) {
+      safeStorage.setItem(STORAGE_KEYS.AI_MEMORY, JSON.stringify(DEFAULT_AI_MEMORY));
+    }
+    if (!safeStorage.getItem(STORAGE_KEYS.AI_CHAT_HISTORY)) {
+      safeStorage.setItem(STORAGE_KEYS.AI_CHAT_HISTORY, JSON.stringify(DEFAULT_AI_CHAT_HISTORY));
+    }
+    if (!safeStorage.getItem(STORAGE_KEYS.AI_CONFIG)) {
+      safeStorage.setItem(STORAGE_KEYS.AI_CONFIG, JSON.stringify({
+        geminiApiKey: '',
+        model: 'gemini-1.5-flash',
+        mode: 'hybrid',
+        language: 'taglish'
+      }));
+    }
   }
 
   // Employees CRUD
@@ -2801,6 +2881,97 @@ class DB {
     this.triggerCloudSync();
   }
 
+  // ==========================================
+  // ERP AI CFO CHAT & BUSINESS MEMORY
+  // ==========================================
+  static getAiChatHistory() {
+    try {
+      const history = JSON.parse(safeStorage.getItem(STORAGE_KEYS.AI_CHAT_HISTORY));
+      if (history && Array.isArray(history) && history.length > 0) return history;
+    } catch (e) {}
+    return DEFAULT_AI_CHAT_HISTORY;
+  }
+
+  static saveAiChatHistory(history) {
+    safeStorage.setItem(STORAGE_KEYS.AI_CHAT_HISTORY, JSON.stringify(history));
+    this.triggerCloudSync();
+  }
+
+  static addAiChatMessage(role, text) {
+    const history = this.getAiChatHistory();
+    const now = new Date();
+    const msg = {
+      id: `msg_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+      role: role,
+      timestamp: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      date: now.toISOString().split('T')[0],
+      text: text
+    };
+    history.push(msg);
+    if (history.length > 60) {
+      history.splice(0, history.length - 60);
+    }
+    this.saveAiChatHistory(history);
+    return msg;
+  }
+
+  static clearAiChatHistory() {
+    this.saveAiChatHistory(DEFAULT_AI_CHAT_HISTORY);
+  }
+
+  static getAiMemory() {
+    try {
+      const mem = JSON.parse(safeStorage.getItem(STORAGE_KEYS.AI_MEMORY));
+      if (mem && Array.isArray(mem) && mem.length > 0) return mem;
+    } catch (e) {}
+    return DEFAULT_AI_MEMORY;
+  }
+
+  static saveAiMemory(memory) {
+    safeStorage.setItem(STORAGE_KEYS.AI_MEMORY, JSON.stringify(memory));
+    this.triggerCloudSync();
+  }
+
+  static addAiMemoryItem(item) {
+    const memory = this.getAiMemory();
+    const newItem = {
+      id: item.id || `mem_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+      category: item.category || 'Manager Notes',
+      title: item.title || 'Learned Rule',
+      fact: item.fact || item.text,
+      dateAdded: item.dateAdded || new Date().toISOString().split('T')[0],
+      addedBy: item.addedBy || 'Sir Irl'
+    };
+    memory.unshift(newItem);
+    this.saveAiMemory(memory);
+    this.autoBackupSnapshot(`Added AI Learned Memory: ${newItem.title}`);
+    return newItem;
+  }
+
+  static deleteAiMemoryItem(id) {
+    let memory = this.getAiMemory();
+    memory = memory.filter(m => m.id !== id);
+    this.saveAiMemory(memory);
+  }
+
+  static getAiConfig() {
+    try {
+      const cfg = JSON.parse(safeStorage.getItem(STORAGE_KEYS.AI_CONFIG));
+      if (cfg && typeof cfg === 'object') return cfg;
+    } catch (e) {}
+    return {
+      geminiApiKey: '',
+      model: 'gemini-1.5-flash',
+      mode: 'hybrid',
+      language: 'taglish'
+    };
+  }
+
+  static saveAiConfig(cfg) {
+    safeStorage.setItem(STORAGE_KEYS.AI_CONFIG, JSON.stringify(cfg));
+    this.triggerCloudSync();
+  }
+
   // Leaves
   static getLeaves() {
     try {
@@ -2916,6 +3087,9 @@ class DB {
         inventory: this.getInventory(),
         remittances: this.getRemittances(),
         aiAdvisory: this.getAiAdvisory(),
+        aiChatHistory: this.getAiChatHistory(),
+        aiMemory: this.getAiMemory(),
+        aiConfig: this.getAiConfig(),
         settings: this.getSettings(),
         payrollHistory: this.getPayrollHistory(),
         leaves: this.getLeaves(),
@@ -2960,6 +3134,9 @@ class DB {
       if (payload.inventory) this.saveInventory(payload.inventory);
       if (payload.remittances) this.saveRemittances(payload.remittances);
       if (payload.aiAdvisory) this.saveAiAdvisory(payload.aiAdvisory);
+      if (payload.aiChatHistory) this.saveAiChatHistory(payload.aiChatHistory);
+      if (payload.aiMemory) this.saveAiMemory(payload.aiMemory);
+      if (payload.aiConfig) this.saveAiConfig(payload.aiConfig);
       if (payload.settings) this.saveSettings(payload.settings);
       if (payload.payrollHistory) this.savePayrollHistory(payload.payrollHistory);
       if (payload.leaves) this.saveLeaves(payload.leaves);

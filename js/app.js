@@ -1090,6 +1090,128 @@ function renderApp() {
           </form>
         </div>
       </div>
+
+      <!-- Ron's AI Business Memory & Rules Modal -->
+      <div id="ai-memory-modal" class="modal-backdrop">
+        <div class="modal-card" style="max-width: 650px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="font-size: 1.4rem;">🧠</span>
+              <div>
+                <h3 style="color: var(--text-primary); font-size: 1.2rem; margin: 0;">Ron's AI Business Knowledge Memory</h3>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Rules, operating patterns &amp; store facts learned by the CFO Advisor</div>
+              </div>
+            </div>
+            <button class="btn-bento btn-bento-dark btn-sm" onclick="closeModal('ai-memory-modal')">✕</button>
+          </div>
+
+          <!-- Add New Rule Section -->
+          <form onsubmit="ErpModules.handleSaveNewMemoryFact(event)" style="background: rgba(139,92,246,0.08); border: 1px solid rgba(139,92,246,0.25); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 1.25rem;">
+            <div style="font-size: 0.8rem; font-weight: 700; color: #c4b5fd; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.35rem;">
+              <span>➕</span> Teach AI a New Store Rule or Fact
+            </div>
+            <div style="display: grid; gap: 0.75rem;">
+              <div>
+                <input type="text" id="new-memory-text" placeholder="e.g. Supplier raised raw chicken price to ₱215 / Friday evening sales peak at 6 PM" required style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.85rem;">
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                <select id="new-memory-category" style="padding: 0.45rem 0.75rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-secondary); font-size: 0.8rem;">
+                  <option value="Pricing">Pricing &amp; Margins</option>
+                  <option value="Operations">Operations &amp; Roasting</option>
+                  <option value="Staffing">Staffing &amp; Payroll</option>
+                  <option value="Sales Trend">Sales Trend</option>
+                  <option value="Store Policy" selected>Store Policy</option>
+                </select>
+                <button type="submit" class="btn-bento btn-bento-purple btn-sm" style="font-weight: 800;">
+                  💾 Save to Memory
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <!-- Learned Memories List -->
+          <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.65rem; display: flex; justify-content: space-between; align-items: center;">
+            <span>Learned Rules (${((window.DB && typeof window.DB.getAiMemory === 'function') ? window.DB.getAiMemory() : []).length})</span>
+            <span style="font-size: 0.74rem; color: #10b981;">Persistent &amp; Cloud-Synced</span>
+          </div>
+          <div id="ai-memory-modal-list" style="max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.65rem; padding-right: 0.25rem;">
+            ${((window.DB && typeof window.DB.getAiMemory === 'function') ? window.DB.getAiMemory() : []).map(m => `
+              <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 0.75rem 1rem; display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem;">
+                <div style="flex: 1;">
+                  <div style="display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.25rem;">
+                    <span style="font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.45rem; border-radius: var(--radius-xs); background: rgba(139,92,246,0.15); color: #c4b5fd;">
+                      ${m.category || 'Rule'}
+                    </span>
+                    <span style="font-size: 0.7rem; color: var(--text-muted);">${new Date(m.dateAdded).toLocaleDateString()}</span>
+                  </div>
+                  <div style="font-size: 0.84rem; color: var(--text-primary); line-height: 1.45;">
+                    ${m.fact}
+                  </div>
+                </div>
+                <button class="btn-bento btn-bento-dark btn-sm" style="color: #f43f5e; padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="ErpModules.deleteMemoryFact('${m.id}')" title="Delete this rule">
+                  🗑️
+                </button>
+              </div>
+            `).join('')}
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; margin-top: 1.25rem;">
+            <button type="button" class="btn-bento btn-bento-dark" onclick="closeModal('ai-memory-modal')">Close</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ron's AI Configuration Modal -->
+      <div id="ai-config-modal" class="modal-backdrop">
+        <div class="modal-card" style="max-width: 520px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="font-size: 1.4rem;">⚙️</span>
+              <div>
+                <h3 style="color: var(--text-primary); font-size: 1.2rem; margin: 0;">AI Advisor Engine Settings</h3>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Choose AI engine mode or connect Google Gemini API</div>
+              </div>
+            </div>
+            <button class="btn-bento btn-bento-dark btn-sm" onclick="closeModal('ai-config-modal')">✕</button>
+          </div>
+
+          <form onsubmit="ErpModules.handleSaveAiConfig(event)">
+            <div style="display: grid; gap: 1rem;">
+              <div style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); border-radius: var(--radius-sm); padding: 0.85rem;">
+                <div style="font-size: 0.82rem; font-weight: 700; color: #10b981; margin-bottom: 0.25rem;">
+                  ✨ Built-in Autonomous CFO Engine ($0 Cost, Offline Ready)
+                </div>
+                <div style="font-size: 0.75rem; color: var(--text-secondary); line-height: 1.45;">
+                  Works out-of-the-box with 0 setup! Performs break-even calculations, margin simulations, labor audits, and Taglish Q&amp;A locally on your device.
+                </div>
+              </div>
+
+              <div>
+                <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--text-secondary);">AI Engine Mode</label>
+                <select id="ai-config-mode" style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.88rem;">
+                  <option value="autonomous">Hybrid Autonomous CFO Engine (Default - Instant $0)</option>
+                  <option value="gemini">Google Gemini 1.5 Flash (Generative Taglish LLM)</option>
+                </select>
+              </div>
+
+              <div>
+                <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--text-secondary);">
+                  Google Gemini API Key <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 400;">(Optional)</span>
+                </label>
+                <input type="password" id="ai-config-key" placeholder="AIzaSy... (Leave blank to use free built-in engine)" style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.88rem;">
+                <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.35rem;">
+                  Stored locally in your browser's private secure storage.
+                </div>
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1rem;">
+                <button type="button" class="btn-bento btn-bento-dark" onclick="closeModal('ai-config-modal')">Cancel</button>
+                <button type="submit" class="btn-bento btn-bento-purple" style="font-weight: 800;">Save Configuration</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
     `;
   }
   window.__ronsAppReady = true;
