@@ -166,11 +166,11 @@ const ROLE_PRESETS = {
 const DEFAULT_USERS = [
   {
     id: "usr_admin",
-    name: "Sir Irl (Owner & Management)",
+    name: "Management",
     role: "admin",
     pin: "8888",
     avatar: "👑",
-    title: "General Manager / Owner",
+    title: "Executive Access",
     cashierShift: "All Shifts / Executive Access",
     permissions: {
       all: true,
@@ -2766,6 +2766,11 @@ class DB {
             u.push(JSON.parse(JSON.stringify(def)));
             modified = true;
           } else {
+            // Ensure admin name displays as Management
+            if (found.id === 'usr_admin' && (found.name.includes('Sir') || found.name !== 'Management')) {
+              found.name = 'Management';
+              modified = true;
+            }
             // Guarantee all permission fields are present
             if (!found.permissions) {
               found.permissions = { ...def.permissions };
@@ -2796,7 +2801,13 @@ class DB {
   static getCurrentUser() {
     try {
       const u = JSON.parse(safeStorage.getItem(STORAGE_KEYS.CURRENT_USER));
-      if (u && u.id) return u;
+      if (u && u.id) {
+        if (u.id === 'usr_admin' && (u.name.includes('Sir') || u.name !== 'Management')) {
+          u.name = 'Management';
+          safeStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(u));
+        }
+        return u;
+      }
     } catch (e) {}
     const all = this.getUsers();
     return all[0] || DEFAULT_USERS[0];

@@ -1470,7 +1470,7 @@ function renderManagerBentoView() {
               <div style="font-size: 3rem; margin-bottom: 0.85rem;">🔒</div>
               <h2 style="color: #ffffff; font-size: 1.4rem; margin-bottom: 0.4rem;">Executive Access Restricted</h2>
               <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.5; margin-bottom: 1.5rem;">
-                The <strong>AI Financial Analyst &amp; CFO Advisor</strong> is reserved exclusively for Manager/Owner access (Sir Irl). Cashiers and Kitchen staff do not have authorization to view store margins or converse with the AI.
+                The <strong>AI Financial Analyst &amp; CFO Advisor</strong> is reserved exclusively for Management. Cashiers and Kitchen staff do not have authorization to view store margins or converse with the AI.
               </p>
               <div style="display: flex; justify-content: center; gap: 0.75rem;">
                 <button class="btn-bento btn-bento-orange" onclick="lockTerminal('usr_admin')">

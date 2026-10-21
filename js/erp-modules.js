@@ -879,7 +879,7 @@ window.ErpModules = (function() {
         <div style="background: rgba(30, 41, 59, 0.5); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 0.85rem 1.1rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
           <span style="font-size: 1.35rem;">🛡️</span>
           <div style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.45;">
-            <strong>Kitchen Terminal Mode:</strong> Cash drawer remittances, staff payroll rates, and the Executive AI Financial Analyst are strictly confidential and locked to Sir Irl.
+            <strong>Kitchen Terminal Mode:</strong> Cash drawer remittances, staff payroll rates, and the Executive AI Financial Analyst are strictly confidential and locked to Management.
           </div>
         </div>
 
@@ -1008,7 +1008,7 @@ window.ErpModules = (function() {
                    style="cursor: pointer; background: ${u.id === selected.id ? 'rgba(255, 85, 0, 0.14)' : 'var(--bg-surface)'}; border: 1.5px solid ${u.id === selected.id ? 'var(--bento-orange)' : 'var(--border-subtle)'}; border-radius: var(--radius-sm); padding: 0.75rem 0.4rem; transition: all 0.2s ease; text-align: center;">
                 <div style="font-size: 1.6rem; margin-bottom: 0.2rem;">${u.avatar || '👤'}</div>
                 <div style="font-size: 0.75rem; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                  ${u.name.split(' ')[0]}
+                  ${u.id === 'usr_admin' ? 'Management' : u.name.split(' ')[0]}
                 </div>
                 <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">
                   ${u.role}
@@ -1022,7 +1022,7 @@ window.ErpModules = (function() {
             <div style="display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-bottom: 1.25rem;">
               <span id="lock-hero-avatar" style="font-size: 2.2rem;">${selected.avatar || '👤'}</span>
               <div style="text-align: left;">
-                <div id="lock-hero-name" style="font-size: 1.15rem; font-weight: 800; color: #ffffff;">${selected.name}</div>
+                <div id="lock-hero-name" style="font-size: 1.15rem; font-weight: 800; color: #ffffff;">${selected.id === 'usr_admin' ? 'Management' : selected.name}</div>
                 <div id="lock-hero-role" style="font-size: 0.78rem; color: var(--bento-orange);">${selected.cashierShift || selected.title || selected.role}</div>
               </div>
             </div>
@@ -1067,7 +1067,7 @@ window.ErpModules = (function() {
 
           <!-- Bottom Footer Information -->
           <div style="font-size: 0.74rem; color: var(--text-muted); line-height: 1.5;">
-            🔒 <strong>Confidential Terminal:</strong> Access is restricted based on confidential PINs assigned by Sir Irl.
+            🔒 <strong>Confidential Terminal:</strong> Access is restricted based on confidential PINs assigned by Management.
           </div>
         </div>
       </div>
@@ -1431,7 +1431,7 @@ window.ErpModules = (function() {
       const heroName = document.getElementById('lock-hero-name');
       const heroRole = document.getElementById('lock-hero-role');
       const heroAvatar = document.getElementById('lock-hero-avatar');
-      if (heroName) heroName.textContent = user.name;
+      if (heroName) heroName.textContent = user.id === 'usr_admin' ? 'Management' : user.name;
       if (heroRole) heroRole.textContent = user.cashierShift || user.title || user.role;
       if (heroAvatar) heroAvatar.textContent = user.avatar || '👤';
     }
@@ -1563,7 +1563,7 @@ window.ErpModules = (function() {
             <div class="ai-chat-avatar" style="background: linear-gradient(135deg, #ff5500, #ea580c); color: #fff;">👑</div>
             <div style="max-width: 85%;">
               <div class="ai-chat-meta" style="justify-content: flex-end;">
-                <span>${escapeHtml(msg.sender || 'Sir Irl')}</span> • <span>${timeStr}</span>
+                <span>${escapeHtml(msg.sender || 'Management')}</span> • <span>${timeStr}</span>
               </div>
               <div class="ai-chat-bubble ai-chat-bubble-user">
                 ${escapeHtml(msg.text)}
@@ -1738,7 +1738,7 @@ window.ErpModules = (function() {
     // Add user message
     const userMsg = {
       role: 'user',
-      sender: 'Sir Irl',
+      sender: 'Management',
       text: query,
       timestamp: new Date().toISOString()
     };
