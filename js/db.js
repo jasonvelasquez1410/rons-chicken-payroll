@@ -92,6 +92,77 @@ const DEFAULT_SHIFTS = [
   { id: "S5", name: "Flexible Split Shift", start: "00:00", end: "23:59", gracePeriodMinutes: 15, color: "#3b82f6" }
 ];
 
+const ROLE_PRESETS = {
+  admin: {
+    role: "admin",
+    name: "Owner / General Manager",
+    description: "Full executive access: AI Financial Advisor, DOLE Payroll, Staff Salaries, POS Remittances, Inventory & User Permissions",
+    permissions: {
+      all: true,
+      canAccessPayroll: true,
+      canViewStaffRates: true,
+      canEditInventory: true,
+      canVerifyRemittances: true,
+      canManageDeductions: true,
+      canReportShortages: true,
+      canReportLackingProducts: true,
+      canAccessAiAdvisor: true,
+      canManageUsers: true
+    }
+  },
+  cashier: {
+    role: "cashier",
+    name: "Cashier Counter Staff",
+    description: "Counter access: POS shift remittance, daily chicken stock counts, lacking product reports. Blocked from AI Advisor, payroll, and wage rates.",
+    permissions: {
+      all: false,
+      canAccessPayroll: false,
+      canViewStaffRates: false,
+      canEditInventory: true,
+      canVerifyRemittances: true,
+      canManageDeductions: false,
+      canReportShortages: true,
+      canReportLackingProducts: true,
+      canAccessAiAdvisor: false,
+      canManageUsers: false
+    }
+  },
+  kitchen: {
+    role: "kitchen",
+    name: "Kitchen Master Roaster",
+    description: "Kitchen access: Rotisserie spit batch logging and damaged roast reports. Blocked from cash remittance, AI Advisor, payroll, and wage rates.",
+    permissions: {
+      all: false,
+      canAccessPayroll: false,
+      canViewStaffRates: false,
+      canEditInventory: true,
+      canVerifyRemittances: false,
+      canManageDeductions: false,
+      canReportShortages: true,
+      canReportLackingProducts: true,
+      canAccessAiAdvisor: false,
+      canManageUsers: false
+    }
+  },
+  readonly: {
+    role: "readonly",
+    name: "Auditor / Read-Only",
+    description: "Observation access: Can view overview metrics without permissions to edit inventory, handle remittances, payroll, or converse with AI Advisor.",
+    permissions: {
+      all: false,
+      canAccessPayroll: false,
+      canViewStaffRates: false,
+      canEditInventory: false,
+      canVerifyRemittances: false,
+      canManageDeductions: false,
+      canReportShortages: false,
+      canReportLackingProducts: false,
+      canAccessAiAdvisor: false,
+      canManageUsers: false
+    }
+  }
+};
+
 const DEFAULT_USERS = [
   {
     id: "usr_admin",
@@ -108,6 +179,8 @@ const DEFAULT_USERS = [
       canEditInventory: true,
       canVerifyRemittances: true,
       canManageDeductions: true,
+      canReportShortages: true,
+      canReportLackingProducts: true,
       canAccessAiAdvisor: true,
       canManageUsers: true
     }
@@ -171,6 +244,28 @@ const DEFAULT_USERS = [
       canViewStaffRates: false,
       canEditInventory: true,
       canVerifyRemittances: true,
+      canManageDeductions: false,
+      canReportShortages: true,
+      canReportLackingProducts: true,
+      canAccessAiAdvisor: false,
+      canManageUsers: false
+    }
+  },
+  {
+    id: "usr_kitchen",
+    name: "Gerald Lacasa (Kitchen Roaster)",
+    role: "kitchen",
+    pin: "4444",
+    avatar: "👨‍🍳",
+    employeeId: 2,
+    title: "Master Roaster / Kitchen Staff",
+    cashierShift: "Rotisserie Spit Roasting Operations",
+    permissions: {
+      all: false,
+      canAccessPayroll: false,
+      canViewStaffRates: false,
+      canEditInventory: true,
+      canVerifyRemittances: false,
       canManageDeductions: false,
       canReportShortages: true,
       canReportLackingProducts: true,
@@ -2655,10 +2750,40 @@ class DB {
   // ==========================================
   // ERP USER PERMISSIONS & CASHIER ROLES
   // ==========================================
+  static getRolePresets() {
+    return ROLE_PRESETS;
+  }
+
   static getUsers() {
     try {
       const u = JSON.parse(safeStorage.getItem(STORAGE_KEYS.USERS));
-      if (u && Array.isArray(u) && u.length > 0) return u;
+      if (u && Array.isArray(u) && u.length > 0) {
+        // Ensure default users exist (e.g. usr_kitchen) and have all permission keys
+        let modified = false;
+        DEFAULT_USERS.forEach(def => {
+          const found = u.find(x => x.id === def.id);
+          if (!found) {
+            u.push(JSON.parse(JSON.stringify(def)));
+            modified = true;
+          } else {
+            // Guarantee all permission fields are present
+            if (!found.permissions) {
+              found.permissions = { ...def.permissions };
+              modified = true;
+            } else {
+              // Ensure canAccessAiAdvisor is strictly boolean
+              if (found.role !== 'admin' && found.permissions.canAccessAiAdvisor === undefined) {
+                found.permissions.canAccessAiAdvisor = false;
+                modified = true;
+              }
+            }
+          }
+        });
+        if (modified) {
+          safeStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(u));
+        }
+        return u;
+      }
     } catch (e) {}
     return DEFAULT_USERS;
   }
@@ -2706,6 +2831,39 @@ class DB {
         this.setCurrentUser(users[idx]);
       }
     }
+  }
+
+  static updateUserPermissions(userId, data) {
+    const users = this.getUsers();
+    const idx = users.findIndex(u => u.id === userId);
+    if (idx < 0) return { success: false, error: "Staff account not found." };
+
+    const u = users[idx];
+    if (data.name) u.name = data.name.trim();
+    if (data.role) u.role = data.role;
+    if (data.title) u.title = data.title.trim();
+    if (data.cashierShift) u.cashierShift = data.cashierShift.trim();
+    if (data.pin) u.pin = String(data.pin).trim();
+    if (data.avatar) u.avatar = data.avatar;
+    if (data.permissions) {
+      u.permissions = { ...u.permissions, ...data.permissions };
+    }
+
+    this.saveUsers(users);
+    const curr = this.getCurrentUser();
+    if (curr && curr.id === userId) {
+      this.setCurrentUser(u);
+    }
+    return { success: true, user: u };
+  }
+
+  static applyRolePreset(userId, presetKey) {
+    const preset = ROLE_PRESETS[presetKey];
+    if (!preset) return { success: false, error: "Preset not found." };
+    return this.updateUserPermissions(userId, {
+      role: preset.role,
+      permissions: { ...preset.permissions }
+    });
   }
 
   // ==========================================

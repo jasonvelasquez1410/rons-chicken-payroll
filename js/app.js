@@ -18,6 +18,37 @@ try {
   currentBrightness = 0;
 }
 
+let isTerminalLocked = false;
+try {
+  if (typeof sessionStorage !== 'undefined') {
+    isTerminalLocked = sessionStorage.getItem('rons_terminal_locked') === '1';
+  }
+} catch (e) {
+  isTerminalLocked = false;
+}
+
+function lockTerminal() {
+  isTerminalLocked = true;
+  try {
+    sessionStorage.setItem('rons_terminal_locked', '1');
+  } catch (e) {}
+  renderApp();
+}
+
+function unlockTerminal(user) {
+  isTerminalLocked = false;
+  try {
+    sessionStorage.removeItem('rons_terminal_locked');
+  } catch (e) {}
+  if (user && window.DB && typeof window.DB.setCurrentUser === 'function') {
+    window.DB.setCurrentUser(user);
+  }
+  renderApp();
+}
+
+window.lockTerminal = lockTerminal;
+window.unlockTerminal = unlockTerminal;
+
 // SVG Icons
 const ICONS = {
   dashboard: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="2"></rect><rect x="14" y="3" width="7" height="7" rx="2"></rect><rect x="14" y="14" width="7" height="7" rx="2"></rect><rect x="3" y="14" width="7" height="7" rx="2"></rect></svg>`,
@@ -161,6 +192,13 @@ function renderApp() {
   const container = document.getElementById('app-root');
   if (!container) return;
 
+  if (isTerminalLocked) {
+    if (window.ErpModules && typeof window.ErpModules.renderTerminalLockScreen === 'function') {
+      container.innerHTML = window.ErpModules.renderTerminalLockScreen();
+      return;
+    }
+  }
+
   const currentUser = (window.DB && typeof window.DB.getCurrentUser === 'function') 
     ? window.DB.getCurrentUser() 
     : { id: 'usr_admin', name: "Sir Irl (Owner)", role: "admin", avatar: "👑" };
@@ -180,11 +218,15 @@ function renderApp() {
         </div>
 
         <div class="header-controls">
-          <div id="user-session-chip" class="pill ${currentUser.role === 'admin' ? 'pill-orange' : 'pill-purple'}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem 0.85rem; display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer;" onclick="openModal('switch-user-modal')" title="Active Profile: Click to Switch User / Cashier">
+          <div id="user-session-chip" class="pill ${currentUser.role === 'admin' ? 'pill-orange' : (currentUser.role === 'kitchen' ? 'pill-dark' : 'pill-purple')}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem 0.85rem; display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer;" onclick="lockTerminal()" title="Active Profile: Click to Lock Terminal Screen">
             <span>${currentUser.avatar || '👤'}</span>
             <span>${currentUser.name}</span>
-            <span style="font-size: 0.68rem; opacity: 0.8;">(${currentUser.role === 'admin' ? 'Owner' : 'Cashier'})</span>
+            <span style="font-size: 0.68rem; opacity: 0.8;">(${currentUser.role === 'admin' ? 'Owner' : (currentUser.role === 'kitchen' ? 'Kitchen' : 'Cashier')})</span>
           </div>
+
+          <button class="btn-bento btn-bento-dark btn-sm" style="padding: 0.45rem 0.75rem; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 0.35rem;" onclick="lockTerminal()" title="Lock terminal screen (requires 4-digit PIN to unlock)">
+            🔒 Lock
+          </button>
 
           <div id="firebase-sync-pill" class="pill pill-dark" style="font-size: 0.76rem; padding: 0.45rem 0.85rem; display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer;" onclick="openCloudSyncModal()" title="Click to view Multi-Device Cloud Sync Status">
             <span style="width: 8px; height: 8px; border-radius: 50%; background: #64748b; display: inline-block;"></span>
@@ -210,7 +252,7 @@ function renderApp() {
 
       <!-- ERP Modules Sub-Navigation Bar -->
       <div class="erp-subnav-bar">
-        ${currentUser.role === 'admin' ? `
+        ${(currentUser.role === 'admin' || currentUser.permissions?.all) ? `
           <button class="erp-tab-btn ${currentView === 'dashboard' ? 'active' : ''}" onclick="navigateTo('dashboard')">
             ${ICONS.dashboard} Overview
           </button>
@@ -223,20 +265,40 @@ function renderApp() {
           <button class="erp-tab-btn ${currentView === 'advances' || currentView === 'deductions' ? 'active' : ''}" onclick="navigateTo('advances')">
             ${ICONS.receipt} Utang &amp; Deductions
           </button>
-          <button class="erp-tab-btn ${currentView === 'payroll' ? 'active' : ''}" onclick="navigateTo('payroll')">
-            ${ICONS.payroll} Payroll &amp; Payslips
-          </button>
+          ${(currentUser.permissions?.canAccessPayroll !== false) ? `
+            <button class="erp-tab-btn ${currentView === 'payroll' ? 'active' : ''}" onclick="navigateTo('payroll')">
+              ${ICONS.payroll} Payroll &amp; Payslips
+            </button>
+          ` : ''}
           <button class="erp-tab-btn ${currentView === 'attendance' ? 'active' : ''}" onclick="navigateTo('attendance')">
             ${ICONS.fingerprint} Biometrics
           </button>
-          <button class="erp-tab-btn ${currentView === 'aiAdvisor' ? 'active' : ''}" onclick="navigateTo('aiAdvisor')">
-            ${ICONS.ai} AI Financial Analyst
-          </button>
+          ${(currentUser.permissions?.canAccessAiAdvisor !== false) ? `
+            <button class="erp-tab-btn ${currentView === 'aiAdvisor' ? 'active' : ''}" onclick="navigateTo('aiAdvisor')">
+              ${ICONS.ai} AI Financial Analyst
+            </button>
+          ` : ''}
           <button class="erp-tab-btn ${currentView === 'users' ? 'active' : ''}" onclick="navigateTo('users')">
-            ${ICONS.users} 3 Cashiers &amp; Roles
+            ${ICONS.users} Users &amp; Permissions
           </button>
           <button class="erp-tab-btn ${currentView === 'device' ? 'active' : ''}" onclick="navigateTo('device')">
             ${ICONS.settings} Deli e3960
+          </button>
+        ` : (currentUser.role === 'kitchen') ? `
+          <button class="erp-tab-btn active" onclick="navigateTo('dashboard')">
+            👨‍🍳 Kitchen Roaster Terminal
+          </button>
+          <button class="erp-tab-btn" onclick="openModal('inventory-batch-modal')">
+            ${ICONS.flame} + Log Spit Batch
+          </button>
+          <button class="erp-tab-btn" onclick="openModal('inventory-daily-modal')">
+            ${ICONS.chicken} + Chicken Stock Count
+          </button>
+          <button class="erp-tab-btn" onclick="ErpModules.openReportLackingModal()">
+            ${ICONS.alert} Report Damaged Roast
+          </button>
+          <button class="erp-tab-btn" onclick="lockTerminal()">
+            🔒 Lock Terminal
           </button>
         ` : `
           <button class="erp-tab-btn active" onclick="navigateTo('dashboard')">
@@ -254,8 +316,8 @@ function renderApp() {
           <button class="erp-tab-btn" onclick="ErpModules.openReportLackingModal()">
             ${ICONS.alert} Report Lacking Chicken
           </button>
-          <button class="erp-tab-btn" onclick="openModal('switch-user-modal')">
-            🔒 Switch Cashier / Lock
+          <button class="erp-tab-btn" onclick="lockTerminal()">
+            🔒 Lock Terminal
           </button>
         `}
       </div>
@@ -879,6 +941,159 @@ function renderApp() {
         </div>
       </div>
 
+      <!-- User Permissions & Role Customization Modal -->
+      <div id="user-permissions-modal" class="modal-backdrop">
+        <div class="modal-card" style="max-width: 580px; max-height: 90vh; overflow-y: auto;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <h3 style="color: var(--text-primary); font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+              <span id="perm-user-avatar">👤</span>
+              <span id="perm-modal-user-title">Customize Permissions &amp; Roles</span>
+            </h3>
+            <button class="btn-bento btn-bento-dark btn-sm" onclick="closeModal('user-permissions-modal')">✕</button>
+          </div>
+
+          <!-- Quick 1-Click Role Presets (Zero Overwhelm for Sir Irl) -->
+          <div style="background: rgba(255,85,0,0.08); border: 1px solid rgba(255,85,0,0.25); border-radius: var(--radius-sm); padding: 0.85rem; margin-bottom: 1.25rem;">
+            <div style="font-size: 0.75rem; font-weight: 800; color: var(--bento-orange); text-transform: uppercase; margin-bottom: 0.45rem;">
+              ⚡ 1-Click Role Presets (Instant Branch Settings)
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0.45rem;">
+              <button type="button" class="btn-bento btn-bento-orange btn-sm" style="font-size: 0.74rem; font-weight: 800;" onclick="ErpModules.applyModalPreset('admin')">
+                👑 Full Manager
+              </button>
+              <button type="button" class="btn-bento btn-bento-purple btn-sm" style="font-size: 0.74rem; font-weight: 800;" onclick="ErpModules.applyModalPreset('cashier')">
+                💳 Cashier Counter
+              </button>
+              <button type="button" class="btn-bento btn-bento-dark btn-sm" style="font-size: 0.74rem; font-weight: 800;" onclick="ErpModules.applyModalPreset('kitchen')">
+                👨‍🍳 Master Roaster
+              </button>
+              <button type="button" class="btn-bento btn-bento-dark btn-sm" style="font-size: 0.74rem; font-weight: 800;" onclick="ErpModules.applyModalPreset('readonly')">
+                👁️ Read-Only
+              </button>
+            </div>
+            <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.4rem;">
+              Clicking a preset automatically sets all checkboxes below according to store policy.
+            </div>
+          </div>
+
+          <form onsubmit="ErpModules.handleSaveUserPermissions(event)">
+            <input type="hidden" id="perm-user-id">
+
+            <div style="display: grid; gap: 1rem;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                <div>
+                  <label style="display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-secondary);">Account Name</label>
+                  <input type="text" id="perm-user-name" required style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.85rem;">
+                </div>
+                <div>
+                  <label style="display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-secondary);">System Role</label>
+                  <select id="perm-user-role" style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.85rem;">
+                    <option value="admin">Owner / General Manager (Executive)</option>
+                    <option value="cashier">Cashier (POS &amp; Remittance)</option>
+                    <option value="kitchen">Kitchen Staff (Roasting Operations)</option>
+                    <option value="readonly">Auditor / Read-Only</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 0.75rem;">
+                <div>
+                  <label style="display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-secondary);">Shift / Assignment</label>
+                  <input type="text" id="perm-user-shift" placeholder="e.g. Morning Shift (06:00 - 14:00)" style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.85rem;">
+                </div>
+                <div>
+                  <label style="display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-secondary);">4-Digit PIN Code</label>
+                  <input type="text" id="perm-user-pin" maxlength="6" required style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.95rem; font-weight: 800; letter-spacing: 0.1em; text-align: center;">
+                </div>
+              </div>
+
+              <!-- Module Permissions Checkbox Grid -->
+              <div>
+                <label style="display: block; font-size: 0.8rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--text-primary); text-transform: uppercase;">
+                  Module Access Rights
+                </label>
+                <div style="display: flex; flex-direction: column; gap: 0.6rem; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 0.85rem;">
+                  
+                  <!-- AI Financial Advisor -->
+                  <label style="display: flex; align-items: flex-start; gap: 0.75rem; cursor: pointer; padding: 0.35rem 0.2rem;">
+                    <input type="checkbox" id="perm-ai-advisor" style="margin-top: 0.2rem; width: 18px; height: 18px; accent-color: var(--bento-orange);">
+                    <div>
+                      <div style="font-size: 0.85rem; font-weight: 700; color: #c4b5fd;">🧠 AI Financial Analyst &amp; CFO Chat</div>
+                      <div style="font-size: 0.74rem; color: var(--text-muted); line-height: 1.35;">
+                        Allows conversing with the Bisaya/English AI Advisor and viewing store profit margins &amp; break-even forecasts. (Restricted to Sir Irl by default)
+                      </div>
+                    </div>
+                  </label>
+
+                  <!-- Payroll & DOLE -->
+                  <label style="display: flex; align-items: flex-start; gap: 0.75rem; cursor: pointer; padding: 0.35rem 0.2rem;">
+                    <input type="checkbox" id="perm-payroll" style="margin-top: 0.2rem; width: 18px; height: 18px; accent-color: var(--bento-orange);">
+                    <div>
+                      <div style="font-size: 0.85rem; font-weight: 700; color: #ffffff;">💰 Staff Payroll &amp; DOLE Payslips</div>
+                      <div style="font-size: 0.74rem; color: var(--text-muted); line-height: 1.35;">
+                        Allows viewing all 31 employees' daily wage rates, SSS/PhilHealth/Pag-IBIG calculations, and generating payslips.
+                      </div>
+                    </div>
+                  </label>
+
+                  <!-- Lechon Inventory -->
+                  <label style="display: flex; align-items: flex-start; gap: 0.75rem; cursor: pointer; padding: 0.35rem 0.2rem;">
+                    <input type="checkbox" id="perm-inventory" style="margin-top: 0.2rem; width: 18px; height: 18px; accent-color: var(--bento-orange);">
+                    <div>
+                      <div style="font-size: 0.85rem; font-weight: 700; color: #ffffff;">🍗 Daily Lechon &amp; Chicken Counts</div>
+                      <div style="font-size: 0.74rem; color: var(--text-muted); line-height: 1.35;">
+                        Allows recording raw chicken intake, rotisserie spit batches, and end-of-shift warmer counts.
+                      </div>
+                    </div>
+                  </label>
+
+                  <!-- POS Remittances -->
+                  <label style="display: flex; align-items: flex-start; gap: 0.75rem; cursor: pointer; padding: 0.35rem 0.2rem;">
+                    <input type="checkbox" id="perm-remittances" style="margin-top: 0.2rem; width: 18px; height: 18px; accent-color: var(--bento-orange);">
+                    <div>
+                      <div style="font-size: 0.85rem; font-weight: 700; color: #ffffff;">💵 Cash Drawer &amp; GCash Remittances</div>
+                      <div style="font-size: 0.74rem; color: var(--text-muted); line-height: 1.35;">
+                        Allows logging shift sales, cash drawer counts, GCash turnover, and reconciling cashier shortages.
+                      </div>
+                    </div>
+                  </label>
+
+                  <!-- Deductions Ledger -->
+                  <label style="display: flex; align-items: flex-start; gap: 0.75rem; cursor: pointer; padding: 0.35rem 0.2rem;">
+                    <input type="checkbox" id="perm-deductions" style="margin-top: 0.2rem; width: 18px; height: 18px; accent-color: var(--bento-orange);">
+                    <div>
+                      <div style="font-size: 0.85rem; font-weight: 700; color: #ffffff;">📋 Utang, Cash Advances &amp; Shortage Approvals</div>
+                      <div style="font-size: 0.74rem; color: var(--text-muted); line-height: 1.35;">
+                        Allows approving employee advances, store grocery loans, and scheduling payroll salary deductions.
+                      </div>
+                    </div>
+                  </label>
+
+                  <!-- User Management -->
+                  <label style="display: flex; align-items: flex-start; gap: 0.75rem; cursor: pointer; padding: 0.35rem 0.2rem;">
+                    <input type="checkbox" id="perm-users" style="margin-top: 0.2rem; width: 18px; height: 18px; accent-color: var(--bento-orange);">
+                    <div>
+                      <div style="font-size: 0.85rem; font-weight: 700; color: #ffffff;">👥 User Accounts &amp; PIN Management</div>
+                      <div style="font-size: 0.74rem; color: var(--text-muted); line-height: 1.35;">
+                        Allows adding new staff profiles, resetting security PINs, and reconfiguring permissions.
+                      </div>
+                    </div>
+                  </label>
+
+                </div>
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 0.75rem;">
+                <button type="button" class="btn-bento btn-bento-dark" onclick="closeModal('user-permissions-modal')">Cancel</button>
+                <button type="submit" class="btn-bento btn-bento-orange" style="font-weight: 800;">
+                  💾 Save &amp; Apply Permissions
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
       <!-- Log Roasting Spit Batch Modal -->
       <div id="inventory-batch-modal" class="modal-backdrop">
         <div class="modal-card" style="max-width: 520px;">
@@ -1229,6 +1444,16 @@ function renderManagerBentoView() {
     ? window.DB.getCurrentUser() 
     : { role: 'admin' };
 
+  if (currentUser && currentUser.role === 'kitchen') {
+    if (window.ErpModules && typeof window.ErpModules.renderKitchenBentoPortal === 'function') {
+      try {
+        return window.ErpModules.renderKitchenBentoPortal();
+      } catch (e) {
+        console.error("Kitchen portal render error:", e);
+      }
+    }
+  }
+
   if (currentUser && currentUser.role === 'cashier') {
     if (window.ErpModules && typeof window.ErpModules.renderCashierBentoPortal === 'function') {
       try {
@@ -1250,6 +1475,25 @@ function renderManagerBentoView() {
           ? window.ErpModules.renderBentoRemittances()
           : '<div class="data-panel-card" style="padding: 2rem;">Remittances Module Loading...</div>';
       case 'aiAdvisor':
+        if (!currentUser.permissions?.canAccessAiAdvisor && currentUser.role !== 'admin') {
+          return `
+            <div style="max-width: 600px; margin: 3rem auto; text-align: center; background: var(--bg-card-dark); border: 1.5px solid rgba(239, 68, 68, 0.4); border-radius: var(--radius-md); padding: 2.5rem 1.5rem; box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
+              <div style="font-size: 3rem; margin-bottom: 0.85rem;">🔒</div>
+              <h2 style="color: #ffffff; font-size: 1.4rem; margin-bottom: 0.4rem;">Executive Access Restricted</h2>
+              <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.5; margin-bottom: 1.5rem;">
+                The <strong>AI Financial Analyst &amp; CFO Advisor</strong> is reserved exclusively for Manager/Owner access (Sir Irl). Cashiers and Kitchen staff do not have authorization to view store margins or converse with the AI.
+              </p>
+              <div style="display: flex; justify-content: center; gap: 0.75rem;">
+                <button class="btn-bento btn-bento-orange" onclick="lockTerminal()">
+                  👑 Unlock with Manager PIN (8888)
+                </button>
+                <button class="btn-bento btn-bento-dark" onclick="navigateTo('dashboard')">
+                  Return to Dashboard
+                </button>
+              </div>
+            </div>
+          `;
+        }
         return (window.ErpModules && typeof window.ErpModules.renderBentoAiAdvisor === 'function')
           ? window.ErpModules.renderBentoAiAdvisor()
           : '<div class="data-panel-card" style="padding: 2rem;">AI Financial Analyst Loading...</div>';
@@ -1260,6 +1504,25 @@ function renderManagerBentoView() {
       case 'attendance':
         return renderBentoAttendance();
       case 'payroll':
+        if (!currentUser.permissions?.canAccessPayroll && currentUser.role !== 'admin') {
+          return `
+            <div style="max-width: 600px; margin: 3rem auto; text-align: center; background: var(--bg-card-dark); border: 1.5px solid rgba(239, 68, 68, 0.4); border-radius: var(--radius-md); padding: 2.5rem 1.5rem; box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
+              <div style="font-size: 3rem; margin-bottom: 0.85rem;">🔒</div>
+              <h2 style="color: #ffffff; font-size: 1.4rem; margin-bottom: 0.4rem;">Payroll &amp; Wages Restricted</h2>
+              <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.5; margin-bottom: 1.5rem;">
+                Confidential employee salaries, daily wage rates, and DOLE payslip generation are locked to authorized management accounts.
+              </p>
+              <div style="display: flex; justify-content: center; gap: 0.75rem;">
+                <button class="btn-bento btn-bento-orange" onclick="lockTerminal()">
+                  👑 Unlock with Manager PIN (8888)
+                </button>
+                <button class="btn-bento btn-bento-dark" onclick="navigateTo('dashboard')">
+                  Return to Dashboard
+                </button>
+              </div>
+            </div>
+          `;
+        }
         return renderBentoPayroll();
       case 'advances':
       case 'deductions':

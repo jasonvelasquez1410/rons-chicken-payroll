@@ -595,13 +595,33 @@ window.ErpModules = (function() {
         <div class="user-welcome-info">
           <div class="user-avatar-circle" style="background: var(--bento-orange); color: #fff;">👥</div>
           <div class="user-welcome-text">
-            <h1>Cashier Accounts &amp; User Permissions</h1>
+            <h1>Staff Accounts &amp; Access Permissions</h1>
             <p>Role-Based Access Control (RBAC), 4-digit PIN security, and shift assignments</p>
           </div>
         </div>
-        <button class="btn-bento btn-bento-purple" onclick="ErpModules.openSwitchUserModal()">
-          ${ERP_ICONS.lock} Switch User / Cashier
-        </button>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <button class="btn-bento btn-bento-dark" onclick="window.lockTerminal()">
+            🔒 Lock Terminal Screen
+          </button>
+          <button class="btn-bento btn-bento-purple" onclick="ErpModules.openSwitchUserModal()">
+            ${ERP_ICONS.lock} Switch User / Cashier
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Role Presets Guide (For Sir Irl) -->
+      <div style="background: var(--bg-card-dark); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 1rem 1.25rem; margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+        <div>
+          <div style="font-size: 0.76rem; font-weight: 800; color: var(--bento-orange); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem;">
+            🛡️ Pre-Configured Store Role Rules (Zero Overwhelm)
+          </div>
+          <div style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.45;">
+            👑 <strong>Owner/Manager:</strong> Full access to AI Advisor, DOLE Payroll &amp; Finances • 💳 <strong>Cashiers:</strong> POS Remittances &amp; Inventory only (AI &amp; Payroll Blocked) • 👨‍🍳 <strong>Kitchen:</strong> Spit Roasting only (Cash &amp; AI Blocked)
+          </div>
+        </div>
+        <div style="font-size: 0.74rem; color: #10b981; font-weight: 700; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); padding: 0.4rem 0.75rem; border-radius: 999px; white-space: nowrap;">
+          ✓ Granular Security Active
+        </div>
       </div>
 
       <!-- Active User Banner -->
@@ -614,68 +634,93 @@ window.ErpModules = (function() {
             <div style="font-size: 0.82rem; color: var(--bento-orange);">${curr.title || curr.cashierShift}</div>
           </div>
         </div>
-        <button class="btn-bento btn-bento-orange btn-sm" onclick="ErpModules.openSwitchUserModal()">
-          🔄 Switch User Session
-        </button>
+        <div style="display: flex; gap: 0.5rem;">
+          <button class="btn-bento btn-bento-dark btn-sm" onclick="window.lockTerminal()">
+            🔒 Lock Terminal
+          </button>
+          <button class="btn-bento btn-bento-orange btn-sm" onclick="ErpModules.openSwitchUserModal()">
+            🔄 Switch Profile
+          </button>
+        </div>
       </div>
 
-      <!-- 4 Accounts Matrix -->
+      <!-- 5 Accounts Matrix -->
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.25rem;">
-        ${users.map(u => `
-          <div style="background: var(--bg-card-dark); border: 1px solid ${u.id === curr.id ? 'var(--bento-orange)' : 'var(--border-subtle)'}; border-radius: var(--radius-md); padding: 1.5rem; position: relative;">
+        ${users.map(u => {
+          const perms = u.permissions || {};
+          const isAdmin = u.role === 'admin' || perms.all;
+          return `
+          <div style="background: var(--bg-card-dark); border: 1.5px solid ${u.id === curr.id ? 'var(--bento-orange)' : 'var(--border-subtle)'}; border-radius: var(--radius-md); padding: 1.5rem; position: relative;">
             ${u.id === curr.id ? `
               <span class="pill pill-orange" style="position: absolute; top: 1rem; right: 1rem; font-size: 0.72rem; padding: 0.2rem 0.6rem;">ACTIVE SESSION</span>
             ` : ''}
             <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
               <span style="font-size: 2.2rem;">${u.avatar || '👤'}</span>
               <div>
-                <h3 style="color: var(--text-primary); font-size: 1.05rem;">${u.name}</h3>
-                <span class="pill pill-dark" style="font-size: 0.74rem;">${u.role.toUpperCase()}</span>
+                <h3 style="color: var(--text-primary); font-size: 1.05rem; margin-bottom: 0.2rem;">${u.name}</h3>
+                <span class="pill ${u.role === 'admin' ? 'pill-orange' : (u.role === 'kitchen' ? 'pill-dark' : 'pill-purple')}" style="font-size: 0.74rem;">${u.role.toUpperCase()}</span>
               </div>
             </div>
 
             <div style="background: var(--bg-surface); padding: 0.75rem; border-radius: var(--radius-sm); margin-bottom: 1rem; font-size: 0.82rem;">
               <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem;">
-                <span style="color: var(--text-muted);">Shift Assignment:</span>
-                <strong style="color: var(--text-primary);">${u.cashierShift || 'Executive / All'}</strong>
+                <span style="color: var(--text-muted);">Shift / Post:</span>
+                <strong style="color: var(--text-primary);">${u.cashierShift || u.title || 'General Operations'}</strong>
               </div>
               <div style="display: flex; justify-content: space-between;">
                 <span style="color: var(--text-muted);">4-Digit PIN:</span>
-                <strong style="color: var(--bento-orange); letter-spacing: 0.1em;">•••• (Set)</strong>
+                <strong style="color: var(--bento-orange); letter-spacing: 0.15em;">${u.pin ? '•••• (' + u.pin + ')' : '••••'}</strong>
               </div>
             </div>
 
             <div style="margin-bottom: 1.25rem;">
-              <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem;">Permissions Granted:</div>
-              <div style="display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.78rem;">
-                <div style="color: ${u.permissions.canEditInventory || u.permissions.all ? '#10b981' : '#64748b'};">
-                  ${u.permissions.canEditInventory || u.permissions.all ? '✓' : '✗'} Record Daily Chicken Stock
+              <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem;">Access &amp; Feature Rights:</div>
+              <div style="display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.78rem;">
+                
+                <div style="display: flex; align-items: center; gap: 0.45rem; color: ${(perms.canAccessAiAdvisor || isAdmin) ? '#a78bfa' : '#64748b'};">
+                  <span>${(perms.canAccessAiAdvisor || isAdmin) ? '✓' : '✗'}</span>
+                  <span><strong>AI Financial Analyst:</strong> ${(perms.canAccessAiAdvisor || isAdmin) ? 'Authorized (Chat & Advice)' : 'Locked (Management Only)'}</span>
                 </div>
-                <div style="color: ${u.permissions.canVerifyRemittances || u.permissions.all ? '#10b981' : '#64748b'};">
-                  ${u.permissions.canVerifyRemittances || u.permissions.all ? '✓' : '✗'} Log Shift Sales &amp; Cash Remittances
+
+                <div style="display: flex; align-items: center; gap: 0.45rem; color: ${(perms.canAccessPayroll || isAdmin) ? '#10b981' : '#64748b'};">
+                  <span>${(perms.canAccessPayroll || isAdmin) ? '✓' : '✗'}</span>
+                  <span><strong>Payroll &amp; Wages:</strong> ${(perms.canAccessPayroll || isAdmin) ? 'Authorized (31 Staff)' : 'Blocked (Confidential)'}</span>
                 </div>
-                <div style="color: ${u.permissions.canReportShortages || u.permissions.all ? '#10b981' : '#64748b'};">
-                  ${u.permissions.canReportShortages || u.permissions.all ? '✓' : '✗'} Report Shortages &amp; Damaged Chicken
+
+                <div style="display: flex; align-items: center; gap: 0.45rem; color: ${(perms.canEditInventory || isAdmin) ? '#10b981' : '#64748b'};">
+                  <span>${(perms.canEditInventory || isAdmin) ? '✓' : '✗'}</span>
+                  <span><strong>Chicken Inventory:</strong> ${(perms.canEditInventory || isAdmin) ? 'Record Stock &amp; Spits' : 'View Only'}</span>
                 </div>
-                <div style="color: ${u.permissions.canAccessPayroll || u.permissions.all ? '#10b981' : '#64748b'};">
-                  ${u.permissions.canAccessPayroll || u.permissions.all ? '✓' : '✗'} Access Staff Salaries &amp; DOLE Payroll
+
+                <div style="display: flex; align-items: center; gap: 0.45rem; color: ${(perms.canVerifyRemittances || isAdmin) ? '#10b981' : '#64748b'};">
+                  <span>${(perms.canVerifyRemittances || isAdmin) ? '✓' : '✗'}</span>
+                  <span><strong>Shift Remittances:</strong> ${(perms.canVerifyRemittances || isAdmin) ? 'Cash &amp; GCash Turnover' : 'Blocked'}</span>
                 </div>
-                <div style="color: ${u.permissions.canAccessAiAdvisor || u.permissions.all ? '#10b981' : '#64748b'};">
-                  ${u.permissions.canAccessAiAdvisor || u.permissions.all ? '✓' : '✗'} Executive AI Financial Analyst
+
+                <div style="display: flex; align-items: center; gap: 0.45rem; color: ${(perms.canManageDeductions || isAdmin) ? '#10b981' : '#64748b'};">
+                  <span>${(perms.canManageDeductions || isAdmin) ? '✓' : '✗'}</span>
+                  <span><strong>Deductions &amp; Utang:</strong> ${(perms.canManageDeductions || isAdmin) ? 'Approve CA &amp; Shortages' : 'Blocked'}</span>
                 </div>
+
+                <div style="display: flex; align-items: center; gap: 0.45rem; color: ${(perms.canManageUsers || isAdmin) ? '#10b981' : '#64748b'};">
+                  <span>${(perms.canManageUsers || isAdmin) ? '✓' : '✗'}</span>
+                  <span><strong>User Security:</strong> ${(perms.canManageUsers || isAdmin) ? 'Configure Roles &amp; PINs' : 'No Access'}</span>
+                </div>
+
               </div>
             </div>
 
             <div style="display: flex; gap: 0.5rem;">
-              <button class="btn-bento btn-bento-dark btn-sm" style="flex: 1;" onclick="ErpModules.openEditUserModal('${u.id}')">
-                ⚙️ Configure PIN
+              <button class="btn-bento btn-bento-dark btn-sm" style="flex: 1.2; font-weight: 700;" onclick="ErpModules.openEditUserModal('${u.id}')">
+                ⚙️ Customize Permissions &amp; PIN
               </button>
-              <button class="btn-bento btn-bento-orange btn-sm" style="flex: 1;" onclick="ErpModules.quickSwitchUser('${u.id}')">
-                ⚡ Switch Now
+              <button class="btn-bento btn-bento-orange btn-sm" style="flex: 0.8;" onclick="ErpModules.quickSwitchUser('${u.id}')">
+                ⚡ Switch
               </button>
             </div>
           </div>
-        `).join('')}
+        `;
+        }).join('')}
       </div>
     `;
   }
@@ -788,6 +833,251 @@ window.ErpModules = (function() {
               <div style="font-size: 0.75rem; color: var(--text-muted);">Warmer Ending Count</div>
               <div style="font-size: 1.5rem; font-weight: 800; color: #10b981;">${activeSheet.actualEndingChicken || 0} Heads</div>
             </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // ----------------------------------------------------
+  // 6. KITCHEN ROASTER PORTAL (KITCHEN MODE)
+  // ----------------------------------------------------
+  function renderKitchenBentoPortal() {
+    const user = window.DB.getCurrentUser();
+    const inv = window.DB.getInventory();
+    const batches = inv.roastBatches || [];
+    const today = new Date().toISOString().split('T')[0];
+    const todayBatches = batches.filter(b => b.date === today);
+    const totalTodayChickens = todayBatches.reduce((acc, b) => acc + (b.chickenCount || 0), 0);
+    const totalTodayLiempo = todayBatches.reduce((acc, b) => acc + (b.liempoCount || 0), 0);
+
+    return `
+      <div style="max-width: 960px; margin: 0 auto; padding: 1.25rem 1rem 6rem;">
+        <!-- Kitchen Status Banner -->
+        <div class="cashier-active-banner" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(15, 23, 42, 0.9)); border: 1.5px solid rgba(239, 68, 68, 0.4);">
+          <div style="display: flex; align-items: center; gap: 0.85rem;">
+            <span style="font-size: 2.2rem;">👨‍🍳</span>
+            <div>
+              <div style="font-size: 0.74rem; color: #f87171; text-transform: uppercase; font-weight: 800; letter-spacing: 0.05em;">
+                RON'S CHICKEN KITCHEN &amp; ROASTING TERMINAL
+              </div>
+              <div style="font-size: 1.35rem; font-weight: 800; color: #ffffff;">${user.name}</div>
+              <div style="font-size: 0.82rem; color: #94a3b8;">${user.cashierShift || 'Rotisserie Spit Operations'} • Cugman Branch</div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.6rem;">
+            <button class="btn-bento btn-bento-dark btn-sm" onclick="window.lockTerminal()">
+              🔒 Lock Terminal
+            </button>
+            <button class="btn-bento btn-bento-orange btn-sm" onclick="ErpModules.quickSwitchUser('usr_admin')">
+              👑 Manager Login
+            </button>
+          </div>
+        </div>
+
+        <!-- Kitchen Confidentiality Shield Banner -->
+        <div style="background: rgba(30, 41, 59, 0.5); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 0.85rem 1.1rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+          <span style="font-size: 1.35rem;">🛡️</span>
+          <div style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.45;">
+            <strong>Kitchen Terminal Mode:</strong> Cash drawer remittances, staff payroll rates, and the Executive AI Financial Analyst are strictly confidential and locked to Sir Irl.
+          </div>
+        </div>
+
+        <!-- Kitchen Actions Grid -->
+        <div class="bento-grid" style="margin-bottom: 1.5rem;">
+          <!-- Log Spit Batch -->
+          <div class="bento-card bento-purple col-6" onclick="ErpModules.openBatchModal()" style="cursor: pointer;">
+            <div class="bento-card-header">
+              <div class="bento-badge-circle">${ERP_ICONS.flame}</div>
+              <span class="bento-tag">Rotisserie Spit</span>
+            </div>
+            <div>
+              <div class="bento-value">Log Spit Batch</div>
+              <div class="bento-title">+ Record Chickens &amp; Liempo on Spits</div>
+              <div class="bento-meta" style="margin-top: 0.4rem;">Record whole chickens and pork liempo slabs roasted</div>
+            </div>
+          </div>
+
+          <!-- Chicken Intake Count -->
+          <div class="bento-card bento-white col-6" onclick="ErpModules.openDailyInventoryModal()" style="cursor: pointer;">
+            <div class="bento-card-header">
+              <div class="bento-badge-circle" style="background: rgba(0,0,0,0.08);">${ERP_ICONS.chicken}</div>
+              <span class="bento-tag" style="background: #111; color: #fff;">Raw Chicken Intake</span>
+            </div>
+            <div>
+              <div class="bento-value" style="color: #000;">Rack Stock Count</div>
+              <div class="bento-title" style="color: #111;">Count Incoming Delivered Chicken</div>
+              <div class="bento-meta" style="color: #64748b; margin-top: 0.4rem;">Record dressed chickens delivered to kitchen</div>
+            </div>
+          </div>
+
+          <!-- Report Burnt / Damaged Spit -->
+          <div class="bento-card bento-dark col-12" onclick="ErpModules.openReportLackingModal()" style="cursor: pointer; border: 1px solid rgba(244,63,94,0.3);">
+            <div class="bento-card-header">
+              <div class="bento-badge-circle">${ERP_ICONS.alert}</div>
+              <span class="bento-tag" style="background: rgba(244,63,94,0.2); color: #fb7185;">Spit Discrepancy</span>
+            </div>
+            <div>
+              <div class="bento-value" style="color: #fb7185;">Report Damaged / Burnt Roast</div>
+              <div class="bento-title">Report Overcooked, Burnt, or Dropped Chicken</div>
+              <div class="bento-meta" style="margin-top: 0.4rem;">Official roasting loss accountability documentation</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Today's Spit Batches Summary -->
+        <div class="data-panel-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h3 style="color: var(--text-primary); font-size: 1.15rem; margin: 0;">Today's Roasting Spit Batches (${today})</h3>
+            <div style="display: flex; gap: 0.75rem;">
+              <span class="pill pill-orange">🔥 ${totalTodayChickens} Chickens Roasted</span>
+              <span class="pill pill-purple">🥩 ${totalTodayLiempo} Liempo Roasted</span>
+            </div>
+          </div>
+
+          ${todayBatches.length === 0 ? `
+            <div style="text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.85rem;">
+              No spit batches logged yet today. Click <strong>"+ Log Spit Batch"</strong> above when loading rotisserie spits!
+            </div>
+          ` : `
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left;">
+                <thead>
+                  <tr style="border-bottom: 1px solid var(--border-subtle); color: var(--text-muted);">
+                    <th style="padding: 0.6rem 0.75rem;">Time</th>
+                    <th style="padding: 0.6rem 0.75rem;">Whole Chickens</th>
+                    <th style="padding: 0.6rem 0.75rem;">Liempo Slabs</th>
+                    <th style="padding: 0.6rem 0.75rem;">Master Roaster</th>
+                    <th style="padding: 0.6rem 0.75rem;">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${todayBatches.map(b => `
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                      <td style="padding: 0.6rem 0.75rem; color: var(--text-primary); font-weight: 700;">${b.time || '10:00 AM'}</td>
+                      <td style="padding: 0.6rem 0.75rem; color: var(--bento-orange); font-weight: 800;">${b.chickenCount || 0} heads</td>
+                      <td style="padding: 0.6rem 0.75rem; color: #a78bfa; font-weight: 800;">${b.liempoCount || 0} slabs</td>
+                      <td style="padding: 0.6rem 0.75rem; color: var(--text-secondary);">${b.roaster || user.name}</td>
+                      <td style="padding: 0.6rem 0.75rem;"><span class="pill pill-orange" style="font-size: 0.7rem;">Roasted</span></td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          `}
+        </div>
+      </div>
+    `;
+  }
+
+  // ----------------------------------------------------
+  // 7. TERMINAL LOCK SCREEN / LOGIN EXPERIENCE
+  // ----------------------------------------------------
+  let lockScreenSelectedUserId = 'usr_admin';
+  let lockScreenEnteredPin = '';
+
+  function renderTerminalLockScreen() {
+    const users = window.DB.getUsers();
+    const selected = users.find(u => u.id === lockScreenSelectedUserId) || users[0] || {};
+
+    return `
+      <div class="terminal-lock-screen" style="min-height: 100vh; background: radial-gradient(circle at 50% 20%, rgba(255, 85, 0, 0.08), transparent 70%), #080c14; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem 1rem; color: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif;">
+        <div style="max-width: 540px; width: 100%; text-align: center;">
+          
+          <!-- Brand Badge -->
+          <div style="display: inline-flex; align-items: center; gap: 0.65rem; background: rgba(255, 85, 0, 0.12); border: 1px solid rgba(255, 85, 0, 0.35); padding: 0.45rem 1rem; border-radius: 9999px; margin-bottom: 1.25rem;">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--bento-orange); display: inline-block; box-shadow: 0 0 10px var(--bento-orange);"></span>
+            <span style="font-weight: 800; font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase; color: #ffffff;">
+              Ron's Chicken ERP • Cugman Branch Terminal
+            </span>
+          </div>
+
+          <h1 style="font-size: 1.85rem; font-weight: 900; margin: 0 0 0.35rem; letter-spacing: -0.03em; color: #ffffff;">
+            Terminal Security Lock
+          </h1>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0 0 1.5rem;">
+            Select your staff profile and enter your 4-digit PIN to access authorized modules.
+          </p>
+
+          <!-- Staff Profile Selection Grid -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(95px, 1fr)); gap: 0.5rem; margin-bottom: 1.25rem;">
+            ${users.map(u => `
+              <div class="lock-user-card ${u.id === selected.id ? 'selected' : ''}" 
+                   data-user-id="${u.id}"
+                   onclick="ErpModules.selectLockScreenUser('${u.id}')"
+                   style="cursor: pointer; background: ${u.id === selected.id ? 'rgba(255, 85, 0, 0.14)' : 'var(--bg-surface)'}; border: 1.5px solid ${u.id === selected.id ? 'var(--bento-orange)' : 'var(--border-subtle)'}; border-radius: var(--radius-sm); padding: 0.75rem 0.4rem; transition: all 0.2s ease; text-align: center;">
+                <div style="font-size: 1.6rem; margin-bottom: 0.2rem;">${u.avatar || '👤'}</div>
+                <div style="font-size: 0.75rem; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                  ${u.name.split(' ')[0]}
+                </div>
+                <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">
+                  ${u.role}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+
+          <!-- Active Selected Hero Box -->
+          <div style="background: var(--bg-card-dark); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.5rem 1.25rem; box-shadow: 0 20px 40px rgba(0,0,0,0.4); margin-bottom: 1.25rem;">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-bottom: 1.25rem;">
+              <span id="lock-hero-avatar" style="font-size: 2.2rem;">${selected.avatar || '👤'}</span>
+              <div style="text-align: left;">
+                <div id="lock-hero-name" style="font-size: 1.15rem; font-weight: 800; color: #ffffff;">${selected.name}</div>
+                <div id="lock-hero-role" style="font-size: 0.78rem; color: var(--bento-orange);">${selected.cashierShift || selected.title || selected.role}</div>
+              </div>
+            </div>
+
+            <!-- 4 Masked PIN Indicator Dots -->
+            <div style="display: flex; justify-content: center; gap: 0.85rem; margin-bottom: 1.25rem;">
+              <div id="lock-dot-1" style="width: 14px; height: 14px; border-radius: 50%; border: 2px solid #475569; background: transparent; transition: all 0.15s ease;"></div>
+              <div id="lock-dot-2" style="width: 14px; height: 14px; border-radius: 50%; border: 2px solid #475569; background: transparent; transition: all 0.15s ease;"></div>
+              <div id="lock-dot-3" style="width: 14px; height: 14px; border-radius: 50%; border: 2px solid #475569; background: transparent; transition: all 0.15s ease;"></div>
+              <div id="lock-dot-4" style="width: 14px; height: 14px; border-radius: 50%; border: 2px solid #475569; background: transparent; transition: all 0.15s ease;"></div>
+            </div>
+
+            <!-- Direct PIN input for physical keyboards -->
+            <div style="margin-bottom: 1rem;">
+              <input type="password" id="lock-pin-input" maxlength="6" 
+                     oninput="ErpModules.syncLockPinFromKeyboard(event)"
+                     onkeydown="if(event.key==='Enter') ErpModules.handleLockScreenUnlock()"
+                     placeholder="Type 4-digit PIN" 
+                     style="width: 170px; text-align: center; font-size: 1rem; letter-spacing: 0.25em; padding: 0.45rem; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-xs); color: #fff;">
+            </div>
+
+            <div id="lock-error-msg" style="display: none; color: #f43f5e; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.75rem;">
+              Incorrect PIN. Please try again.
+            </div>
+
+            <!-- Touch Keypad Grid -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; max-width: 260px; margin: 0 auto 1.25rem;">
+              <button type="button" class="btn-bento btn-bento-dark" style="font-size: 1.25rem; font-weight: 700; padding: 0.75rem;" onclick="ErpModules.handleLockScreenKeypad('1')">1</button>
+              <button type="button" class="btn-bento btn-bento-dark" style="font-size: 1.25rem; font-weight: 700; padding: 0.75rem;" onclick="ErpModules.handleLockScreenKeypad('2')">2</button>
+              <button type="button" class="btn-bento btn-bento-dark" style="font-size: 1.25rem; font-weight: 700; padding: 0.75rem;" onclick="ErpModules.handleLockScreenKeypad('3')">3</button>
+              <button type="button" class="btn-bento btn-bento-dark" style="font-size: 1.25rem; font-weight: 700; padding: 0.75rem;" onclick="ErpModules.handleLockScreenKeypad('4')">4</button>
+              <button type="button" class="btn-bento btn-bento-dark" style="font-size: 1.25rem; font-weight: 700; padding: 0.75rem;" onclick="ErpModules.handleLockScreenKeypad('5')">5</button>
+              <button type="button" class="btn-bento btn-bento-dark" style="font-size: 1.25rem; font-weight: 700; padding: 0.75rem;" onclick="ErpModules.handleLockScreenKeypad('6')">6</button>
+              <button type="button" class="btn-bento btn-bento-dark" style="font-size: 1.25rem; font-weight: 700; padding: 0.75rem;" onclick="ErpModules.handleLockScreenKeypad('7')">7</button>
+              <button type="button" class="btn-bento btn-bento-dark" style="font-size: 1.25rem; font-weight: 700; padding: 0.75rem;" onclick="ErpModules.handleLockScreenKeypad('8')">8</button>
+              <button type="button" class="btn-bento btn-bento-dark" style="font-size: 1.25rem; font-weight: 700; padding: 0.75rem;" onclick="ErpModules.handleLockScreenKeypad('9')">9</button>
+              <button type="button" class="btn-bento btn-bento-dark" style="font-size: 1.1rem; font-weight: 700; padding: 0.75rem; color: #94a3b8;" onclick="ErpModules.handleLockScreenKeypad('backspace')" title="Backspace">⌫</button>
+              <button type="button" class="btn-bento btn-bento-dark" style="font-size: 1.25rem; font-weight: 700; padding: 0.75rem;" onclick="ErpModules.handleLockScreenKeypad('0')">0</button>
+              <button type="button" class="btn-bento btn-bento-orange" style="font-size: 1.1rem; font-weight: 800; padding: 0.75rem;" onclick="ErpModules.handleLockScreenUnlock()" title="Unlock">🔓</button>
+            </div>
+
+            <!-- PIN Hint & Quick Bypass -->
+            <div style="display: flex; flex-direction: column; gap: 0.45rem; align-items: center;">
+              <div id="lock-hero-pin-hint" style="font-size: 0.75rem; color: var(--text-muted); background: var(--bg-surface); padding: 0.3rem 0.75rem; border-radius: 999px; border: 1px solid var(--border-subtle);">
+                Default PIN: ${selected.pin || '8888'}
+              </div>
+              <button type="button" class="btn-bento btn-bento-dark btn-sm" onclick="ErpModules.quickUnlockSelectedUser('${selected.id}')" style="font-size: 0.76rem;">
+                ⚡ Quick Unlock (Bypass PIN)
+              </button>
+            </div>
+          </div>
+
+          <!-- Bottom Footer Information -->
+          <div style="font-size: 0.74rem; color: var(--text-muted); line-height: 1.5;">
+            👑 <strong>Sir Irl (8888):</strong> Full Executive Access &amp; AI Advisor • 💳 <strong>Cashiers (1111/2222/3333):</strong> POS Remittances &amp; Inventory • 👨‍🍳 <strong>Kitchen (4444):</strong> Spit Roasting
           </div>
         </div>
       </div>
@@ -1006,12 +1296,247 @@ window.ErpModules = (function() {
   function openEditUserModal(userId) {
     const user = window.DB.getUsers().find(u => u.id === userId);
     if (!user) return;
-    const newPin = prompt(`Set new 4-digit PIN for ${user.name}:`, user.pin || "1234");
-    if (newPin && newPin.trim().length >= 4) {
-      user.pin = newPin.trim();
-      window.DB.updateUser(user);
-      alert(`PIN successfully updated for ${user.name}!`);
+
+    const idInput = document.getElementById('perm-user-id');
+    const nameInput = document.getElementById('perm-user-name');
+    const roleSelect = document.getElementById('perm-user-role');
+    const shiftInput = document.getElementById('perm-user-shift');
+    const pinInput = document.getElementById('perm-user-pin');
+    const avatarSpan = document.getElementById('perm-user-avatar');
+    const titleHeader = document.getElementById('perm-modal-user-title');
+
+    if (idInput) idInput.value = user.id;
+    if (nameInput) nameInput.value = user.name || '';
+    if (roleSelect) roleSelect.value = user.role || 'cashier';
+    if (shiftInput) shiftInput.value = user.cashierShift || user.title || '';
+    if (pinInput) pinInput.value = user.pin || '1234';
+    if (avatarSpan) avatarSpan.textContent = user.avatar || '👤';
+    if (titleHeader) titleHeader.textContent = `Customize: ${user.name}`;
+
+    const perms = user.permissions || {};
+    const isAdmin = user.role === 'admin' || perms.all;
+
+    const setChecked = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.checked = Boolean(val);
+    };
+
+    setChecked('perm-ai-advisor', perms.canAccessAiAdvisor || isAdmin);
+    setChecked('perm-payroll', perms.canAccessPayroll || isAdmin);
+    setChecked('perm-inventory', perms.canEditInventory || isAdmin);
+    setChecked('perm-remittances', perms.canVerifyRemittances || isAdmin);
+    setChecked('perm-deductions', perms.canManageDeductions || isAdmin);
+    setChecked('perm-users', perms.canManageUsers || isAdmin);
+
+    if (typeof window.openModal === 'function') {
+      window.openModal('user-permissions-modal');
+    }
+  }
+
+  function applyModalPreset(presetKey) {
+    const roleSelect = document.getElementById('perm-user-role');
+    const setChecked = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.checked = Boolean(val);
+    };
+
+    if (presetKey === 'admin') {
+      if (roleSelect) roleSelect.value = 'admin';
+      setChecked('perm-ai-advisor', true);
+      setChecked('perm-payroll', true);
+      setChecked('perm-inventory', true);
+      setChecked('perm-remittances', true);
+      setChecked('perm-deductions', true);
+      setChecked('perm-users', true);
+    } else if (presetKey === 'cashier') {
+      if (roleSelect) roleSelect.value = 'cashier';
+      setChecked('perm-ai-advisor', false);
+      setChecked('perm-payroll', false);
+      setChecked('perm-inventory', true);
+      setChecked('perm-remittances', true);
+      setChecked('perm-deductions', false);
+      setChecked('perm-users', false);
+    } else if (presetKey === 'kitchen') {
+      if (roleSelect) roleSelect.value = 'kitchen';
+      setChecked('perm-ai-advisor', false);
+      setChecked('perm-payroll', false);
+      setChecked('perm-inventory', true);
+      setChecked('perm-remittances', false);
+      setChecked('perm-deductions', false);
+      setChecked('perm-users', false);
+    } else if (presetKey === 'readonly') {
+      if (roleSelect) roleSelect.value = 'readonly';
+      setChecked('perm-ai-advisor', false);
+      setChecked('perm-payroll', false);
+      setChecked('perm-inventory', false);
+      setChecked('perm-remittances', false);
+      setChecked('perm-deductions', false);
+      setChecked('perm-users', false);
+    }
+  }
+
+  function handleSaveUserPermissions(e) {
+    e.preventDefault();
+    const userId = document.getElementById('perm-user-id').value;
+    const name = document.getElementById('perm-user-name').value.trim();
+    const role = document.getElementById('perm-user-role').value;
+    const shift = document.getElementById('perm-user-shift').value.trim();
+    const pin = document.getElementById('perm-user-pin').value.trim();
+
+    if (!pin || pin.length < 4) {
+      alert("Please enter a valid 4-digit PIN code.");
+      return;
+    }
+
+    const aiCheck = document.getElementById('perm-ai-advisor');
+    const payrollCheck = document.getElementById('perm-payroll');
+    const invCheck = document.getElementById('perm-inventory');
+    const remCheck = document.getElementById('perm-remittances');
+    const dedCheck = document.getElementById('perm-deductions');
+    const usersCheck = document.getElementById('perm-users');
+
+    const permissions = {
+      all: role === 'admin',
+      canAccessAiAdvisor: aiCheck ? aiCheck.checked : false,
+      canAccessPayroll: payrollCheck ? payrollCheck.checked : false,
+      canViewStaffRates: payrollCheck ? payrollCheck.checked : false,
+      canEditInventory: invCheck ? invCheck.checked : true,
+      canVerifyRemittances: remCheck ? remCheck.checked : false,
+      canManageDeductions: dedCheck ? dedCheck.checked : false,
+      canReportShortages: true,
+      canReportLackingProducts: true,
+      canManageUsers: usersCheck ? usersCheck.checked : false
+    };
+
+    const res = window.DB.updateUserPermissions(userId, {
+      name,
+      role,
+      title: shift,
+      cashierShift: shift,
+      pin,
+      permissions
+    });
+
+    if (res.success) {
+      if (typeof window.closeModal === 'function') {
+        window.closeModal('user-permissions-modal');
+      }
+      alert(`✓ Access permissions and PIN successfully saved for ${name}!`);
       if (typeof window.renderApp === 'function') window.renderApp();
+    } else {
+      alert(res.error || "Failed to update permissions.");
+    }
+  }
+
+  // Lock Screen Interactive Actions
+  function selectLockScreenUser(userId) {
+    lockScreenSelectedUserId = userId;
+    lockScreenEnteredPin = '';
+    const pinInput = document.getElementById('lock-pin-input');
+    if (pinInput) pinInput.value = '';
+    updateLockScreenDots();
+
+    const user = window.DB.getUsers().find(u => u.id === userId);
+    if (user) {
+      const heroName = document.getElementById('lock-hero-name');
+      const heroRole = document.getElementById('lock-hero-role');
+      const heroAvatar = document.getElementById('lock-hero-avatar');
+      if (heroName) heroName.textContent = user.name;
+      if (heroRole) heroRole.textContent = user.cashierShift || user.title || user.role;
+      if (heroAvatar) heroAvatar.textContent = user.avatar || '👤';
+      const hintEl = document.getElementById('lock-hero-pin-hint');
+      if (hintEl) hintEl.textContent = `Default PIN: ${user.pin || '8888'}`;
+    }
+
+    const cards = document.querySelectorAll('.lock-user-card');
+    cards.forEach(c => {
+      if (c.getAttribute('data-user-id') === userId) {
+        c.style.borderColor = 'var(--bento-orange)';
+        c.style.background = 'rgba(255, 85, 0, 0.16)';
+      } else {
+        c.style.borderColor = 'var(--border-subtle)';
+        c.style.background = 'var(--bg-surface)';
+      }
+    });
+  }
+
+  function handleLockScreenKeypad(key) {
+    if (key === 'clear') {
+      lockScreenEnteredPin = '';
+    } else if (key === 'backspace') {
+      lockScreenEnteredPin = lockScreenEnteredPin.slice(0, -1);
+    } else {
+      if (lockScreenEnteredPin.length < 6) {
+        lockScreenEnteredPin += String(key);
+      }
+    }
+
+    const pinInput = document.getElementById('lock-pin-input');
+    if (pinInput) pinInput.value = lockScreenEnteredPin;
+    updateLockScreenDots();
+
+    if (lockScreenEnteredPin.length === 4) {
+      setTimeout(() => {
+        handleLockScreenUnlock();
+      }, 150);
+    }
+  }
+
+  function syncLockPinFromKeyboard(e) {
+    lockScreenEnteredPin = e.target.value.trim();
+    updateLockScreenDots();
+    if (lockScreenEnteredPin.length === 4) {
+      setTimeout(() => {
+        handleLockScreenUnlock();
+      }, 150);
+    }
+  }
+
+  function updateLockScreenDots() {
+    for (let i = 1; i <= 4; i++) {
+      const dot = document.getElementById(`lock-dot-${i}`);
+      if (dot) {
+        if (lockScreenEnteredPin.length >= i) {
+          dot.style.background = 'var(--bento-orange)';
+          dot.style.borderColor = 'var(--bento-orange)';
+          dot.style.boxShadow = '0 0 8px rgba(255,85,0,0.6)';
+        } else {
+          dot.style.background = 'transparent';
+          dot.style.borderColor = '#475569';
+          dot.style.boxShadow = 'none';
+        }
+      }
+    }
+  }
+
+  function handleLockScreenUnlock() {
+    const pinInput = document.getElementById('lock-pin-input');
+    const pin = pinInput ? (pinInput.value || lockScreenEnteredPin) : lockScreenEnteredPin;
+    const res = window.DB.authenticateUser(lockScreenSelectedUserId, pin);
+    if (res.success) {
+      if (typeof window.unlockTerminal === 'function') {
+        window.unlockTerminal(res.user);
+      }
+    } else {
+      const errBox = document.getElementById('lock-error-msg');
+      if (errBox) {
+        errBox.textContent = res.error || "Incorrect PIN code. Please try again.";
+        errBox.style.display = 'block';
+        setTimeout(() => { if (errBox) errBox.style.display = 'none'; }, 3000);
+      }
+      lockScreenEnteredPin = '';
+      if (pinInput) pinInput.value = '';
+      updateLockScreenDots();
+    }
+  }
+
+  function quickUnlockSelectedUser(userId) {
+    const targetId = userId || lockScreenSelectedUserId;
+    const user = window.DB.getUsers().find(u => u.id === targetId);
+    if (!user) return;
+    window.DB.setCurrentUser(user);
+    if (typeof window.unlockTerminal === 'function') {
+      window.unlockTerminal(user);
     }
   }
 
@@ -1635,6 +2160,8 @@ Provide razor-sharp, actionable financial guidance. Use markdown formatting with
     renderBentoAiAdvisor,
     renderBentoUsers,
     renderCashierBentoPortal,
+    renderKitchenBentoPortal,
+    renderTerminalLockScreen,
     openSwitchUserModal,
     quickSwitchUser,
     handleAuthenticatePin,
@@ -1648,6 +2175,13 @@ Provide razor-sharp, actionable financial guidance. Use markdown formatting with
     chargeDiscrepancyToLacking,
     openReportLackingModal,
     openEditUserModal,
+    applyModalPreset,
+    handleSaveUserPermissions,
+    selectLockScreenUser,
+    handleLockScreenKeypad,
+    syncLockPinFromKeyboard,
+    handleLockScreenUnlock,
+    quickUnlockSelectedUser,
     renderAiChatThreadHtml,
     sendAiChatMessage,
     handleAiChatKeydown,
