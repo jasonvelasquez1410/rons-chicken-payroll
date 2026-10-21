@@ -514,7 +514,7 @@ window.ErpModules = (function() {
                 </span>
               </div>
               <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.2rem;">
-                Trained on Cugman branch operations, 31-staff payroll, spit throughput &amp; cashier remittances.
+                Trained on Cugman branch operations, 31-staff payroll &amp; cashier remittances. Makasabot ug Bisaya, Taglish &amp; English.
               </div>
             </div>
           </div>
@@ -537,25 +537,25 @@ window.ErpModules = (function() {
           ${renderAiChatThreadHtml()}
         </div>
 
-        <!-- Quick Strategy Prompt Chips -->
+        <!-- Quick Strategy Prompt Chips (Bisaya / Bilingual) -->
         <div class="ai-quick-prompts-bar">
-          <div class="ai-prompt-chip" onclick="ErpModules.sendAiChatMessage('What is our daily break-even chicken volume count?')">
-            🍗 Daily Break-Even
+          <div class="ai-prompt-chip" onclick="ErpModules.sendAiChatMessage('Pila ka buok manok atong daily break-even target sa Cugman?')">
+            🍗 Daily Break-Even (105 ka buok)
           </div>
-          <div class="ai-prompt-chip" onclick="ErpModules.sendAiChatMessage('Paano natin mapapataas ang net monthly profit ng 15%?')">
-            💡 Boost Profit +15%
+          <div class="ai-prompt-chip" onclick="ErpModules.sendAiChatMessage('Unsaon nato pagpadako sa binulan nga ginansya ug 15%?')">
+            💡 Padak-on ang Kita +15%
           </div>
-          <div class="ai-prompt-chip" onclick="ErpModules.sendAiChatMessage('Liempo vs Whole Chicken: alin ang mas mataas ang tubo per transaction?')">
-            🥩 Liempo vs Whole Chicken
+          <div class="ai-prompt-chip" onclick="ErpModules.sendAiChatMessage('Liempo o Lechon Manok: hain may mas dako ug ginansya kada halin?')">
+            🥩 Liempo vs Lechon Manok
           </div>
-          <div class="ai-prompt-chip" onclick="ErpModules.sendAiChatMessage('Paano pigilan ang cashier cash shortages tuwing 2 PM handover?')">
-            ⚠️ Stop Cashier Shortages
+          <div class="ai-prompt-chip" onclick="ErpModules.sendAiChatMessage('Unsaon paglikay sa kuwang o shortage sa cashier inig 2 PM handover?')">
+            ⚠️ Pugngan ang Shortage sa Cashier
           </div>
-          <div class="ai-prompt-chip" onclick="ErpModules.sendAiChatMessage('Kumusta ang payroll cost ng 31 staff at labor ratio natin ngayon?')">
-            👥 31 Staff Payroll Audit
+          <div class="ai-prompt-chip" onclick="ErpModules.sendAiChatMessage('Kumusta ang sweldo sa 31 ka trabahante ug labor ratio nato karon?')">
+            👥 Sweldo sa 31 ka Trabahante
           </div>
           <div class="ai-prompt-chip" style="background: rgba(16,185,129,0.15); border-color: rgba(16,185,129,0.4); color: #10b981;" onclick="ErpModules.promptTeachMemory()">
-            📝 + Teach Store Rule (Tandaan)
+            📝 + Tudlui ang AI (Timan-i)
           </div>
         </div>
 
@@ -565,7 +565,7 @@ window.ErpModules = (function() {
             type="text" 
             id="ai-user-chat-input" 
             class="ai-chat-input" 
-            placeholder="Tanungin si Ron's AI CFO o sabihin: 'Take note: supplier price is now ₱215'... (Press Enter)" 
+            placeholder="Pangutana sa Bisaya / Taglish o itudlo: 'Timan-i: supplier price is now ₱215'... (Press Enter)" 
             onkeydown="ErpModules.handleAiChatKeydown(event)"
             autocomplete="off"
           />
@@ -1188,7 +1188,7 @@ window.ErpModules = (function() {
   function promptTeachMemory() {
     const input = document.getElementById('ai-user-chat-input');
     if (input) {
-      input.value = "Take note: ";
+      input.value = "Timan-i: ";
       input.focus();
     }
   }
@@ -1290,27 +1290,48 @@ window.ErpModules = (function() {
     }
   }
 
+  function detectBisaya(text) {
+    if (!text) return false;
+    const lower = text.toLowerCase();
+    const bisayaMarkers = [
+      /\b(pila|tagpila|unsa|unsaon|ngano|asa|kanus-a|kinsa|hinaot|hinaut)\b/,
+      /\b(wala|wa|naa|may|dili|di|ayaw|dapat|kinahanglan)\b/,
+      /\b(kaayo|gani|gyud|jud|pod|pud|bitaw|karon|bisan|usab|unya)\b/,
+      /\b(ka\s*buok|buok|ginansya|ihaw|ihawonon|manok|baboy|inasal)\b/,
+      /\b(trabahante|sweldo|panihapon|paniudto|hapon|buntag|gabii|udto)\b/,
+      /\b(halin|halinon|kuwang|kwarta|tudlo|timan[\-\s]?i|hinumdumi)\b/,
+      /\b(nako|nato|ninyo|atong|inyong|kanako|kanato|kaninyo)\b/,
+      /\b(hain|kinsang|basta|alang|sulayi|tan-aw|subay|alkanse)\b/
+    ];
+    return bisayaMarkers.some(regex => regex.test(lower));
+  }
+
   async function processAiQuery(queryText) {
     const trimmed = queryText.trim();
     const lower = trimmed.toLowerCase();
+    const isBisaya = detectBisaya(trimmed);
 
-    // 1. Check for Learning / Remember Intent (Sir Irl teaching the AI)
-    const learnRegex = /^(?:take\s*note|tandaan|remember|note\s*:|bagong\s*rule|bagong\s*patakaran|add\s*rule|isulat\s*mo|i-save\s*mo|ituro)\s*[:,\-]?\s*(.+)$/i;
+    // 1. Check for Learning / Remember Intent (Sir Irl teaching the AI in Bisaya, Tagalog, or English)
+    const learnRegex = /^(?:take\s*note|tandaan|remember|note\s*:|bagong\s*rule|bagong\s*patakaran|bag-ong\s*rule|bag-ong\s*patakaran|timan[\-\s]?i|hinumdumi|ayaw\s*kalimti|isulat\s*ni|isulat\s*mo|i-save\s*mo|ituro|itudlo)\s*[:,\-]?\s*(.+)$/i;
     const learnMatch = trimmed.match(learnRegex);
 
     if (learnMatch && learnMatch[1]) {
       const factText = learnMatch[1].trim();
       let category = "Store Policy";
-      if (/presyo|price|₱|cost|supplier|manok\s*cost/i.test(factText)) category = "Pricing";
-      else if (/sahod|sweldo|staff|cashier|roaster|rate|dole/i.test(factText)) category = "Staffing";
-      else if (/spit|roast|warmer|uling|charcoal|lacking/i.test(factText)) category = "Operations";
-      else if (/friday|benta|peak|linggo|weekend|sales/i.test(factText)) category = "Sales Trend";
+      if (/presyo|price|₱|cost|supplier|manok\s*cost|mahal|pila/i.test(factText)) category = "Pricing";
+      else if (/sahod|sweldo|staff|cashier|roaster|rate|dole|trabahante/i.test(factText)) category = "Staffing";
+      else if (/spit|roast|warmer|uling|charcoal|lacking|ihaw/i.test(factText)) category = "Operations";
+      else if (/friday|benta|peak|linggo|weekend|sales|halin/i.test(factText)) category = "Sales Trend";
 
       if (window.DB && typeof window.DB.addAiMemoryItem === 'function') {
         window.DB.addAiMemoryItem(factText, category);
       }
 
-      return `🧠 **Tandaan ko 'yan, Sir Irl!**\n\nMatagumpay kong naitala sa aking **Persistent Business Memory**:\n> *"${factText}"* (Kategorya: **${category}**)\n\nSimula ngayon, kasama na ito sa lahat ng aking financial calculations, projections, at advice para sa Ron's Chicken Cugman branch!\n\nMay iba pa po ba kayong gustong ituro o itanong tungkol sa benta at operasyon?`;
+      if (isBisaya) {
+        return `🧠 **Timan-an nako na, Sir Irl!**\n\nMalampuson nakong na-save sa akong **Business Knowledge Memory**:\n> *"${factText}"* (Kategorya: **${category}**)\n\nSugod karon, apil na kini sa tanan nakong financial calculations, projections, ug tambag para sa Ron's Chicken Cugman branch!\n\nNaa pa moy laing gustong itudlo o ipangutana bahin sa atong halin ug operasyon, Sir?`;
+      } else {
+        return `🧠 **Tandaan ko 'yan, Sir Irl!**\n\nMatagumpay kong naitala sa aking **Persistent Business Memory**:\n> *"${factText}"* (Kategorya: **${category}**)\n\nSimula ngayon, kasama na ito sa lahat ng aking financial calculations, projections, at advice para sa Ron's Chicken Cugman branch!\n\nMay iba pa po ba kayong gustong ituro o itanong tungkol sa benta at operasyon?`;
+      }
     }
 
     // 2. Check if Google Gemini API mode is enabled
@@ -1323,7 +1344,7 @@ window.ErpModules = (function() {
 
     if (aiConfig.mode === 'gemini' && aiConfig.apiKey && aiConfig.apiKey.trim().length > 10) {
       try {
-        const geminiReply = await callGeminiApi(trimmed, aiConfig.apiKey.trim());
+        const geminiReply = await callGeminiApi(trimmed, aiConfig.apiKey.trim(), isBisaya);
         if (geminiReply && geminiReply.trim().length > 0) {
           return geminiReply;
         }
@@ -1333,20 +1354,26 @@ window.ErpModules = (function() {
     }
 
     // 3. Built-in Intelligent Autonomous CFO Engine ($0 Offline / Instant)
-    return generateLocalCfoResponse(trimmed, lower);
+    return generateLocalCfoResponse(trimmed, lower, isBisaya);
   }
 
-  async function callGeminiApi(userPrompt, apiKey) {
+  async function callGeminiApi(userPrompt, apiKey, isBisaya) {
     const ctx = collectBranchFinancialContext();
     const rulesList = ctx.learnedRules.map(r => `• [${r.category}] ${r.fact}`).join('\n');
 
     const systemPrompt = `You are Ron's Executive AI CFO & Business Advisor for "Ron's Chicken - Cugman Branch (Cagayan de Oro)".
 You are conversing directly with the business owner, Sir Irl.
-Speak in natural, enthusiastic, respectful Filipino business Taglish (combination of Tagalog, English, with warmth).
+
+LANGUAGE MIRRORING INSTRUCTION:
+- If Sir Irl speaks in Bisaya / Cebuano (very common in Cagayan de Oro, e.g. using words like "pila", "unsaon", "ginansya", "halin", "trabahante", "sweldo", "kuwang", "timan-i", "kumusta", "ka buok", "ihaw"), MIRROR HIS LANGUAGE AND RESPOND IN AUTHENTIC, FLUENT, RESPECTFUL CAGAYAN DE ORO BISAYA / CEBUANO!
+- If he speaks in Taglish, respond in warm, professional Taglish.
+- If he speaks in English, respond in English.
+- Always address him respectfully as "Sir Irl".
+
 You know the entire operational and financial model of Ron's Chicken:
-- 31 Active Staff (Service & Roasters @ ₱438/day, Cashiers Pamela/Chailene/Jolina @ ₱450/day, Senior Grill Masters @ ₱480/day).
-- Mandatory Daily Meal Allowance: ₱50/day per shift.
-- Whole Lechon Manok: Selling Price ₱360.00, Raw Cost ₱210.00, Margin ₱150.00 (41.6%).
+- 31 Active Staff (Kitchen Roasters & Service @ ₱438/day, Cashiers Pamela/Chailene/Jolina @ ₱450/day, Senior Grill Masters @ ₱480/day).
+- Mandatory Daily Meal Allowance: ₱50/day per duty shift.
+- Whole Lechon Manok: Selling Price ₱360.00, Raw Chicken Cost ₱210.00, Margin ₱150.00 (41.6%).
 - Roasted Pork Liempo: Selling Price ₱420.00, Raw Slab Cost ₱250.00, Margin ₱170.00 (40.5%).
 - Daily Fixed Branch Overhead: ~₱15,800/day. Daily Break-even: 105 whole chickens/day (or 85 chickens + 15 liempo).
 - Cashier Shortage Policy: Discrepancies linked directly to payslip deductions under Shortages to protect cash drawer.
@@ -1354,7 +1381,7 @@ You know the entire operational and financial model of Ron's Chicken:
 - Learned Store Rules & Memory:
 ${rulesList || 'None yet'}
 
-Provide razor-sharp, actionable financial guidance. Use markdown formatting with bolding, lists, and emojis. Always address Sir Irl respectfully.`;
+Provide razor-sharp, actionable financial guidance. Use markdown formatting with bolding, lists, and emojis.`;
 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
     const payload = {
@@ -1387,58 +1414,88 @@ Provide razor-sharp, actionable financial guidance. Use markdown formatting with
     throw new Error("No response candidates from Gemini");
   }
 
-  function generateLocalCfoResponse(prompt, lower) {
+  function generateLocalCfoResponse(prompt, lower, isBisaya) {
     const ctx = collectBranchFinancialContext();
 
     // Intent: Break-even & Quota / Targets
-    if (/break[\-\s]?even|quota|ilan\s*manok|ilan\s*lechon|target|heads\s*per\s*day|benta\s*per\s*day/i.test(lower)) {
+    if (/break[\-\s]?even|quota|pila\s*ka\s*buok|ilan\s*manok|ilan\s*lechon|target|heads\s*per\s*day|benta\s*per\s*day|halin\s*kada\s*adlaw|pila\s*manok|pila\s*ka\s*manok/i.test(lower)) {
+      if (isBisaya) {
+        return `🍗 **Break-Even Volume Analysis: Target sa Cugman Branch**\n\nSir Irl, mao ni ang eksaktong kwentada sa atong daily target para sigurado nga walay alkanse ang tindahan:\n\n**1. Adlaw-adlaw nga Gasto sa Operasyon (Fixed Overhead): ~₱15,800 / adlaw**\n• Sweldo sa 31 ka Trabahante (2 ka shift): **~₱13,950 / adlaw**\n• Uling (Mangrove 2 sako @ ₱450): **₱900 / adlaw**\n• Kuryente, LPG & Yelo: **₱950 / adlaw**\n\n**2. Ginansya sa Matag Halin (Contribution Margin):**\n• Presyo sa Halin: **₱360.00** — Hilaw nga Manok: **₱210.00** = **₱150.00 Ginansya / Buok**\n\n🎯 **Daily Break-Even Target: 105 ka Buok Tibuok Manok / adlaw**\n*(O pwede pud 85 ka Manok + 15 ka Slab sa Inasal nga Liempo)*\n\n> **Tambag sa CFO:** Tanan manok o liempo nga mahalin nato labaw sa **105 ka buok** kay 100% lunsay nga ginansya (pure profit) na diretso sa inyoha, Sir Irl!`;
+      }
       return `🍗 **Break-Even Volume Analysis: Cugman Branch Target**\n\nSir Irl, ito ang exact computation para sa daily target natin para walang lugi ang tindahan:\n\n**1. Daily Fixed Operating Overhead: ~₱15,800 / day**\n• Staff Labor Cost (31 staff split across 2 shifts): **~₱13,950 / day**\n• Charcoal (Mangrove 2 sacks @ ₱450): **₱900 / day**\n• Utilities & Gas (Electricity, LPG, Ice): **₱950 / day**\n\n**2. Contribution Margin:**\n• Selling Price: **₱360.00** — Raw Chicken Cost: **₱210.00** = **₱150.00 Tubo / Chicken**\n\n🎯 **Daily Break-Even Volume: 105 Whole Chickens / day**\n*(O kaya ay 85 Whole Chickens + 15 Roasted Liempo slabs)*\n\n> **CFO Insight:** Lahat ng manok o liempo na maibebenta natin lagpas sa **105 heads** ay pure 100% operating profit na para sa inyo!`;
     }
 
     // Intent: 15% Profit Boost Strategy
-    if (/profit|kumita|paano\s*lalaki|boost|dagdag\s*kita|15%|palakihin|tubo|pataasin/i.test(lower)) {
+    if (/profit|kumita|paano\s*lalaki|padak[\-\s]?on|padako|boost|dagdag\s*kita|15%|palakihin|tubo|pataasin|ginansya|dugang\s*kita/i.test(lower)) {
+      if (isBisaya) {
+        return `💡 **3 ka Lakang para Mosaka ang Binulan nga Ginansya ug 15% (+₱33,200)**\n\nSir Irl, dili kinahanglan mag-hire ug dugang tawo o magpa-mahal sa presyo. Mao ni ang 3 ka pamaagi para sa Cugman branch:\n\n1. **Pahimusli ang Liempo sa 5 PM Panihapon Rush:**\nMag-ihaw ug dugang **6 ka slab sa Liempo** kada adlaw. Ang Liempo naay ₱170 nga ginansya kada slab kumpara sa ₱150 sa manok. Dugang **+₱18,900 nga lunsay nga kita kada bulan**!\n\n2. **I-train ang Cashier sa Spiced Gravy & Softdrink Combo:**\nTudloan nato sila Pamela, Chailene, ug Jolina nga mo-tanyag dayon ug Ron's Spiced Gravy botelya (₱25) + Bugnaw nga Softdrink. Sa 25% lang sa customer, dugang **+₱21,600 kada bulan**!\n\n3. **Wad-on ang Kuwang sa Cashier (Zero Shortage):**\nIpatuman gyud ang 2:00 PM blind drawer count inig turn-over sa shift aron mapugngan ang kasagaran nga **₱3,500 nga kawala sa cash kada bulan**.\n\n📈 **Kinatibuk-ang Dugang Kita:** **+₱33,200 matag bulan** nga walay dugang fixed overhead!`;
+      }
       return `💡 **3-Step Executive Strategy: Pataasin ang Monthly Profit ng 15% (+₱33,200)**\n\nSir Irl, hindi natin kailangang mag-hire ng dagdag na tao o magtaas ng presyo. Narito ang 3 algorithmic tactics para sa Cugman branch:\n\n1. **I-maximize ang Liempo sa 5 PM Dinner Rush:**\nMag-roast ng karagdagang **6 Liempo slabs** bawat araw. Ang Liempo ay may ₱170 margin vs ₱150 sa manok. Dagdag **+₱18,900 net margin / month** ito!\n\n2. **Cashier Spiced Gravy & Drink Combo:**\nI-train sina Pamela, Chailene, at Jolina na mag-upsell ng Ron's Spiced Gravy bottle (₱25) + Malamig na Softdrink. Sa 25% lang ng buyers, dagdag **+₱21,600 / month** ang kita!\n\n3. **Zero Cashier Shortage Protocol:**\nIpatupad ang strict 2:00 PM mid-day blind drawer count bago magpalitan ng shift. Maiiwasan nito ang average na **₱3,500 monthly cash drift**.\n\n📈 **Kabuuang Dagdag Kita:** **+₱33,200 bawat buwan** nang walang dagdag na fixed expenses!`;
     }
 
     // Intent: Liempo vs Whole Chicken
-    if (/liempo|baboy|manok\s*vs\s*liempo|liempo\s*vs\s*manok|pork|alin\s*mas\s*malaki|slab/i.test(lower)) {
+    if (/liempo|baboy|manok\s*vs\s*liempo|liempo\s*vs\s*manok|pork|alin\s*mas\s*malaki|hain\s*mas\s*dako|mas\s*dako|slab/i.test(lower)) {
+      if (isBisaya) {
+        return `🥩 **Kompirmasyon sa Ginansya: Lechon Manok batok sa Inasal nga Liempo**\n\nSir Irl, mao ni ang panagtandi sa duha nato ka flagship products:\n\n• **Tibuok Lechon Manok:**\n  - Presyo sa Halin: **₱360.00**\n  - Gasto sa Hilaw: **₱210.00**\n  - Ginansya kada buok: **₱150.00 (41.6%)**\n  - Oras sa Pag-ihaw: mga 75 minutos\n\n• **Inasal nga Pork Liempo:**\n  - Presyo sa Halin: **₱420.00**\n  - Gasto sa Hilaw: **₱250.00**\n  - Ginansya kada slab: **₱170.00 (40.5%)**\n  - Oras sa Pag-ihaw: mga 90 minutos\n\n🔥 **CFO Estratehiya:**\nBisan ug gamay ra ang porsyento sa Liempo, ang **Liempo naghatag ug +₱20.00 MAS DAKO NGA CASH kada transaksyon**! Siguraduha nga sa Spit 3 naa gyuy 6 hangtod 8 ka Liempo slabs nga gi-ihaw daan sa dili pa mag-alas singko sa hapon!`;
+      }
       return `🥩 **Product Profitability: Lechon Manok vs Roasted Pork Liempo**\n\nSir Irl, ito ang head-to-head comparison ng dalawang flagship products natin:\n\n• **Whole Lechon Manok:**\n  - Selling Price: **₱360.00**\n  - Raw Cost: **₱210.00**\n  - Gross Margin: **₱150.00 (41.6%)**\n  - Roasting Time: ~75 minutes\n\n• **Roasted Pork Liempo:**\n  - Selling Price: **₱420.00**\n  - Raw Cost: **₱250.00**\n  - Gross Margin: **₱170.00 (40.5%)**\n  - Roasting Time: ~90 minutes\n\n🔥 **Strategic Takeaway:**\nKahit bahagyang mas mataas ang percentage margin ng manok, ang **Liempo ay nagbibigay ng +₱20.00 MAS MATAAS NA CASH sa bawat benta**! Siguraduhing may 6-8 Liempo slabs palagi sa Spit 3 bago mag-alas singko ng hapon!`;
     }
 
     // Intent: Cashier Shortages & Remittances
-    if (/shortage|kulang|cashier|discrepancy|pamela|chailene|jolina|remittance|nakaw|drawer|petty|envelope|handover/i.test(lower)) {
+    if (/shortage|kulang|kuwang|cashier|discrepancy|pamela|chailene|jolina|remittance|nakaw|drawer|petty|envelope|handover|kahon|turnover/i.test(lower)) {
+      if (isBisaya) {
+        return `⚠️ **Pamaagi Paglikay sa Kuwang sa Cashier ug Pagbantay sa Halin**\n\nSir Irl, subay sa audit records sa Cugman branch, kasagaran sa discrepancy mahitabo sa **2:00 PM shift turnover** sa morning ug evening cashiers:\n\n1. **Mid-Day Blind Drawer Count (Mandatory):**\nSa dili pa mo-out si Cashier 1 (Chailene/Jolina), ihapon ang cash sa drawer nga dili motan-aw sa system sales. Pirmahan ang turnover slip una molingkod si Pamela sa hapon.\n\n2. **Petty Cash Voucher sa Uling ug Yelo:**\nGidili gyud ang pagkuha ug sensilyo o kwarta sa drawer para sa uling o yelo nga walay permahang voucher sa system.\n\n3. **Awtomatikong Deduction sa Payslip:**\nAktibo sa atong system nga ang bisan unsang kuwang (shortage) kay ma-charge dayon sa payslip sa cashier ubos sa *Shortages Deduction*. Tungod kay kabalo sila ani, magmatngon gyud sila sa pagsukli!`;
+      }
       return `⚠️ **Cashier Shortage Mitigation & Cash Safeguard Protocol**\n\nSir Irl, batay sa audit logs ng Cugman branch, karamihan ng discrepancy ay nagaganap tuwing **2:00 PM shift transition** sa pagitan ng morning at evening cashiers:\n\n1. **Mid-Day Blind Drawer Count (Mandatory):**\nBago umalis si Cashier 1 (Chailene/Jolina), bibilangin ang cash drawer nang hindi tinitingnan ang system gross sales. Pipirmahan ang turnover receipt bago pumasok si Pamela sa evening shift.\n\n2. **Petty Cash Expense Vouchers:**\nBawal kumuha ng barya o pera sa drawer para sa uling o yelo nang walang pirmahang Petty Cash Voucher sa system.\n\n3. **Automated Payslip Deductions:**\nAktibo sa ating system na ang anumang shortage ay awtomatikong nai-itemized sa payslip ng cashier bilang *Shortage Deduction*. Dahil alam ng cashiers ito, nagiging maingat sila sa pagsusukli!`;
     }
 
     // Intent: Payroll & 31 Staff Audit
-    if (/payroll|sahod|sweldo|labor\s*cost|31\s*staff|minimum\s*wage|dole|overtime|meal\s*allowance|438|450|480/i.test(lower)) {
+    if (/payroll|sahod|sweldo|labor\s*cost|31\s*staff|31\s*ka\s*trabahante|trabahante|minimum\s*wage|dole|overtime|meal\s*allowance|438|450|480/i.test(lower)) {
+      if (isBisaya) {
+        return `👥 **31 ka Trabahante: Payroll Audit & DOLE Benchmark sa Cugman**\n\nSir Irl, mao ni ang kahimtang sa atong labor cost karon:\n\n• **Aktibong Trabahante:** 31 ka Empleyado (Mga tig-ihaw sa kitchen, Senior Grill Masters, Cashiers, ug Service Staff)\n• **Karon nga Cutoff Gross Payroll:** **₱${Number(ctx.grossPayroll).toLocaleString('en-US', { minimumFractionDigits: 2 })}**\n• **Adlaw-adlaw nga Rate sa Sweldo:**\n  - Kitchen & Service Staff: **₱438.00 / adlaw** (DOLE Northern Mindanao Min Wage)\n  - Cashiers (Pamela, Chailene, Jolina): **₱450.00 / adlaw**\n  - Senior Grill Masters (Jake, Josh, Andrew): **₱480.00 / adlaw**\n  - Mandatory Daily Meal Allowance: **₱50.00 / adlaw sa duty**\n\n📊 **Labor Cost Ratio: ~19.8% sa Kinatibuk-ang Halin**\nNindot kaayo ni, Sir! Ang healthy benchmark sa DOLE sa mga kan-anan kay 18% hangtod 24%. Sulod kaayo sa pinaka-alisto ug profitable nga lebel ang Ron's Chicken!`;
+      }
       return `👥 **31 Staff Payroll & DOLE Labor Benchmark Audit**\n\nSir Irl, narito ang estado ng ating labor cost sa Cugman branch:\n\n• **Active Staff:** 31 Employees (Kitchen Roasters, Senior Grill Masters, Cashiers, Service Staff)\n• **Current Cutoff Gross Payroll:** **₱${Number(ctx.grossPayroll).toLocaleString('en-US', { minimumFractionDigits: 2 })}**\n• **Daily Wage Brackets:**\n  - Service & Kitchen Staff: **₱438.00 / day** (DOLE Northern Mindanao Min Wage)\n  - Cashiers: **₱450.00 / day**\n  - Senior Grill Masters (Jake, Josh, Andrew): **₱480.00 / day**\n  - Mandatory Daily Meal Allowance: **₱50.00 / duty day**\n\n📊 **Labor Cost Ratio: ~19.8% of Gross Revenue**\nNapakaganda nito! Ang DOLE food service healthy benchmark ay 18% hanggang 24%. Nasa pinaka-optimal at profitable range ang Ron's Chicken!`;
     }
 
     // Intent: Roasting Spits, Warmer & Lacking Spoilage
-    if (/inventory|spit|roast|warmer|hilaw|lacking|sunog|spoilage|batch|rotisserie/i.test(lower)) {
+    if (/inventory|spit|roast|warmer|hilaw|lacking|sunog|spoilage|batch|rotisserie|ihaw|sugba/i.test(lower)) {
+      if (isBisaya) {
+        return `🔥 **Kapasidad sa Pag-ihaw ug Stock sa Warmer**\n\nSir Irl, mao ni ang pahinumdom para sa atong mga roaster:\n\n• **Rotisserie Capacity:** 4 ka active spits (makasugba ug hangtod 32 ka manok sa usa ka higayon).\n• **Target sa Warmer:** Siguraduhon nga naay **7 hangtod 10 ka mainit nga lechon manok** sulod sa glass warmer inig alas 11:30 sa udto ug 5:30 sa hapon aron walay customer nga mobiya tungod kay maghulat pa.\n• **Sunog o Nawala nga Manok:** Ang manok nga nasunog tungod sa pasagad kay awtomatikong i-charge sa tig-ihaw sa cost price (**₱210.00**) ubos sa *Lacking Products Deduction* sa payroll.`;
+      }
       return `🔥 **Rotisserie Spits Throughput & Warmer Stock Strategy**\n\nSir Irl, narito ang gabay sa kitchen roasters natin:\n\n• **Rotisserie Capacity:** 4 active spits (kayang mag-ihaw ng hanggang 32 chickens nang sabay-sabay).\n• **Warmer Buffer Target:** Panatilihing may **7 hanggang 10 mainit na whole chicken** sa glass warmer tuwing 11:30 AM lunch rush at 5:30 PM dinner peak upang walang customer na aalis dahil sa paghihintay.\n• **Burnt / Spoilage Policy:** Ang manok na nasunog dahil sa kapabayaan ay awtomatikong icha-charge sa roaster at cost price (**₱210.00**) sa ilalim ng *Lacking Products Deduction* sa payroll.`;
     }
 
     // Intent: Supplier Chicken Price & Price Increases
-    if (/presyo|price|taas|supplier|215|220|370|mahal|raw\s*chicken/i.test(lower)) {
+    if (/presyo|price|taas|supplier|215|220|370|mahal|raw\s*chicken|hilaw/i.test(lower)) {
+      if (isBisaya) {
+        return `🍗 **Pagtuki sa Presyo sa Hilaw nga Manok ug Alkanse**\n\nSir Irl, kung mosaka ang presyo sa supplier (pananglitan gikan ₱210 ngadto sa ₱215 o ₱220):\n\n• **₱5 nga Pagsaka:** Makuhaan ug ₱5 ang ginansya kada buok (-₱525/adlaw sa 105 ka buok = **-₱15,750 kada bulan nga kawala sa net profit**).\n\n💡 **Tambag sa CFO:**\n1. **Ayaw dayon i-saka ang ₱360 nga presyo:** Itanyag usa ang combo uban ang Ron's Spiced Gravy (₱25) ug Softdrinks.\n2. Kung magpadayon ang pagsaka sa manok ngadto sa ₱220+, pwede nato i-adjust ang Tibuok Manok sa **₱370.00** ug ang Half Chicken sa **₱190.00** aron mapabilin ang atong 41.5% nga ginansya!`;
+      }
       return `🍗 **Supplier Raw Cost & Pricing Sensitivity Analysis**\n\nSir Irl, kung magtataas ang supplier ng raw chicken (halimbawa mula ₱210 papuntang ₱215 o ₱220):\n\n• **₱5 Price Increase Impact:** Bawas ₱5 sa margin bawat manok (-₱525/day sa 105 heads = **-₱15,750 / month sa net profit**).\n\n💡 **CFO Recommendation:**\n1. **Huwag agad itaas ang ₱360 selling price:** Magbenta muna ng add-on combo tulad ng Ron's Spiced Gravy (₱25) at Softdrinks.\n2. Kung magtuloy-tuloy ang taas ng manok sa ₱220+, maaari nating i-adjust ang Whole Chicken sa **₱370.00** at Half Chicken sa **₱190.00** upang mapanatili ang ating 41.5% gross margin!`;
     }
 
     // Intent: What do you know / Learned Rules
-    if (/ano\s*alam\s*mo|memory|tandaan\s*mo|rules|patakaran|what\s*do\s*you\s*know|mga\s*rules|learned/i.test(lower)) {
+    if (/ano\s*alam\s*mo|unsa\s*imong\s*nahibal|memory|tandaan\s*mo|timan[\-\s]?i|rules|patakaran|what\s*do\s*you\s*know|mga\s*rules|learned|nahibaw/i.test(lower)) {
       const memories = ctx.learnedRules;
       const memLines = memories.map((m, i) => `${i + 1}. **[${m.category}]** ${m.fact}`).join('\n');
+      if (isBisaya) {
+        return `🧠 **Mga Nahibal-an ug Patakaran nga Akong Natiman-an**\n\nSir Irl, mao ni ang mga patakaran ug kamatuoran nga akong natiman-an para sa Ron's Chicken Cugman branch:\n\n${memLines || 'Wala pay custom rules nga naitala.'}\n\n💡 **Gusto mo magtudlo ug bag-ong patakaran?**\nI-type lang: *\"Timan-i: (inyong bag-ong patakaran dinhi)\"* ug awtomatiko nako kining i-save!`;
+      }
       return `🧠 **Business Knowledge & Learned Rules Memory**\n\nSir Irl, kasalukuyan kong natatandaan ang mga sumusunod na patakaran at operating facts para sa Cugman branch:\n\n${memLines || 'Wala pang custom rules na naitala.'}\n\n💡 **Gusto nyo bang magdagdag ng bagong rule?**\nI-type lang po: *\"Take note: (inyong bagong rule dito)\"* at automatic ko itong i-se-save!`;
     }
 
     // Intent: Greetings & General Store Health
-    if (/hi|hello|kumusta|kamusta|status|health|okay\s*ba|advice/i.test(lower)) {
+    if (/hi|hello|kumusta|kamusta|musta|maayong\s*adlaw|status|health|okay\s*ba|advice|unsa\s*may\s*ayo/i.test(lower)) {
+      if (isBisaya) {
+        return `👋 **Maayong adlaw, Sir Irl! Kumusta ang dagan sa Cugman branch nato karon?**\n\nMao ni ang dali nga executive summary sa tindahan karon:\n\n• **Financial Health Index:** **92 / 100** (Taas kaayo ang ginansya ug kalig-on)\n• **Aktibong Trabahante:** 31 ka buok (nakalista sa Deli e3960 attendance)\n• **Labor Cost Ratio:** **19.8%** (Pasok kaayo sa healthy benchmark)\n• **Daily Break-Even:** **105 ka buok manok** (ang tanan lapas ani kay ginansya na nimo diretso!)\n\nAndam ko motubag sa bisan unsa nga pangutana bahin sa presyo, deduction sa sweldo, remittance sa cashier, o target sa halin. Unsa may atong hisgotan karon, Sir?`;
+      }
       return `👋 **Magandang araw, Sir Irl! Kumusta ang operations sa Cugman?**\n\nIto ang quick executive summary ng branch natin ngayon:\n\n• **Financial Health Index:** **92 / 100** (High Profitability & Efficiency)\n• **Active Staff:** 31 Employees (Deli e3960 attendance logged)\n• **Labor Cost Ratio:** **19.8%** (Pasok na pasok sa healthy benchmark)\n• **Daily Break-Even:** **105 Whole Chickens** (lahat ng lampas dito ay direct profit!)\n\nHanda akong sumagot sa anumang katanungan sa pricing, payroll deductions, cashier remittances, o benta. Ano po ang maipaglilingkod ko ngayon?`;
     }
 
     // Fallback: Dynamic Smart CFO Response referencing Cugman Branch & Learned Rules
     const learnedCount = ctx.learnedRules.length;
+    if (isBisaya) {
+      return `Sir Irl, akong nasubay ang inyong pangutana bahin sa *"**${escapeHtml(prompt)}**"* sumala sa operasyon sa atong Cugman branch:\n\n• **Kahimtang sa Tindahan:** Naa tay **31 ka trabahante** nga nagdawat ug ₱438–₱480/adlaw uban ang ₱50 meal allowance.\n• **Ginansya:** Ang Tibuok Manok naay **₱150 kada buok** nga tubo (₱360 - ₱210), samtang ang Liempo naay **₱170 kada slab** (₱420 - ₱250).\n• **Business Memory:** Naa koy **${learnedCount} ka patakaran** nga natiman-an gikan sa inyong mga pahinumdom.\n\n💡 **Tambag sa CFO:**\nAron mapabiling dako ang atong ginansya, bantayan gyud nga walay kuwang sa kahon sa cashier ug maabot nato ang 105 ka buok nga target kada adlaw. Pwede pud mo magtudlo ug bag-ong patakaran pinaagi sa pag-type ug *"Timan-i: (patakaran)"*!`;
+    }
     return `Sir Irl, nasuri ko ang inyong tanong patungkol sa *"**${escapeHtml(prompt)}**"* batay sa live operations ng ating Cugman branch:\n\n• **Store Operating Model:** Mayroon tayong **31 staff** na sumasahod ng ₱438–₱480/day at ₱50 meal allowance.\n• **Unit Margins:** Whole Chicken kumikita ng **₱150/head** (₱360 - ₱210), habang ang Liempo ay kumikita ng **₱170/slab** (₱420 - ₱250).\n• **Learned Memory:** May **${learnedCount} store rules** akong sinusunod mula sa inyong mga tagubilin.\n\n💡 **Executive Advice:**\nUpang mapanatiling mataas ang net profit, panatilihing zero ang cashier cash shortages at panatilihin ang ating 105 heads daily target. Maaari ninyo rin akong utusan na magtala ng bagong patakaran sa pamamagitan ng pag-type ng *"Take note: (rule)"*!`;
   }
 
@@ -1492,10 +1549,15 @@ Provide razor-sharp, actionable financial guidance. Use markdown formatting with
 
     // Add bot chat message acknowledging
     if (window.DB && typeof window.DB.addAiChatMessage === 'function') {
+      const isBis = detectBisaya(factText);
+      const ackText = isBis
+        ? `🧠 **Bag-ong Patakaran Natiman-an!**\n\nMalampuson nakong na-save sa akong **Business Knowledge Memory**:\n> *"${factText}"* (${category})\n\nApil na kini sa tanan nakong financial projections ug tambag para sa Ron's Chicken Cugman branch!`
+        : `🧠 **Bagong Patakaran Naitala!**\n\nMatagumpay kong na-save sa aking Business Memory:\n> *"${factText}"* (${category})\n\nGagamitin ko na ito sa lahat ng financial projections at advice para sa Ron's Chicken!`;
+
       window.DB.addAiChatMessage({
         role: 'assistant',
         sender: "Ron's AI CFO",
-        text: `🧠 **Bagong Patakaran Naitala!**\n\nMatagumpay kong na-save sa aking Business Memory:\n> *"${factText}"* (${category})\n\nGagamitin ko na ito sa lahat ng financial projections at advice para sa Ron's Chicken!`,
+        text: ackText,
         timestamp: new Date().toISOString()
       });
     }

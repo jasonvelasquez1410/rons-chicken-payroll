@@ -466,7 +466,7 @@ const DEFAULT_AI_CHAT_HISTORY = [
     role: "assistant",
     timestamp: "Just now",
     date: "2026-10-21",
-    text: "Mabuhay Sir Irl! Ako ang iyong **Autonomous CFO & Financial Advisor** para sa Ron's Chicken (Cugman Branch).\n\nKabisado ko ang real-time payroll ng ating 31 staff, lechon manok at liempo inventory, daily roasting batches, at cashier remittances. Maaari mo akong tanungin sa Taglish o English tungkol sa kita, break-even targets, food costs, o turuan ng mga bagong patakaran sa tindahan. Paano kita matutulungan ngayon?"
+    text: "Maayong adlaw, Sir Irl! Ako ang imong **Autonomous AI CFO & Financial Advisor** para sa **Ron's Chicken (Cugman Branch)**.\n\nKabisado nako ang tibuok pinansyal nga dagan sa atong tindahan:\n• Sweldo sa 31 ka staff (₱438–₱480 daily rate) ug ₱50 Daily Meal Allowance\n• Unit Economics: Tibuok Manok (₱210 cost → ₱360 halin = ₱150 tubo) ug Liempo (₱250 cost → ₱420 halin = ₱170 tubo)\n• Daily Break-Even Target (105 ka buok manok kada adlaw)\n• Cashier shift remittances ug proteksyon batok sa shortage sa kahon\n\n💬 **Pwede mo mangutana nako sa Bisaya, Taglish, o English!**\nPwede pud ninyo ko tudluan ug bag-ong patakaran: Sulayi pag-type ug *\"Timan-i: ang supplier price sa manok nahimong ₱215\"* ug awtomatiko kining ma-save sa akong memory para sa atong kwentada!"
   }
 ];
 
