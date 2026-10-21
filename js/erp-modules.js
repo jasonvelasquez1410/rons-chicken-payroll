@@ -352,15 +352,45 @@ window.ErpModules = (function() {
   // 3. AI FINANCIAL ANALYST VIEW
   // ----------------------------------------------------
   function renderBentoAiAdvisor() {
-    const aiData = window.DB.getAiAdvisory();
+    let aiData = { insights: [] };
+    try {
+      if (window.DB && typeof window.DB.getAiAdvisory === 'function') {
+        aiData = window.DB.getAiAdvisory() || aiData;
+      }
+    } catch (e) {
+      aiData = { insights: [] };
+    }
     const insights = aiData.insights || [];
-    const payroll = window.cachedPayrollSummary || (window.PayrollEngine ? window.PayrollEngine.runBranchPayroll(window.activeCutoff) : { totals: { gross: 112000, net: 98000 } });
-    const remittances = window.DB.getRemittances();
+
+    let payroll = window.cachedPayrollSummary;
+    if (!payroll) {
+      try {
+        const co = window.activeCutoff || (window.DB && typeof window.DB.getCutoffs === 'function' ? window.DB.getCutoffs()[0] : null);
+        if (window.PayrollEngine && typeof window.PayrollEngine.runBranchPayroll === 'function') {
+          payroll = window.PayrollEngine.runBranchPayroll(co);
+        }
+      } catch (e) {
+        payroll = null;
+      }
+    }
+    if (!payroll || !payroll.totals) {
+      payroll = { totals: { gross: 112000, net: 98000 } };
+    }
+
+    let remittances = [];
+    try {
+      if (window.DB && typeof window.DB.getRemittances === 'function') {
+        remittances = window.DB.getRemittances() || [];
+      }
+    } catch (e) {
+      remittances = [];
+    }
+
     const estRevenue = remittances.reduce((s, r) => s + (Number(r.grossSales) || 0), 0) || 165000;
-    const laborCost = payroll.totals.gross || 112450;
-    const laborCostPct = ((laborCost / (estRevenue * 3)) * 100).toFixed(1); // normalized to semi-monthly revenue
+    const laborCost = (payroll && payroll.totals && payroll.totals.gross) ? payroll.totals.gross : 112450;
+    const laborCostPct = ((laborCost / (estRevenue * 3)) * 100).toFixed(1);
     const estCOGS = (estRevenue * 0.515).toFixed(2);
-    const estProfit = ((estRevenue * 3) - laborCost - (estRevenue * 3 * 0.515)).toFixed(2);
+    const estProfit = Math.max(0, (estRevenue * 3) - laborCost - (estRevenue * 3 * 0.515)).toFixed(2);
 
     return `
       <!-- AI Advisor Hero Card -->

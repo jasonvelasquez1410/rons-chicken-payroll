@@ -189,6 +189,15 @@ class PayrollEngine {
    * Run entire branch payroll calculation for all employees
    */
   static runBranchPayroll(cutoff, options = {}) {
+    if (!cutoff || !cutoff.startDate) {
+      const cutoffs = (window.DB && typeof window.DB.getCutoffs === 'function') ? window.DB.getCutoffs() : [];
+      cutoff = (cutoffs && cutoffs.length > 0) ? cutoffs[0] : {
+        id: "CO-2026-08-2",
+        name: "August 16 - September 05, 2026 (Cugman Attendance)",
+        startDate: "2026-08-16",
+        endDate: "2026-09-05"
+      };
+    }
     const employees = window.DB ? window.DB.getEmployees() : [];
     const allDeductions = window.DB ? (typeof window.DB.getDeductions === 'function' ? window.DB.getDeductions() : window.DB.getAdvances()) : [];
     const shifts = window.DB ? window.DB.getShifts() : [];

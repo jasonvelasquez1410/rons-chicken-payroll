@@ -98,9 +98,11 @@ function initApp() {
       startDate: "2026-08-16",
       endDate: "2026-09-05"
     };
+    window.activeCutoff = activeCutoff;
 
     if (window.PayrollEngine && typeof window.PayrollEngine.runBranchPayroll === 'function') {
       cachedPayrollSummary = window.PayrollEngine.runBranchPayroll(activeCutoff);
+      window.cachedPayrollSummary = cachedPayrollSummary;
     }
 
     // Service worker disabled for live desktop/mobile synchronization
@@ -1107,39 +1109,54 @@ function renderManagerBentoView() {
 
   if (currentUser && currentUser.role === 'cashier') {
     if (window.ErpModules && typeof window.ErpModules.renderCashierBentoPortal === 'function') {
-      return window.ErpModules.renderCashierBentoPortal();
+      try {
+        return window.ErpModules.renderCashierBentoPortal();
+      } catch (e) {
+        console.error("Cashier portal render error:", e);
+      }
     }
   }
 
-  switch (currentView) {
-    case 'inventory':
-      return (window.ErpModules && typeof window.ErpModules.renderBentoInventory === 'function')
-        ? window.ErpModules.renderBentoInventory()
-        : '<div>Inventory Module Loading...</div>';
-    case 'remittances':
-      return (window.ErpModules && typeof window.ErpModules.renderBentoRemittances === 'function')
-        ? window.ErpModules.renderBentoRemittances()
-        : '<div>Remittances Module Loading...</div>';
-    case 'aiAdvisor':
-      return (window.ErpModules && typeof window.ErpModules.renderBentoAiAdvisor === 'function')
-        ? window.ErpModules.renderBentoAiAdvisor()
-        : '<div>AI Financial Analyst Loading...</div>';
-    case 'users':
-      return (window.ErpModules && typeof window.ErpModules.renderBentoUsers === 'function')
-        ? window.ErpModules.renderBentoUsers()
-        : '<div>User Permissions Loading...</div>';
-    case 'attendance':
-      return renderBentoAttendance();
-    case 'payroll':
-      return renderBentoPayroll();
-    case 'advances':
-    case 'deductions':
-      return renderBentoAdvances();
-    case 'device':
-      return renderBentoDevice();
-    case 'dashboard':
-    default:
-      return renderManagerBentoDashboard();
+  try {
+    switch (currentView) {
+      case 'inventory':
+        return (window.ErpModules && typeof window.ErpModules.renderBentoInventory === 'function')
+          ? window.ErpModules.renderBentoInventory()
+          : '<div class="data-panel-card" style="padding: 2rem;">Inventory Module Loading...</div>';
+      case 'remittances':
+        return (window.ErpModules && typeof window.ErpModules.renderBentoRemittances === 'function')
+          ? window.ErpModules.renderBentoRemittances()
+          : '<div class="data-panel-card" style="padding: 2rem;">Remittances Module Loading...</div>';
+      case 'aiAdvisor':
+        return (window.ErpModules && typeof window.ErpModules.renderBentoAiAdvisor === 'function')
+          ? window.ErpModules.renderBentoAiAdvisor()
+          : '<div class="data-panel-card" style="padding: 2rem;">AI Financial Analyst Loading...</div>';
+      case 'users':
+        return (window.ErpModules && typeof window.ErpModules.renderBentoUsers === 'function')
+          ? window.ErpModules.renderBentoUsers()
+          : '<div class="data-panel-card" style="padding: 2rem;">User Permissions Loading...</div>';
+      case 'attendance':
+        return renderBentoAttendance();
+      case 'payroll':
+        return renderBentoPayroll();
+      case 'advances':
+      case 'deductions':
+        return renderBentoAdvances();
+      case 'device':
+        return renderBentoDevice();
+      case 'dashboard':
+      default:
+        return renderManagerBentoDashboard();
+    }
+  } catch (err) {
+    console.error("Render view error:", err);
+    return `
+      <div class="data-panel-card" style="padding: 2.5rem; text-align: center;">
+        <h3 style="color: var(--accent-rose); margin-bottom: 0.5rem;">View Loading Notice</h3>
+        <p style="color: var(--text-secondary); margin-bottom: 1rem;">An unexpected issue occurred while rendering: ${err.message}</p>
+        <button class="btn-bento btn-bento-orange" onclick="navigateTo('dashboard')">Return to Overview</button>
+      </div>
+    `;
   }
 }
 
