@@ -33,7 +33,13 @@ const ICONS = {
   settings: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>`,
   sun: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`,
   book: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`,
-  database: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>`
+  database: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>`,
+  chicken: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"></path></svg>`,
+  money: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="12" cy="12" r="2"></circle><path d="M6 12h.01M18 12h.01"></path></svg>`,
+  ai: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path><circle cx="12" cy="12" r="4"></circle></svg>`,
+  users: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>`,
+  alert: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`,
+  flame: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>`
 };
 
 function safeGetEmployees() {
@@ -60,12 +66,19 @@ function safeGetCutoffs() {
   }
 }
 
-function safeGetAdvances() {
+function safeGetDeductions() {
   try {
+    if (window.DB && typeof window.DB.getDeductions === 'function') {
+      return window.DB.getDeductions();
+    }
     return (window.DB && typeof window.DB.getAdvances === 'function') ? window.DB.getAdvances() : [];
   } catch (e) {
     return [];
   }
+}
+
+function safeGetAdvances() {
+  return safeGetDeductions();
 }
 
 function initApp() {
@@ -146,6 +159,10 @@ function renderApp() {
   const container = document.getElementById('app-root');
   if (!container) return;
 
+  const currentUser = (window.DB && typeof window.DB.getCurrentUser === 'function') 
+    ? window.DB.getCurrentUser() 
+    : { id: 'usr_admin', name: "Sir Irl (Owner)", role: "admin", avatar: "👑" };
+
   if (currentMode === 'staff') {
     container.innerHTML = renderStaffBentoPortal();
   } else {
@@ -155,19 +172,25 @@ function renderApp() {
         <div class="brand-wrapper" onclick="navigateTo('dashboard')">
           <div class="brand-icon-monogram">Σ</div>
           <div class="brand-text">
-            <div class="brand-title">RON'S CHICKEN <span>PAYROLL</span></div>
-            <div class="brand-sub">Cugman Branch • Deli e3960 Biometrics</div>
+            <div class="brand-title">RON'S CHICKEN <span>CUSTOM ERP</span></div>
+            <div class="brand-sub">Cugman Branch • Lechon Manok &amp; Liempo Suite</div>
           </div>
         </div>
 
         <div class="header-controls">
+          <div id="user-session-chip" class="pill ${currentUser.role === 'admin' ? 'pill-orange' : 'pill-purple'}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem 0.85rem; display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer;" onclick="openModal('switch-user-modal')" title="Active Profile: Click to Switch User / Cashier">
+            <span>${currentUser.avatar || '👤'}</span>
+            <span>${currentUser.name}</span>
+            <span style="font-size: 0.68rem; opacity: 0.8;">(${currentUser.role === 'admin' ? 'Owner' : 'Cashier'})</span>
+          </div>
+
           <div id="firebase-sync-pill" class="pill pill-dark" style="font-size: 0.76rem; padding: 0.45rem 0.85rem; display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer;" onclick="openCloudSyncModal()" title="Click to view Multi-Device Cloud Sync Status">
             <span style="width: 8px; height: 8px; border-radius: 50%; background: #64748b; display: inline-block;"></span>
             <span style="color: #94a3b8; font-weight: 600;">Local Device</span>
           </div>
 
           <button class="btn-bento btn-bento-dark btn-sm" style="padding: 0.45rem 0.85rem; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 0.4rem;" onclick="openModal('backup-modal')" title="Backup & Restore Full Payroll Database">
-            ${ICONS.database} Backup & Data
+            ${ICONS.database} Backup &amp; Data
           </button>
 
           <button class="btn-bento btn-bento-dark btn-sm" style="padding: 0.45rem 0.85rem; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 0.4rem;" onclick="openModal('guide-modal')" title="View Owner / Admin DOLE & System Guide">
@@ -180,12 +203,60 @@ function renderApp() {
             <input type="range" class="brightness-slider" id="theme-brightness-slider" min="0" max="100" value="${currentBrightness}" oninput="handleBrightnessChange(event)">
             <span id="brightness-label" style="min-width: 46px;">${getBrightnessName(currentBrightness)}</span>
           </div>
-
-          <div class="pill pill-orange" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem;">
-            ${ICONS.dashboard} Manager Portal
-          </div>
         </div>
       </header>
+
+      <!-- ERP Modules Sub-Navigation Bar -->
+      <div class="erp-subnav-bar">
+        ${currentUser.role === 'admin' ? `
+          <button class="erp-tab-btn ${currentView === 'dashboard' ? 'active' : ''}" onclick="navigateTo('dashboard')">
+            ${ICONS.dashboard} Overview
+          </button>
+          <button class="erp-tab-btn ${currentView === 'inventory' ? 'active' : ''}" onclick="navigateTo('inventory')">
+            ${ICONS.chicken} Lechon Inventory
+          </button>
+          <button class="erp-tab-btn ${currentView === 'remittances' ? 'active' : ''}" onclick="navigateTo('remittances')">
+            ${ICONS.money} POS Remittances
+          </button>
+          <button class="erp-tab-btn ${currentView === 'advances' || currentView === 'deductions' ? 'active' : ''}" onclick="navigateTo('advances')">
+            ${ICONS.receipt} Utang &amp; Deductions
+          </button>
+          <button class="erp-tab-btn ${currentView === 'payroll' ? 'active' : ''}" onclick="navigateTo('payroll')">
+            ${ICONS.payroll} Payroll &amp; Payslips
+          </button>
+          <button class="erp-tab-btn ${currentView === 'attendance' ? 'active' : ''}" onclick="navigateTo('attendance')">
+            ${ICONS.fingerprint} Biometrics
+          </button>
+          <button class="erp-tab-btn ${currentView === 'aiAdvisor' ? 'active' : ''}" onclick="navigateTo('aiAdvisor')">
+            ${ICONS.ai} AI Financial Analyst
+          </button>
+          <button class="erp-tab-btn ${currentView === 'users' ? 'active' : ''}" onclick="navigateTo('users')">
+            ${ICONS.users} 3 Cashiers &amp; Roles
+          </button>
+          <button class="erp-tab-btn ${currentView === 'device' ? 'active' : ''}" onclick="navigateTo('device')">
+            ${ICONS.settings} Deli e3960
+          </button>
+        ` : `
+          <button class="erp-tab-btn active" onclick="navigateTo('dashboard')">
+            💳 Cashier POS Terminal
+          </button>
+          <button class="erp-tab-btn" onclick="openModal('remittance-modal')">
+            ${ICONS.money} + Record Shift Remittance
+          </button>
+          <button class="erp-tab-btn" onclick="openModal('inventory-daily-modal')">
+            ${ICONS.chicken} + Chicken Stock Count
+          </button>
+          <button class="erp-tab-btn" onclick="openModal('inventory-batch-modal')">
+            ${ICONS.flame} + Roast Batch Intake
+          </button>
+          <button class="erp-tab-btn" onclick="ErpModules.openReportLackingModal()">
+            ${ICONS.alert} Report Lacking Chicken
+          </button>
+          <button class="erp-tab-btn" onclick="openModal('switch-user-modal')">
+            🔒 Switch Cashier / Lock
+          </button>
+        `}
+      </div>
 
       <!-- Main Bento Layout -->
       <main class="bento-container">
@@ -198,29 +269,25 @@ function renderApp() {
           ${ICONS.dashboard}
           <span>Overview</span>
         </div>
-        <div class="bottom-nav-item ${currentView === 'attendance' ? 'active' : ''}" onclick="navigateTo('attendance')">
-          ${ICONS.fingerprint}
-          <span>Attendance</span>
+        <div class="bottom-nav-item ${currentView === 'inventory' ? 'active' : ''}" onclick="navigateTo('inventory')">
+          ${ICONS.chicken}
+          <span>Inventory</span>
+        </div>
+        <div class="bottom-nav-item ${currentView === 'remittances' ? 'active' : ''}" onclick="navigateTo('remittances')">
+          ${ICONS.money}
+          <span>Sales</span>
+        </div>
+        <div class="bottom-nav-item ${currentView === 'advances' || currentView === 'deductions' ? 'active' : ''}" onclick="navigateTo('advances')">
+          ${ICONS.receipt}
+          <span>Deductions</span>
         </div>
         <div class="bottom-nav-item ${currentView === 'payroll' ? 'active' : ''}" onclick="navigateTo('payroll')">
           ${ICONS.payroll}
           <span>Payroll</span>
         </div>
-        <div class="bottom-nav-item ${currentView === 'advances' ? 'active' : ''}" onclick="navigateTo('advances')">
-          ${ICONS.receipt}
-          <span>Vale Ledger</span>
-        </div>
-        <div class="bottom-nav-item ${currentView === 'device' ? 'active' : ''}" onclick="navigateTo('device')">
-          ${ICONS.settings}
-          <span>Deli e3960</span>
-        </div>
-        <div class="bottom-nav-item" onclick="openModal('backup-modal')">
-          ${ICONS.database}
-          <span>Backup</span>
-        </div>
-        <div class="bottom-nav-item" onclick="openModal('guide-modal')">
-          ${ICONS.book}
-          <span>Guide</span>
+        <div class="bottom-nav-item ${currentView === 'aiAdvisor' ? 'active' : ''}" onclick="navigateTo('aiAdvisor')">
+          ${ICONS.ai}
+          <span>AI Analyst</span>
         </div>
       </nav>
 
@@ -275,7 +342,10 @@ function renderApp() {
                 <div>
                   <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--text-secondary);">Deduction Type</label>
                   <select id="adv-type" style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.9rem;">
-                    <option value="Cash Advance (Vale)">Cash Advance (Vale)</option>
+                    <option value="Utang (Store Credit / Loans)">📝 Utang (Store Credit / Loans)</option>
+                    <option value="Cash Advance (Vale)">💵 Cash Advance (Vale)</option>
+                    <option value="Shortages (Cashier Cash Shortage)">⚠️ Shortages (Cashier Cash Shortage)</option>
+                    <option value="Lacking Products (Burnt / Missing Chicken)">🍗 Lacking Products (Burnt / Missing Chicken)</option>
                     <option value="Emergency Staff Loan">Emergency Staff Loan</option>
                     <option value="Uniform / Equipment">Uniform / Equipment</option>
                     <option value="Meal / Food Vale">Meal / Food Vale</option>
@@ -758,6 +828,266 @@ function renderApp() {
           </div>
         </div>
       </div>
+
+      <!-- Switch User & Cashier PIN Modal -->
+      <div id="switch-user-modal" class="modal-backdrop">
+        <div class="modal-card" style="max-width: 520px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <h3 style="color: var(--text-primary); font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+              🔒 Switch User / Cashier PIN
+            </h3>
+            <button class="btn-bento btn-bento-dark btn-sm" onclick="closeModal('switch-user-modal')">✕</button>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
+            Select user profile to activate terminal permissions. Cashiers only have access to POS, daily chicken counts, and remittance.
+          </p>
+
+          <form onsubmit="ErpModules.handleAuthenticatePin(event)">
+            <div style="display: grid; gap: 1rem;">
+              <div>
+                <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--text-secondary);">Select Account / Cashier</label>
+                <select id="switch-user-select" style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.9rem;">
+                  ${((window.DB && typeof window.DB.getUsers === 'function') ? window.DB.getUsers() : []).map(u => `
+                    <option value="${u.id}" ${u.id === currentUser.id ? 'selected' : ''}>
+                      ${u.avatar || '👤'} ${u.name} (${u.cashierShift || u.role})
+                    </option>
+                  `).join('')}
+                </select>
+              </div>
+
+              <div>
+                <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--text-secondary);">4-Digit PIN Code</label>
+                <input type="password" id="switch-user-pin" maxlength="6" placeholder="PIN: Sir Irl (8888), Cashier 1 (1111), Cashier 2 (2222)" style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 1.1rem; letter-spacing: 0.2em; text-align: center;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.4rem; font-size: 0.75rem; color: var(--text-muted);">
+                  <span>Default PINs: Sir Irl (8888) • Cashier 1 (1111) • Cashier 2 (2222) • Cashier 3 (3333)</span>
+                </div>
+              </div>
+
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                <button type="button" class="btn-bento btn-bento-dark btn-sm" onclick="ErpModules.quickSwitchUser(document.getElementById('switch-user-select').value)">
+                  ⚡ Quick Switch (Bypass PIN)
+                </button>
+                <div style="display: flex; gap: 0.5rem;">
+                  <button type="button" class="btn-bento btn-bento-dark" onclick="closeModal('switch-user-modal')">Cancel</button>
+                  <button type="submit" class="btn-bento btn-bento-orange" style="font-weight: 800;">Unlock &amp; Switch</button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Log Roasting Spit Batch Modal -->
+      <div id="inventory-batch-modal" class="modal-backdrop">
+        <div class="modal-card" style="max-width: 520px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <h3 style="color: var(--text-primary); font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+              🔥 Log Roasting Spit Batch
+            </h3>
+            <button class="btn-bento btn-bento-dark btn-sm" onclick="closeModal('inventory-batch-modal')">✕</button>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
+            Record freshly roasted chicken heads and pork liempo slabs transferred from rotisserie charcoal spits to counter.
+          </p>
+
+          <form onsubmit="ErpModules.handleSaveRoastBatch(event)">
+            <div style="display: grid; gap: 1rem;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                  <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--text-secondary);">Batch Time</label>
+                  <input type="text" id="batch-time" value="${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}" required style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.9rem;">
+                </div>
+                <div>
+                  <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--text-secondary);">Roast Master on Duty</label>
+                  <select id="batch-roaster" style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.9rem;">
+                    <option value="Argie Daliva (Senior Roaster)">Argie Daliva (Senior Roaster)</option>
+                    <option value="Gerald Lacasa (Roaster)">Gerald Lacasa (Roaster)</option>
+                    <option value="Gerald Ladasa (Roaster)">Gerald Ladasa (Roaster)</option>
+                    <option value="Ronald Sedon (Operations)">Ronald Sedon (Operations)</option>
+                    <option value="Sherwin Cagas (Staff)">Sherwin Cagas (Staff)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                  <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--text-secondary);">Whole Chickens (Heads)</label>
+                  <input type="number" id="batch-chickens" min="1" max="100" value="25" required style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 1.1rem; font-weight: 700;">
+                </div>
+                <div>
+                  <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--text-secondary);">Pork Liempo (Slabs)</label>
+                  <input type="number" id="batch-liempo" min="0" max="50" value="8" required style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 1.1rem; font-weight: 700;">
+                </div>
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1rem;">
+                <button type="button" class="btn-bento btn-bento-dark" onclick="closeModal('inventory-batch-modal')">Cancel</button>
+                <button type="submit" class="btn-bento btn-bento-orange" style="font-weight: 800;">🔥 Save Spit Batch</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Daily Chicken Stock Reconciliation Sheet Modal -->
+      <div id="inventory-daily-modal" class="modal-backdrop">
+        <div class="modal-card" style="max-width: 640px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <h3 style="color: var(--text-primary); font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+              🍗 Daily Chicken Stock Reconciliation
+            </h3>
+            <button class="btn-bento btn-bento-dark btn-sm" onclick="closeModal('inventory-daily-modal')">✕</button>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
+            Reconcile physical whole chicken inventory: Beginning + Roasted - Sold - Spoilage = Ending Warmer Count.
+          </p>
+
+          <form onsubmit="ErpModules.handleSaveDailyInventory(event)">
+            <div style="display: grid; gap: 1rem;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                <div>
+                  <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--text-secondary);">Sheet Date</label>
+                  <input type="date" id="inv-date" value="${new Date().toISOString().split('T')[0]}" required style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.85rem;">
+                </div>
+                <div>
+                  <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--text-secondary);">Cashier on Duty</label>
+                  <input type="text" id="inv-cashier" value="${currentUser.name}" required style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.85rem;">
+                </div>
+                <div>
+                  <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--text-secondary);">Roast Lead</label>
+                  <input type="text" id="inv-roaster" value="Argie Daliva" required style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.85rem;">
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                <div>
+                  <label style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.35rem;">Beginning Stock</label>
+                  <input type="number" id="inv-beg-chicken" value="6" min="0" required style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-weight: 700;">
+                </div>
+                <div>
+                  <label style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.35rem;">Deliveries (Raw)</label>
+                  <input type="number" id="inv-recv-chicken" value="85" min="0" required style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-weight: 700;">
+                </div>
+                <div>
+                  <label style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.35rem;">Total Roasted</label>
+                  <input type="number" id="inv-roasted-chicken" value="85" min="0" required style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--bento-orange); font-weight: 800;">
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                <div>
+                  <label style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.35rem;">Sold Whole Chicken</label>
+                  <input type="number" id="inv-sold-whole" value="76" min="0" required style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-weight: 700;">
+                </div>
+                <div>
+                  <label style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.35rem;">Sold Half Chicken</label>
+                  <input type="number" id="inv-sold-half" value="14" min="0" required style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-weight: 700;">
+                </div>
+                <div>
+                  <label style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.35rem;">Sold Liempo Slabs</label>
+                  <input type="number" id="inv-sold-liempo" value="22" min="0" required style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-weight: 700;">
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                  <label style="display: block; font-size: 0.78rem; font-weight: 700; color: #f43f5e; margin-bottom: 0.35rem;">Burnt / Spoilage (Lacking)</label>
+                  <input type="number" id="inv-spoilage" value="1" min="0" required style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid rgba(244,63,94,0.4); color: #f43f5e; font-weight: 700;">
+                </div>
+                <div>
+                  <label style="display: block; font-size: 0.78rem; font-weight: 700; color: #10b981; margin-bottom: 0.35rem;">Actual Ending Warmer Count</label>
+                  <input type="number" id="inv-ending-chicken" value="7" min="0" required style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid rgba(16,185,129,0.4); color: #10b981; font-weight: 800;">
+                </div>
+              </div>
+
+              <div>
+                <label style="display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.35rem;">Reconciliation Remarks</label>
+                <input type="text" id="inv-notes" placeholder="e.g. 1 whole chicken overcooked on spit 2, balanced ending count" style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.85rem;">
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1rem;">
+                <button type="button" class="btn-bento btn-bento-dark" onclick="closeModal('inventory-daily-modal')">Cancel</button>
+                <button type="submit" class="btn-bento btn-bento-orange" style="font-weight: 800;">Save Daily Stock Audit</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Cashier Shift Sales & Remittance Modal -->
+      <div id="remittance-modal" class="modal-backdrop">
+        <div class="modal-card" style="max-width: 600px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <h3 style="color: var(--text-primary); font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+              💰 Cashier Shift Sales &amp; Safe Remittance
+            </h3>
+            <button class="btn-bento btn-bento-dark btn-sm" onclick="closeModal('remittance-modal')">✕</button>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
+            Enter drawer cash count, GCash collections, and store expenses. Shortages are calculated automatically.
+          </p>
+
+          <form onsubmit="ErpModules.handleSaveRemittance(event)">
+            <div style="display: grid; gap: 1rem;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                  <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-secondary);">Remittance Date</label>
+                  <input type="date" id="rem-date" value="${new Date().toISOString().split('T')[0]}" required style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.85rem;">
+                </div>
+                <div>
+                  <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-secondary);">Shift</label>
+                  <select id="rem-shift" style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.85rem;">
+                    <option value="Morning Shift (06:00 - 14:00)">Morning Shift (06:00 - 14:00)</option>
+                    <option value="Evening Shift (14:00 - 22:00)">Evening Shift (14:00 - 22:00)</option>
+                    <option value="Relief / Weekend Shift">Relief / Weekend Shift</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-secondary);">Cashier Name</label>
+                <select id="rem-cashier" style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.85rem;">
+                  <option value="Chailene Dolido (Cashier 1)">Chailene Dolido (Cashier 1 - Morning)</option>
+                  <option value="Pamela Galdo (Cashier 2)">Pamela Galdo (Cashier 2 - Evening)</option>
+                  <option value="Relief Cashier (Cashier 3)">Relief Cashier (Cashier 3 - Weekend)</option>
+                </select>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                  <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-secondary);">Gross Counter Sales (₱)</label>
+                  <input type="number" id="rem-gross" step="0.5" placeholder="e.g. 18500" required style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 1rem; font-weight: 700;">
+                </div>
+                <div>
+                  <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-secondary);">GCash / Digital Payments (₱)</label>
+                  <input type="number" id="rem-gcash" step="0.5" placeholder="e.g. 2500" value="0" style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 1rem;">
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                  <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-secondary);">Store Petty Expenses (₱)</label>
+                  <input type="number" id="rem-petty" step="0.5" placeholder="e.g. 450 (Ice/Charcoal)" value="0" style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary);">
+                </div>
+                <div>
+                  <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.35rem; color: #10b981;">Actual Cash in Envelope (₱)</label>
+                  <input type="number" id="rem-actual-cash" step="0.5" placeholder="Counted cash remitted" required style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid rgba(16,185,129,0.4); color: #10b981; font-size: 1.05rem; font-weight: 800;">
+                </div>
+              </div>
+
+              <div>
+                <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-secondary);">Petty Cash Expense Details</label>
+                <input type="text" id="rem-petty-details" placeholder="e.g. 1 sack mangrove charcoal (₱300), Ice (₱150)" style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.85rem;">
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1rem;">
+                <button type="button" class="btn-bento btn-bento-dark" onclick="closeModal('remittance-modal')">Cancel</button>
+                <button type="submit" class="btn-bento btn-bento-orange" style="font-weight: 800;">💰 Verify &amp; Save Remittance</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
     `;
   }
   window.__ronsAppReady = true;
@@ -771,12 +1101,39 @@ function getBrightnessName(level) {
 }
 
 function renderManagerBentoView() {
+  const currentUser = (window.DB && typeof window.DB.getCurrentUser === 'function') 
+    ? window.DB.getCurrentUser() 
+    : { role: 'admin' };
+
+  if (currentUser && currentUser.role === 'cashier') {
+    if (window.ErpModules && typeof window.ErpModules.renderCashierBentoPortal === 'function') {
+      return window.ErpModules.renderCashierBentoPortal();
+    }
+  }
+
   switch (currentView) {
+    case 'inventory':
+      return (window.ErpModules && typeof window.ErpModules.renderBentoInventory === 'function')
+        ? window.ErpModules.renderBentoInventory()
+        : '<div>Inventory Module Loading...</div>';
+    case 'remittances':
+      return (window.ErpModules && typeof window.ErpModules.renderBentoRemittances === 'function')
+        ? window.ErpModules.renderBentoRemittances()
+        : '<div>Remittances Module Loading...</div>';
+    case 'aiAdvisor':
+      return (window.ErpModules && typeof window.ErpModules.renderBentoAiAdvisor === 'function')
+        ? window.ErpModules.renderBentoAiAdvisor()
+        : '<div>AI Financial Analyst Loading...</div>';
+    case 'users':
+      return (window.ErpModules && typeof window.ErpModules.renderBentoUsers === 'function')
+        ? window.ErpModules.renderBentoUsers()
+        : '<div>User Permissions Loading...</div>';
     case 'attendance':
       return renderBentoAttendance();
     case 'payroll':
       return renderBentoPayroll();
     case 'advances':
+    case 'deductions':
       return renderBentoAdvances();
     case 'device':
       return renderBentoDevice();
@@ -831,26 +1188,35 @@ function renderCutoffControlBar() {
 function renderManagerBentoDashboard() {
   const employees = safeGetEmployees();
   const summary = cachedPayrollSummary || (window.PayrollEngine && typeof window.PayrollEngine.runBranchPayroll === 'function' ? window.PayrollEngine.runBranchPayroll(activeCutoff) : { totals: { net: 0, gross: 0 }, records: [] });
+  const inv = (window.DB && typeof window.DB.getInventory === 'function') ? window.DB.getInventory() : { dailySheets: [] };
+  const todaySheet = (inv.dailySheets && inv.dailySheets.length > 0) ? inv.dailySheets[0] : { totalRoastedChicken: 85, soldWholeChicken: 76, actualEndingChicken: 7, varianceChicken: 0 };
+  const remittances = (window.DB && typeof window.DB.getRemittances === 'function') ? window.DB.getRemittances() : [];
+  const totalRemitted = remittances.reduce((s, r) => s + (Number(r.actualCashCounted) || 0), 0);
+  const deductions = (window.DB && typeof window.DB.getDeductions === 'function') ? window.DB.getDeductions() : [];
+  const activeDeductionsBalance = deductions.filter(d => d.status === 'Active').reduce((s, d) => s + Math.max(0, (Number(d.amount) || 0) - (Number(d.deducted) || 0)), 0);
 
   return `
     <!-- Top Welcome Banner -->
     <div class="user-welcome-banner">
       <div class="user-welcome-info">
-        <div class="user-avatar-circle">RC</div>
+        <div class="user-avatar-circle" style="background: var(--bento-orange); color: #fff;">🍗</div>
         <div class="user-welcome-text">
-          <h1>Welcome, Branch Manager</h1>
-          <p>Ron's Chicken Cugman • Cutoff: ${activeCutoff.name}</p>
+          <h1>Welcome, Sir Irl &amp; Management</h1>
+          <p>Ron's Chicken Cugman • Custom ERP, Inventory &amp; Payroll Suite</p>
         </div>
       </div>
       <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-        <button class="btn-bento btn-bento-purple" onclick="openEmployeeModal()">
-          ${ICONS.employee} Staff & Statutory
+        <button class="btn-bento btn-bento-orange" onclick="openModal('inventory-batch-modal')">
+          ${ICONS.flame} + Log Roast Batch
+        </button>
+        <button class="btn-bento btn-bento-purple" onclick="openModal('remittance-modal')">
+          ${ICONS.money} + Record Remittance
+        </button>
+        <button class="btn-bento btn-bento-dark" onclick="openAdvanceModal()">
+          ${ICONS.receipt} + Add Utang / CA
         </button>
         <button class="btn-bento btn-bento-white" onclick="generateAllBatchPayslips()">
-          ${ICONS.print} Batch Print All Payslips (31 Staff)
-        </button>
-        <button class="btn-bento btn-bento-orange" onclick="openUploadModal()">
-          ${ICONS.upload} Import Deli e3960 .xls
+          ${ICONS.print} Batch Payslips (31 Staff)
         </button>
       </div>
     </div>
@@ -858,60 +1224,100 @@ function renderManagerBentoDashboard() {
     <!-- Cutoff Period Controller Bar -->
     ${renderCutoffControlBar()}
 
-    <!-- Mi Nomina Bento Grid Cards -->
+    <!-- Comprehensive ERP Bento Grid Cards -->
     <div class="bento-grid">
       
-      <!-- Big Orange Bento Card: Employee Management -->
-      <div class="bento-card bento-orange col-7" onclick="openEmployeeModal()" style="cursor: pointer;">
+      <!-- Big Orange Bento Card: Lechon Manok & Liempo Inventory -->
+      <div class="bento-card bento-orange col-6" onclick="navigateTo('inventory')" style="cursor: pointer;">
         <div class="bento-card-header">
-          <div class="bento-badge-circle">${ICONS.employee}</div>
-          <span class="bento-tag">31 Active Staff</span>
+          <div class="bento-badge-circle">${ICONS.chicken}</div>
+          <span class="bento-tag">${todaySheet.varianceChicken === 0 ? '✓ Balanced' : '! Discrepancy'}</span>
         </div>
         <div>
-          <div class="bento-value">${employees.length} Staff</div>
-          <div class="bento-title">Staff & Statutory Management</div>
-          <div class="bento-meta" style="margin-top: 0.4rem;">Configure SSS, PhilHealth, Pag-IBIG, TIN, and daily wage rates</div>
+          <div class="bento-value">${todaySheet.totalRoastedChicken || 85} Heads Roasted</div>
+          <div class="bento-title">Lechon Manok &amp; Liempo Stock</div>
+          <div class="bento-meta" style="margin-top: 0.4rem;">
+            ${todaySheet.soldWholeChicken || 76} Sold • ${todaySheet.actualEndingChicken || 7} Display Ending • Click to view spit batches &amp; reconciliation
+          </div>
         </div>
       </div>
 
-      <!-- Electric Purple Bento Card: File & USB Ingestion -->
-      <div class="bento-card bento-purple col-5" onclick="openUploadModal()">
+      <!-- Electric Purple Bento Card: Cashier Remittances & Sales -->
+      <div class="bento-card bento-purple col-6" onclick="navigateTo('remittances')" style="cursor: pointer;">
         <div class="bento-card-header">
-          <div class="bento-badge-circle">${ICONS.folder}</div>
-          <span class="bento-tag">Deli e3960 USB</span>
+          <div class="bento-badge-circle">${ICONS.money}</div>
+          <span class="bento-tag">3 Cashier Shifts</span>
         </div>
         <div>
-          <div class="bento-value">USB .XLS</div>
-          <div class="bento-title">File Management</div>
-          <div class="bento-meta" style="margin-top: 0.4rem;">Import attendance records directly from USB flash drive</div>
+          <div class="bento-value">₱${totalRemitted.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+          <div class="bento-title">Cashier Sales &amp; Safe Remittances</div>
+          <div class="bento-meta" style="margin-top: 0.4rem;">
+            Cash drawer audit, GCash receipts &amp; automatic register shortage detection
+          </div>
         </div>
       </div>
 
-      <!-- High Contrast White Bento Card: Payroll Management & Payslips Generator -->
-      <div class="bento-card bento-white col-7" onclick="navigateTo('payroll')">
+      <!-- High Contrast White Bento Card: DOLE Payroll & Payslips -->
+      <div class="bento-card bento-white col-6" onclick="navigateTo('payroll')" style="cursor: pointer;">
         <div class="bento-card-header">
           <div class="bento-badge-circle">${ICONS.payroll}</div>
           <span class="bento-tag" style="background: #111827; color: #fff;">DOLE / BIR Compliant</span>
         </div>
         <div>
           <div class="bento-value" style="color: #000;">₱${summary.totals.net.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
-          <div class="bento-title" style="color: #000;">Payroll Management & Payslips</div>
+          <div class="bento-title" style="color: #000;">Payroll Management &amp; Payslips</div>
           <div class="bento-meta" style="color: #4b5563; margin-top: 0.4rem;">
-            Gross: ₱${summary.totals.gross.toLocaleString('en-US', { minimumFractionDigits: 2 })} • Click to generate and print payslips
+            Gross: ₱${summary.totals.gross.toLocaleString('en-US', { minimumFractionDigits: 2 })} • Split statutory contributions &amp; 1-click batch payslips
           </div>
         </div>
       </div>
 
-      <!-- Electric Purple Bento Card: Expenses & Vale Management -->
-      <div class="bento-card bento-purple col-5" onclick="navigateTo('advances')">
+      <!-- Deductions Bento Card: Utang, CA, Shortages, Lacking -->
+      <div class="bento-card bento-purple col-6" onclick="navigateTo('advances')" style="cursor: pointer;">
         <div class="bento-card-header">
           <div class="bento-badge-circle">${ICONS.receipt}</div>
-          <span class="bento-tag">Vale Ledger</span>
+          <span class="bento-tag">Utang / CA / Shortages</span>
         </div>
         <div>
-          <div class="bento-value">₱1,250.00</div>
-          <div class="bento-title">Expenses & Vale</div>
-          <div class="bento-meta" style="margin-top: 0.4rem;">Staff cash advances & emergency loans deduction</div>
+          <div class="bento-value">₱${activeDeductionsBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+          <div class="bento-title">Staff Credit &amp; Deductions Ledger</div>
+          <div class="bento-meta" style="margin-top: 0.4rem;">
+            Sections for Utang loans, Cash Advances (Vale), Cashier Shortages &amp; Lacking chicken
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Financial Analyst & CFO Health Scorecard -->
+      <div class="bento-card bento-dark col-8" onclick="navigateTo('aiAdvisor')" style="cursor: pointer; border: 1px solid rgba(139, 92, 246, 0.4); background: linear-gradient(135deg, rgba(121, 40, 202, 0.12) 0%, rgba(255, 85, 0, 0.08) 100%);">
+        <div class="bento-card-header">
+          <div class="bento-badge-circle" style="background: rgba(139, 92, 246, 0.2); color: #c4b5fd;">${ICONS.ai}</div>
+          <span class="pill pill-purple" style="font-size: 0.75rem; font-weight: 800;">Health Score: 92/100</span>
+        </div>
+        <div>
+          <div class="bento-value" style="color: #ffffff; font-size: 1.6rem;">
+            AI Financial Advisor: ~19.8% Labor Ratio
+          </div>
+          <div class="bento-title" style="color: var(--bento-orange);">
+            Optimal Roasting Spit Scheduling &amp; Liempo Margin Boost
+          </div>
+          <div class="bento-meta" style="margin-top: 0.4rem;">
+            Click to explore 4 actionable profit playbooks and run interactive CFO simulations
+          </div>
+        </div>
+      </div>
+
+      <!-- User Permissions & 3 Cashiers Card -->
+      <div class="bento-card bento-orange col-4" onclick="navigateTo('users')" style="cursor: pointer;">
+        <div class="bento-card-header">
+          <div class="bento-badge-circle">${ICONS.users}</div>
+          <span class="bento-tag">RBAC Security</span>
+        </div>
+        <div>
+          <div class="bento-value">3 Cashiers</div>
+          <div class="bento-title">User Roles &amp; Permissions</div>
+          <div class="bento-meta" style="margin-top: 0.4rem;">
+            Configure 4-digit PINs, shift assignments &amp; access controls
+          </div>
         </div>
       </div>
 
@@ -1126,90 +1532,187 @@ function renderBentoPayroll() {
   `;
 }
 
+let currentDeductionFilter = 'all';
+
+function setDeductionFilter(category) {
+  currentDeductionFilter = category;
+  renderApp();
+}
+window.setDeductionFilter = setDeductionFilter;
+
+function getDeductionCategoryKey(item) {
+  const cat = (item.category || '').toLowerCase();
+  const typ = (item.type || '').toLowerCase();
+  if (cat === 'utang' || typ.includes('utang') || typ.includes('loan')) return 'utang';
+  if (cat === 'ca' || typ.includes('cash advance') || typ.includes('vale')) return 'ca';
+  if (cat === 'shortage' || typ.includes('shortage')) return 'shortage';
+  if (cat === 'lacking' || typ.includes('lacking') || typ.includes('chicken')) return 'lacking';
+  return 'other';
+}
+
+function getDeductionBadgeHtml(item) {
+  const key = getDeductionCategoryKey(item);
+  switch (key) {
+    case 'utang':
+      return `<span class="deduction-badge badge-utang">📝 Utang / Credit</span>`;
+    case 'ca':
+      return `<span class="deduction-badge badge-ca">💵 Cash Advance (Vale)</span>`;
+    case 'shortage':
+      return `<span class="deduction-badge badge-shortage">⚠️ Cashier Shortage</span>`;
+    case 'lacking':
+      return `<span class="deduction-badge badge-lacking">🍗 Lacking Chicken</span>`;
+    default:
+      return `<span class="deduction-badge badge-other">${item.category || item.type || 'Other'}</span>`;
+  }
+}
+
 function renderBentoAdvances() {
-  const advances = safeGetAdvances();
-  const activeList = advances.filter(a => a.status === 'Active');
-  const activeCount = activeList.length;
-  const totalLoanBalance = activeList.reduce((s, a) => s + Math.max(0, (a.amount || 0) - (a.deducted || 0)), 0);
+  const allDeductions = safeGetDeductions();
+  const activeList = allDeductions.filter(a => a.status === 'Active');
+  
+  // Outstanding balances
+  const totalBalance = activeList.reduce((s, a) => s + Math.max(0, (Number(a.amount) || 0) - (Number(a.deducted) || 0)), 0);
   const totalCutoffDeduct = activeList.reduce((s, a) => {
-    const remaining = Math.max(0, (a.amount || 0) - (a.deducted || 0));
-    return s + (a.deductionPerCutoff ? Math.min(a.deductionPerCutoff, remaining) : remaining);
+    const rem = Math.max(0, (Number(a.amount) || 0) - (Number(a.deducted) || 0));
+    return s + (a.deductionPerCutoff ? Math.min(Number(a.deductionPerCutoff), rem) : rem);
   }, 0);
+
+  // Category subtotals
+  const utangAndCaBalance = activeList
+    .filter(a => ['utang', 'ca'].includes(getDeductionCategoryKey(a)))
+    .reduce((s, a) => s + Math.max(0, (Number(a.amount) || 0) - (Number(a.deducted) || 0)), 0);
+
+  const shortagesAndLackingBalance = activeList
+    .filter(a => ['shortage', 'lacking'].includes(getDeductionCategoryKey(a)))
+    .reduce((s, a) => s + Math.max(0, (Number(a.amount) || 0) - (Number(a.deducted) || 0)), 0);
+
+  // Counts by category
+  const countAll = allDeductions.length;
+  const countUtang = allDeductions.filter(a => getDeductionCategoryKey(a) === 'utang').length;
+  const countCa = allDeductions.filter(a => getDeductionCategoryKey(a) === 'ca').length;
+  const countShortages = allDeductions.filter(a => getDeductionCategoryKey(a) === 'shortage').length;
+  const countLacking = allDeductions.filter(a => getDeductionCategoryKey(a) === 'lacking').length;
+
+  const currentFilter = currentDeductionFilter || 'all';
+  const displayedList = (currentFilter === 'all')
+    ? allDeductions
+    : allDeductions.filter(a => getDeductionCategoryKey(a) === currentFilter);
 
   return `
     <div class="user-welcome-banner">
       <div>
-        <h1 style="color: var(--text-primary); font-size: 1.75rem;">Cash Advances & Vale Ledger</h1>
-        <p style="color: var(--text-secondary);">Track emergency staff loans, cash advances, and automated payroll deductions</p>
+        <h1 style="color: var(--text-primary); font-size: 1.75rem;">Staff Credit &amp; Deductions Ledger</h1>
+        <p style="color: var(--text-secondary);">
+          Itemized accounting for <strong>Utang (Store Credit / Loans)</strong>, <strong>Cash Advances (Vale)</strong>, <strong>Cashier Shortages</strong> &amp; <strong>Lacking Products</strong>
+        </p>
       </div>
-      <button class="btn-bento btn-bento-purple" onclick="openAdvanceModal()">+ New Vale / Loan Entry</button>
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <button class="btn-bento btn-bento-orange" onclick="openAdvanceModal()">
+          ${ICONS.receipt} + Record Deduction / Vale
+        </button>
+      </div>
     </div>
 
-    <!-- Quick Stats Bento -->
+    <!-- Quick Stats Bento Grid -->
     <div class="bento-grid" style="margin-bottom: 1.5rem;">
-      <div class="bento-card bento-purple col-4">
+      <div class="bento-card bento-purple col-3">
         <div class="bento-badge-circle">${ICONS.receipt}</div>
-        <div class="bento-value">₱${totalLoanBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
-        <div class="bento-title">Active Loan Balance</div>
-        <div class="bento-meta">${activeCount} active staff advance requests</div>
+        <div class="bento-value">₱${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+        <div class="bento-title">Active Deductions Balance</div>
+        <div class="bento-meta">${activeList.length} total active items across branch staff</div>
       </div>
-      <div class="bento-card bento-orange col-4">
+
+      <div class="bento-card bento-orange col-3">
         <div class="bento-badge-circle">${ICONS.payroll}</div>
         <div class="bento-value">₱${totalCutoffDeduct.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
         <div class="bento-title">Cutoff Deduction</div>
         <div class="bento-meta">Auto-deducted from gross earnings this cutoff</div>
       </div>
-      <div class="bento-card bento-white col-4" onclick="openAdvanceModal()" style="cursor: pointer;">
-        <div class="bento-badge-circle">${ICONS.check}</div>
-        <div class="bento-value" style="color: #111;">+ Add Entry</div>
-        <div class="bento-title" style="color: #111;">New Vale / Loan</div>
-        <div class="bento-meta" style="color: #6b7280;">Click to record cash advance or loan</div>
+
+      <div class="bento-card bento-dark col-3">
+        <div class="bento-badge-circle" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b;">${ICONS.money}</div>
+        <div class="bento-value">₱${utangAndCaBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+        <div class="bento-title">Utang &amp; Cash Advances</div>
+        <div class="bento-meta">Store loans &amp; emergency vale accounts</div>
+      </div>
+
+      <div class="bento-card bento-dark col-3" style="border-left: 3px solid var(--accent-rose);">
+        <div class="bento-badge-circle" style="background: rgba(244, 63, 94, 0.2); color: var(--accent-rose);">${ICONS.alert}</div>
+        <div class="bento-value">₱${shortagesAndLackingBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+        <div class="bento-title">Shortages &amp; Lacking</div>
+        <div class="bento-meta">100% loss recovery on counter &amp; burnt chicken</div>
       </div>
     </div>
 
+    <!-- Category Filter Tabs Bar -->
+    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
+      <button class="btn-bento ${currentFilter === 'all' ? 'btn-bento-orange' : 'btn-bento-dark'} btn-sm" onclick="setDeductionFilter('all')">
+        All Records (${countAll})
+      </button>
+      <button class="btn-bento ${currentFilter === 'utang' ? 'btn-bento-orange' : 'btn-bento-dark'} btn-sm" onclick="setDeductionFilter('utang')">
+        📝 Utang / Store Credit (${countUtang})
+      </button>
+      <button class="btn-bento ${currentFilter === 'ca' ? 'btn-bento-orange' : 'btn-bento-dark'} btn-sm" onclick="setDeductionFilter('ca')">
+        💵 Cash Advance / Vale (${countCa})
+      </button>
+      <button class="btn-bento ${currentFilter === 'shortage' ? 'btn-bento-orange' : 'btn-bento-dark'} btn-sm" onclick="setDeductionFilter('shortage')">
+        ⚠️ Cashier Shortages (${countShortages})
+      </button>
+      <button class="btn-bento ${currentFilter === 'lacking' ? 'btn-bento-orange' : 'btn-bento-dark'} btn-sm" onclick="setDeductionFilter('lacking')">
+        🍗 Lacking Products (${countLacking})
+      </button>
+    </div>
+
+    <!-- Deductions Table -->
     <div class="data-panel-card">
       <div class="table-responsive">
         <table class="table-bento">
           <thead>
             <tr>
-              <th>Vale ID</th>
-              <th>Employee Name</th>
-              <th>Type</th>
-              <th>Date Issued</th>
+              <th>Ref ID</th>
+              <th>Category</th>
+              <th>Staff Member</th>
+              <th>Reason / Particulars</th>
+              <th>Date</th>
               <th>Total Amount</th>
-              <th>Cutoff Deduction</th>
-              <th>Reason / Remarks</th>
+              <th>Per Cutoff</th>
+              <th>Remaining</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            ${advances.length === 0 ? `
+            ${displayedList.length === 0 ? `
               <tr>
-                <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 2rem;">No cash advance or loan records found. Click <strong>+ New Vale / Loan Entry</strong> to add one.</td>
+                <td colspan="10" style="text-align: center; color: var(--text-muted); padding: 2.5rem;">
+                  No deduction records found for category "<strong>${currentFilter.toUpperCase()}</strong>". Click <strong>+ Record Deduction / Vale</strong> to create one.
+                </td>
               </tr>
-            ` : advances.map(a => {
-              const remaining = Math.max(0, (a.amount || 0) - (a.deducted || 0));
-              const cutoffDeduct = a.deductionPerCutoff ? Math.min(a.deductionPerCutoff, remaining) : remaining;
-              const isActive = a.status === 'Active';
+            ` : displayedList.map(item => {
+              const remaining = Math.max(0, (Number(item.amount) || 0) - (Number(item.deducted) || 0));
+              const cutoffDeduct = item.deductionPerCutoff ? Math.min(Number(item.deductionPerCutoff), remaining) : remaining;
+              const isActive = item.status === 'Active';
               return `
                 <tr>
-                  <td><strong>${a.id}</strong></td>
-                  <td style="font-weight: 700; color: var(--text-primary);">#${a.employeeId} ${a.employeeName}</td>
-                  <td><span class="pill ${a.type && a.type.includes('Loan') ? 'pill-purple' : 'pill-orange'}">${a.type || 'Cash Advance (Vale)'}</span></td>
-                  <td>${a.date}</td>
-                  <td style="font-weight: 800; color: var(--text-primary);">₱${(a.amount || 0).toFixed(2)}</td>
-                  <td style="font-weight: 700; color: var(--accent-rose);">₱${cutoffDeduct.toFixed(2)}</td>
-                  <td>${a.reason || '-'}</td>
+                  <td><strong>${item.id}</strong></td>
+                  <td>${getDeductionBadgeHtml(item)}</td>
+                  <td style="font-weight: 700; color: var(--text-primary);">#${item.employeeId} ${item.employeeName}</td>
+                  <td style="color: var(--text-secondary); max-width: 260px; font-size: 0.82rem;">${item.reason || item.type || '-'}</td>
+                  <td>${item.date}</td>
+                  <td style="font-weight: 800; color: var(--text-primary);">₱${Number(item.amount || 0).toFixed(2)}</td>
+                  <td style="font-weight: 700; color: var(--accent-rose);">-₱${cutoffDeduct.toFixed(2)}</td>
+                  <td style="font-weight: 800; color: ${remaining > 0 ? 'var(--bento-orange)' : 'var(--accent-emerald)'};">
+                    ₱${remaining.toFixed(2)}
+                  </td>
                   <td>
-                    <span class="pill ${isActive ? 'pill-orange' : 'pill-emerald'}">${a.status}</span>
+                    <span class="pill ${isActive ? 'pill-orange' : 'pill-emerald'}">${item.status}</span>
                   </td>
                   <td>
                     <div style="display: flex; gap: 0.4rem;">
-                      <button class="btn-bento btn-bento-dark btn-sm" style="font-size: 0.72rem; padding: 0.25rem 0.6rem;" onclick="toggleAdvanceStatus('${a.id}')" title="${isActive ? 'Mark as Paid / Settled' : 'Reactivate'}">
+                      <button class="btn-bento btn-bento-dark btn-sm" style="font-size: 0.72rem; padding: 0.25rem 0.6rem;" onclick="toggleAdvanceStatus('${item.id}')" title="${isActive ? 'Mark as Paid / Settled' : 'Reactivate'}">
                         ${isActive ? '✓ Settle' : '↺ Reactivate'}
                       </button>
-                      <button class="btn-bento btn-bento-dark btn-sm" style="font-size: 0.72rem; color: var(--accent-rose); padding: 0.25rem 0.6rem;" onclick="deleteAdvanceEntry('${a.id}')" title="Delete">
+                      <button class="btn-bento btn-bento-dark btn-sm" style="font-size: 0.72rem; color: var(--accent-rose); padding: 0.25rem 0.6rem;" onclick="deleteAdvanceEntry('${item.id}')" title="Delete">
                         ✕
                       </button>
                     </div>
@@ -1498,15 +2001,63 @@ function generatePayslipHTML(employeeId) {
 
   const shifts = window.DB.getShifts();
   const timecard = window.BiometricParser.calculateTimecard(emp, activeCutoff.startDate, activeCutoff.endDate, shifts);
-  const advances = window.DB.getAdvances().filter(a => a.employeeId === emp.id && a.status === 'Active');
-  const advanceDeduct = advances.reduce((sum, a) => {
-    const remaining = Math.max(0, (a.amount || 0) - (a.deducted || 0));
-    const perCutoff = a.deductionPerCutoff ? Math.min(a.deductionPerCutoff, remaining) : remaining;
-    return sum + perCutoff;
+  
+  // Fetch active deductions for employee
+  const allDeductions = safeGetDeductions().filter(a => a.employeeId === emp.id && a.status === 'Active');
+
+  const valeList = allDeductions.filter(a => {
+    const cat = (a.category || '').toLowerCase();
+    const typ = (a.type || '').toLowerCase();
+    return cat === 'ca' || typ.includes('cash advance') || typ.includes('vale');
+  });
+  const valeDeduct = valeList.reduce((sum, a) => {
+    const remaining = Math.max(0, (Number(a.amount) || 0) - (Number(a.deducted) || 0));
+    return sum + (a.deductionPerCutoff ? Math.min(Number(a.deductionPerCutoff), remaining) : remaining);
+  }, 0);
+
+  const utangList = allDeductions.filter(a => {
+    const cat = (a.category || '').toLowerCase();
+    const typ = (a.type || '').toLowerCase();
+    return cat === 'utang' || typ.includes('utang') || typ.includes('loan');
+  });
+  const utangDeduct = utangList.reduce((sum, a) => {
+    const remaining = Math.max(0, (Number(a.amount) || 0) - (Number(a.deducted) || 0));
+    return sum + (a.deductionPerCutoff ? Math.min(Number(a.deductionPerCutoff), remaining) : remaining);
+  }, 0);
+
+  const shortageList = allDeductions.filter(a => {
+    const cat = (a.category || '').toLowerCase();
+    const typ = (a.type || '').toLowerCase();
+    return cat === 'shortage' || typ.includes('shortage');
+  });
+  const shortageDeduct = shortageList.reduce((sum, a) => {
+    const remaining = Math.max(0, (Number(a.amount) || 0) - (Number(a.deducted) || 0));
+    return sum + (a.deductionPerCutoff ? Math.min(Number(a.deductionPerCutoff), remaining) : remaining);
+  }, 0);
+
+  const lackingList = allDeductions.filter(a => {
+    const cat = (a.category || '').toLowerCase();
+    const typ = (a.type || '').toLowerCase();
+    return cat === 'lacking' || typ.includes('lacking') || typ.includes('chicken');
+  });
+  const lackingDeduct = lackingList.reduce((sum, a) => {
+    const remaining = Math.max(0, (Number(a.amount) || 0) - (Number(a.deducted) || 0));
+    return sum + (a.deductionPerCutoff ? Math.min(Number(a.deductionPerCutoff), remaining) : remaining);
+  }, 0);
+
+  const accountedIds = new Set([...valeList, ...utangList, ...shortageList, ...lackingList].map(x => x.id));
+  const otherList = allDeductions.filter(a => !accountedIds.has(a.id));
+  const otherDeduct = otherList.reduce((sum, a) => {
+    const remaining = Math.max(0, (Number(a.amount) || 0) - (Number(a.deducted) || 0));
+    return sum + (a.deductionPerCutoff ? Math.min(Number(a.deductionPerCutoff), remaining) : remaining);
   }, 0);
 
   const payroll = window.PayrollEngine.computeEmployeePayroll(emp, timecard, {
-    cashAdvanceDeduction: advanceDeduct,
+    cashAdvanceDeduction: valeDeduct,
+    utangDeduction: utangDeduct,
+    shortageDeduction: shortageDeduct,
+    lackingProductDeduction: lackingDeduct,
+    otherDeductions: otherDeduct,
     incentives: (emp.position && emp.position.includes("Grill")) ? 200 : 0
   });
 
@@ -1592,23 +2143,34 @@ function generatePayslipHTML(employeeId) {
             <span>Pag-IBIG:</span>
             <span>-₱${payroll.deductions.pagIbig.toFixed(2)}</span>
           </div>
-          ${advances.map(a => {
-            const remaining = Math.max(0, (a.amount || 0) - (a.deducted || 0));
-            const deduct = a.deductionPerCutoff ? Math.min(a.deductionPerCutoff, remaining) : remaining;
-            if (deduct <= 0) return '';
-            const typeLabel = a.type || 'Cash Advance (Vale)';
-            const reasonLabel = a.reason ? ` (${a.reason})` : '';
-            return `
-              <div class="payslip-row">
-                <span>${typeLabel}${reasonLabel}:</span>
-                <span style="color: var(--accent-rose); font-weight: 700;">-₱${deduct.toFixed(2)}</span>
-              </div>
-            `;
-          }).join('')}
-          ${advances.length === 0 && payroll.deductions.cashAdvance > 0 ? `
+          ${utangDeduct > 0 ? `
+            <div class="payslip-row">
+              <span>Utang (Store Credit / Loans):</span>
+              <span style="color: var(--accent-rose); font-weight: 700;">-₱${utangDeduct.toFixed(2)}</span>
+            </div>
+          ` : ''}
+          ${valeDeduct > 0 ? `
             <div class="payslip-row">
               <span>Cash Advance (Vale):</span>
-              <span style="color: var(--accent-rose); font-weight: 700;">-₱${payroll.deductions.cashAdvance.toFixed(2)}</span>
+              <span style="color: var(--accent-rose); font-weight: 700;">-₱${valeDeduct.toFixed(2)}</span>
+            </div>
+          ` : ''}
+          ${shortageDeduct > 0 ? `
+            <div class="payslip-row">
+              <span>Cashier Shortages:</span>
+              <span style="color: var(--accent-rose); font-weight: 700;">-₱${shortageDeduct.toFixed(2)}</span>
+            </div>
+          ` : ''}
+          ${lackingDeduct > 0 ? `
+            <div class="payslip-row">
+              <span>Lacking Products (Chicken):</span>
+              <span style="color: var(--accent-rose); font-weight: 700;">-₱${lackingDeduct.toFixed(2)}</span>
+            </div>
+          ` : ''}
+          ${otherDeduct > 0 ? `
+            <div class="payslip-row">
+              <span>Other Deductions:</span>
+              <span style="color: var(--accent-rose); font-weight: 700;">-₱${otherDeduct.toFixed(2)}</span>
             </div>
           ` : ''}
           <div class="payslip-row payslip-total">
@@ -1761,10 +2323,21 @@ function handleSaveAdvance(event) {
   const cutoffDeduct = cutoffVal ? parseFloat(cutoffVal) : amount;
   const reason = document.getElementById('adv-reason').value || type;
 
-  const newAdvance = {
-    id: `VA-${Date.now().toString().slice(-4)}`,
+  // Classify category
+  let category = 'Other';
+  const typeLower = type.toLowerCase();
+  if (typeLower.includes('utang') || typeLower.includes('loan')) category = 'Utang';
+  else if (typeLower.includes('cash advance') || typeLower.includes('vale')) category = 'CA';
+  else if (typeLower.includes('shortage')) category = 'Shortage';
+  else if (typeLower.includes('lacking') || typeLower.includes('chicken')) category = 'Lacking';
+
+  const prefix = (category === 'Utang') ? 'UT' : (category === 'CA') ? 'CA' : (category === 'Shortage') ? 'SH' : (category === 'Lacking') ? 'LP' : 'DED';
+
+  const newDeduction = {
+    id: `${prefix}-${Date.now().toString().slice(-4)}`,
     employeeId: emp.id,
     employeeName: emp.name,
+    category,
     type,
     date,
     amount,
@@ -1774,9 +2347,12 @@ function handleSaveAdvance(event) {
     status: 'Active'
   };
 
-  if (window.DB && typeof window.DB.addAdvance === 'function') {
-    window.DB.addAdvance(newAdvance);
+  if (window.DB && typeof window.DB.addDeduction === 'function') {
+    window.DB.addDeduction(newDeduction);
+  } else if (window.DB && typeof window.DB.addAdvance === 'function') {
+    window.DB.addAdvance(newDeduction);
   }
+
   if (window.PayrollEngine && typeof window.PayrollEngine.runBranchPayroll === 'function') {
     cachedPayrollSummary = window.PayrollEngine.runBranchPayroll(activeCutoff);
   }
@@ -1785,12 +2361,17 @@ function handleSaveAdvance(event) {
 }
 
 function toggleAdvanceStatus(id) {
-  const advances = safeGetAdvances();
-  const adv = advances.find(a => a.id === id);
-  if (!adv) return;
-  adv.status = (adv.status === 'Active') ? 'Settled' : 'Active';
-  if (window.DB && typeof window.DB.updateAdvance === 'function') {
-    window.DB.updateAdvance(adv);
+  const deductions = safeGetDeductions();
+  const ded = deductions.find(a => a.id === id);
+  if (!ded) return;
+  ded.status = (ded.status === 'Active') ? 'Settled' : 'Active';
+  if (ded.status === 'Settled') {
+    ded.deducted = ded.amount;
+  }
+  if (window.DB && typeof window.DB.updateDeduction === 'function') {
+    window.DB.updateDeduction(ded);
+  } else if (window.DB && typeof window.DB.updateAdvance === 'function') {
+    window.DB.updateAdvance(ded);
   }
   if (window.PayrollEngine && typeof window.PayrollEngine.runBranchPayroll === 'function') {
     cachedPayrollSummary = window.PayrollEngine.runBranchPayroll(activeCutoff);
@@ -1800,7 +2381,9 @@ function toggleAdvanceStatus(id) {
 
 function deleteAdvanceEntry(id) {
   if (confirm("Are you sure you want to remove this deduction entry?")) {
-    if (window.DB && typeof window.DB.deleteAdvance === 'function') {
+    if (window.DB && typeof window.DB.deleteDeduction === 'function') {
+      window.DB.deleteDeduction(id);
+    } else if (window.DB && typeof window.DB.deleteAdvance === 'function') {
       window.DB.deleteAdvance(id);
     }
     if (window.PayrollEngine && typeof window.PayrollEngine.runBranchPayroll === 'function') {
@@ -2134,7 +2717,5 @@ window.handleBrightnessChange = handleBrightnessChange;
 window.handleSaveFirebaseConfig = handleSaveFirebaseConfig;
 window.handleDisconnectFirebase = handleDisconnectFirebase;
 window.handleManualCloudSync = handleManualCloudSync;
-
-
-
-
+window.safeGetDeductions = safeGetDeductions;
+window.setDeductionFilter = setDeductionFilter;

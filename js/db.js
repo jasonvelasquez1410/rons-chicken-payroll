@@ -49,6 +49,12 @@ const STORAGE_KEYS = {
   SHIFTS: 'rons_payroll_shifts_v1',
   CUTOFFS: 'rons_payroll_cutoffs_v1',
   ADVANCES: 'rons_payroll_advances_v1',
+  DEDUCTIONS: 'rons_erp_deductions_v2', // Utang, CA, Shortages, Lacking Products, Others
+  USERS: 'rons_erp_users_v2', // 3 Cashiers + Admin/Owner
+  CURRENT_USER: 'rons_erp_current_user_v2', // Active session
+  INVENTORY: 'rons_erp_inventory_v2', // Daily Lechon & Liempo Stock, batches, variance
+  REMITTANCES: 'rons_erp_remittances_v2', // Cashier Shift Remittances & Sales
+  AI_ADVISORY: 'rons_erp_ai_advisory_v2', // AI Financial Analyst State & Simulations
   SETTINGS: 'rons_payroll_settings_v1',
   PAYROLL_HISTORY: 'rons_payroll_history_v1',
   DEVICE_CONFIG: 'rons_payroll_device_config_v1',
@@ -82,6 +88,323 @@ const DEFAULT_SHIFTS = [
   { id: "S4", name: "Night Shift Operations", start: "22:00", end: "07:00", gracePeriodMinutes: 15, color: "#8b5cf6" },
   { id: "S5", name: "Flexible Split Shift", start: "00:00", end: "23:59", gracePeriodMinutes: 15, color: "#3b82f6" }
 ];
+
+const DEFAULT_USERS = [
+  {
+    id: "usr_admin",
+    name: "Sir Irl (Owner & Management)",
+    role: "admin",
+    pin: "8888",
+    avatar: "👑",
+    title: "General Manager / Owner",
+    cashierShift: "All Shifts / Executive Access",
+    permissions: {
+      all: true,
+      canAccessPayroll: true,
+      canViewStaffRates: true,
+      canEditInventory: true,
+      canVerifyRemittances: true,
+      canManageDeductions: true,
+      canAccessAiAdvisor: true,
+      canManageUsers: true
+    }
+  },
+  {
+    id: "usr_cashier_1",
+    name: "Chailene Dolido (Cashier 1)",
+    role: "cashier",
+    pin: "1111",
+    avatar: "💳",
+    employeeId: 13,
+    title: "Morning Shift Cashier (06:00 - 14:00)",
+    cashierShift: "Morning Shift (06:00 - 14:00)",
+    permissions: {
+      all: false,
+      canAccessPayroll: false,
+      canViewStaffRates: false,
+      canEditInventory: true,
+      canVerifyRemittances: true,
+      canManageDeductions: false,
+      canReportShortages: true,
+      canReportLackingProducts: true,
+      canAccessAiAdvisor: false,
+      canManageUsers: false
+    }
+  },
+  {
+    id: "usr_cashier_2",
+    name: "Pamela Galdo (Cashier 2)",
+    role: "cashier",
+    pin: "2222",
+    avatar: "💳",
+    employeeId: 30,
+    title: "Evening Shift Cashier (14:00 - 22:00)",
+    cashierShift: "Evening Shift (14:00 - 22:00)",
+    permissions: {
+      all: false,
+      canAccessPayroll: false,
+      canViewStaffRates: false,
+      canEditInventory: true,
+      canVerifyRemittances: true,
+      canManageDeductions: false,
+      canReportShortages: true,
+      canReportLackingProducts: true,
+      canAccessAiAdvisor: false,
+      canManageUsers: false
+    }
+  },
+  {
+    id: "usr_cashier_3",
+    name: "Relief Cashier (Cashier 3)",
+    role: "cashier",
+    pin: "3333",
+    avatar: "💳",
+    employeeId: 31,
+    title: "Weekend & Relief Cashier",
+    cashierShift: "Relief / Weekend Shift",
+    permissions: {
+      all: false,
+      canAccessPayroll: false,
+      canViewStaffRates: false,
+      canEditInventory: true,
+      canVerifyRemittances: true,
+      canManageDeductions: false,
+      canReportShortages: true,
+      canReportLackingProducts: true,
+      canAccessAiAdvisor: false,
+      canManageUsers: false
+    }
+  }
+];
+
+const DEFAULT_DEDUCTIONS = [
+  {
+    id: "DED-101",
+    employeeId: 19,
+    employeeName: "Sherwin Cagas",
+    category: "Utang",
+    type: "Utang (Store Credit / Loan)",
+    date: "2026-08-20",
+    amount: 600,
+    deductionPerCutoff: 300,
+    deducted: 0,
+    reason: "Store emergency credit / rice grocery loan",
+    status: "Active",
+    loggedBy: "Sir Irl (Owner)"
+  },
+  {
+    id: "DED-102",
+    employeeId: 12,
+    employeeName: "Argie Daliva",
+    category: "CA",
+    type: "Cash Advance (Vale)",
+    date: "2026-08-22",
+    amount: 500,
+    deductionPerCutoff: 500,
+    deducted: 0,
+    reason: "Family emergency allowance vale",
+    status: "Active",
+    loggedBy: "Sir Irl (Owner)"
+  },
+  {
+    id: "DED-103",
+    employeeId: 30,
+    employeeName: "Pamela Galdo",
+    category: "Shortage",
+    type: "Shortages (Cashier Cash Shortage)",
+    date: "2026-08-24",
+    amount: 180,
+    deductionPerCutoff: 180,
+    deducted: 0,
+    reason: "Evening shift register remittance shortage discrepancy",
+    status: "Active",
+    loggedBy: "Pamela Galdo (Cashier 2)"
+  },
+  {
+    id: "DED-104",
+    employeeId: 7,
+    employeeName: "Gerald Ladasa",
+    category: "Lacking",
+    type: "Lacking Products (Burnt / Missing Chicken)",
+    date: "2026-08-25",
+    amount: 420,
+    deductionPerCutoff: 210,
+    deducted: 0,
+    reason: "2 Overcooked whole chickens on spit 4 (accountability cost)",
+    status: "Active",
+    loggedBy: "Sir Irl (Owner)"
+  },
+  {
+    id: "DED-105",
+    employeeId: 31,
+    employeeName: "Josh Abenir",
+    category: "CA",
+    type: "Cash Advance (Vale)",
+    date: "2026-08-28",
+    amount: 400,
+    deductionPerCutoff: 400,
+    deducted: 0,
+    reason: "Motorcycle gas and maintenance vale",
+    status: "Active",
+    loggedBy: "Sir Irl (Owner)"
+  }
+];
+
+const DEFAULT_INVENTORY = {
+  products: [
+    { id: "PROD-MANOK", name: "Whole Lechon Manok", category: "Chicken", sellingPrice: 360, rawCost: 210, unit: "heads" },
+    { id: "PROD-HALF", name: "Half Lechon Manok", category: "Chicken", sellingPrice: 190, rawCost: 105, unit: "heads" },
+    { id: "PROD-LIEMPO", name: "Roasted Pork Liempo", category: "Pork", sellingPrice: 420, rawCost: 250, unit: "slabs" },
+    { id: "PROD-RICE", name: "Extra Steamed Rice", category: "Sides", sellingPrice: 20, rawCost: 7, unit: "servings" },
+    { id: "PROD-SAUCE", name: "Special Spiced Gravy Bottle", category: "Sides", sellingPrice: 25, rawCost: 8, unit: "bottles" },
+    { id: "PROD-DRINKS", name: "Soft Drinks / Beverages", category: "Drinks", sellingPrice: 25, rawCost: 14, unit: "bottles" }
+  ],
+  dailySheets: [
+    {
+      id: "INV-2026-08-20",
+      date: "2026-08-20",
+      cashierOnDuty: "Chailene Dolido (Cashier 1)",
+      roasterOnDuty: "Argie Daliva (Senior Roaster)",
+      beginningChicken: 6,
+      receivedChicken: 85,
+      roastedBatches: [
+        { batchNo: 1, time: "05:30 AM", chickenCount: 25, liempoCount: 6, roaster: "Argie Daliva" },
+        { batchNo: 2, time: "10:30 AM", chickenCount: 35, liempoCount: 10, roaster: "Gerald Ladasa" },
+        { batchNo: 3, time: "04:30 PM", chickenCount: 25, liempoCount: 8, roaster: "Ronald Sedon" }
+      ],
+      totalRoastedChicken: 85,
+      soldWholeChicken: 76,
+      soldHalfChicken: 14,
+      soldLiempoSlabs: 22,
+      spoilageRejectChicken: 1,
+      staffMealChicken: 1,
+      expectedEndingChicken: 7,
+      actualEndingChicken: 7,
+      varianceChicken: 0,
+      beginningLiempo: 2,
+      receivedLiempo: 24,
+      totalRoastedLiempo: 24,
+      endingLiempo: 4,
+      notes: "Steady lunchtime surge. Roasting spit 2 adjusted for evening batch."
+    },
+    {
+      id: "INV-2026-08-21",
+      date: "2026-08-21",
+      cashierOnDuty: "Pamela Galdo (Cashier 2)",
+      roasterOnDuty: "Gerald Lacasa (Roaster)",
+      beginningChicken: 7,
+      receivedChicken: 90,
+      roastedBatches: [
+        { batchNo: 1, time: "05:45 AM", chickenCount: 30, liempoCount: 8, roaster: "Gerald Lacasa" },
+        { batchNo: 2, time: "11:00 AM", chickenCount: 35, liempoCount: 12, roaster: "Argie Daliva" },
+        { batchNo: 3, time: "04:45 PM", chickenCount: 25, liempoCount: 6, roaster: "Sherwin Cagas" }
+      ],
+      totalRoastedChicken: 90,
+      soldWholeChicken: 80,
+      soldHalfChicken: 16,
+      soldLiempoSlabs: 24,
+      spoilageRejectChicken: 1,
+      staffMealChicken: 1,
+      expectedEndingChicken: 7,
+      actualEndingChicken: 7,
+      varianceChicken: 0,
+      beginningLiempo: 4,
+      receivedLiempo: 26,
+      totalRoastedLiempo: 26,
+      endingLiempo: 6,
+      notes: "All 90 whole chickens accounted for at closing."
+    }
+  ]
+};
+
+const DEFAULT_REMITTANCES = [
+  {
+    id: "REM-101",
+    date: "2026-08-20",
+    shift: "Morning Shift (06:00 - 14:00)",
+    cashierId: "usr_cashier_1",
+    cashierName: "Chailene Dolido (Cashier 1)",
+    wholeManokSold: 42,
+    halfManokSold: 8,
+    liempoSold: 12,
+    sidesRevenue: 1250,
+    grossSales: 21850,
+    digitalGcash: 3450,
+    cashSalesExpected: 18400,
+    storePettyExpenses: 450,
+    pettyExpenseDetails: "Ice for drinks and takeout wrapping paper",
+    netCashExpected: 17950,
+    actualCashCounted: 17950,
+    shortageOverage: 0,
+    status: "Verified & Deposited",
+    verifiedBy: "Sir Irl (Owner)"
+  },
+  {
+    id: "REM-102",
+    date: "2026-08-20",
+    shift: "Evening Shift (14:00 - 22:00)",
+    cashierId: "usr_cashier_2",
+    cashierName: "Pamela Galdo (Cashier 2)",
+    wholeManokSold: 34,
+    halfManokSold: 6,
+    liempoSold: 10,
+    sidesRevenue: 980,
+    grossSales: 18560,
+    digitalGcash: 2800,
+    cashSalesExpected: 15760,
+    storePettyExpenses: 600,
+    pettyExpenseDetails: "1 Sack of Mangrove Roasting Charcoal",
+    netCashExpected: 15160,
+    actualCashCounted: 14980,
+    shortageOverage: -180,
+    status: "Shortage Logged to Deduction",
+    verifiedBy: "Sir Irl (Owner)"
+  }
+];
+
+const DEFAULT_AI_ADVISORY = {
+  lastAnalyzed: new Date().toISOString(),
+  healthScore: 92,
+  benchmarks: {
+    laborCostTargetPct: 22,
+    foodCostTargetPct: 50,
+    leakageMaxThresholdPct: 1.0
+  },
+  insights: [
+    {
+      id: "INS-01",
+      category: "Roasting Timing & Waste Prevention",
+      title: "Batch 3 (Evening Roasting) Schedule Optimization",
+      impact: "+₱14,400 / month saved in spoilage",
+      confidence: "High",
+      summary: "Data indicates peak Cugman takeout traffic peaks at 5:15 PM - 6:45 PM. Moving Batch 3 roasting start from 5:00 PM to 4:15 PM eliminates customer wait queues and prevents rushed overcooking."
+    },
+    {
+      id: "INS-02",
+      category: "Product Mix & Margin Expansion",
+      title: "Increase Liempo Roasting Spit Allocation (+15% Net Margin)",
+      impact: "+₱18,900 / month net profit",
+      confidence: "High",
+      summary: "Roasted Liempo commands a 40.5% gross margin compared to 38.2% for Whole Chicken. Cugman branch sells out Liempo by 7:00 PM daily. Adding 5 more Liempo slabs per evening run captures unfulfilled dinner demand."
+    },
+    {
+      id: "INS-03",
+      category: "Shortage & Shrinkage Defense",
+      title: "Cashier Remittance & Lacking Chicken Accountability",
+      impact: "100% loss recovery via automated payroll deductions",
+      confidence: "Very High",
+      summary: "Shortages and damaged chicken across the active cutoff totaled ₱600 (<0.4% of branch gross sales). Auto-linking cashier shortage logs to payroll ensures zero company loss while training counter accuracy."
+    },
+    {
+      id: "INS-04",
+      category: "Side Item Upselling",
+      title: "High-Margin Atchara & Secret Spiced Gravy Bundles",
+      impact: "+₱21,600 / month pure gross profit",
+      confidence: "High",
+      summary: "Sauce and side items carry a 70%+ gross margin (₱25 retail vs ₱8 production cost). Training cashiers to suggest 'Add Special Gravy & Cold Drink' to 25% of Whole Chicken customers raises average order value by ₱45."
+    }
+  ]
+};
 
 const INITIAL_DATA = {
     "branch":  "Cugman Branch (Cagayan de Oro)",
@@ -2013,6 +2336,29 @@ class DB {
       ];
       safeStorage.setItem(STORAGE_KEYS.LEAVES, JSON.stringify(defaultLeaves));
     }
+    // ERP User Accounts & Cashier Roles
+    if (!safeStorage.getItem(STORAGE_KEYS.USERS)) {
+      safeStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(DEFAULT_USERS));
+    }
+    if (!safeStorage.getItem(STORAGE_KEYS.CURRENT_USER)) {
+      safeStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(DEFAULT_USERS[0]));
+    }
+    // ERP Deductions Ledger (Utang, CA, Shortages, Lacking Products)
+    if (!safeStorage.getItem(STORAGE_KEYS.DEDUCTIONS)) {
+      safeStorage.setItem(STORAGE_KEYS.DEDUCTIONS, JSON.stringify(DEFAULT_DEDUCTIONS));
+    }
+    // ERP Lechon & Liempo Daily Inventory
+    if (!safeStorage.getItem(STORAGE_KEYS.INVENTORY)) {
+      safeStorage.setItem(STORAGE_KEYS.INVENTORY, JSON.stringify(DEFAULT_INVENTORY));
+    }
+    // ERP Cashier Sales & Shift Remittances
+    if (!safeStorage.getItem(STORAGE_KEYS.REMITTANCES)) {
+      safeStorage.setItem(STORAGE_KEYS.REMITTANCES, JSON.stringify(DEFAULT_REMITTANCES));
+    }
+    // ERP AI Financial Analyst State
+    if (!safeStorage.getItem(STORAGE_KEYS.AI_ADVISORY)) {
+      safeStorage.setItem(STORAGE_KEYS.AI_ADVISORY, JSON.stringify(DEFAULT_AI_ADVISORY));
+    }
   }
 
   // Employees CRUD
@@ -2207,6 +2553,235 @@ class DB {
     }
   }
 
+  // ==========================================
+  // ERP USER PERMISSIONS & CASHIER ROLES
+  // ==========================================
+  static getUsers() {
+    try {
+      const u = JSON.parse(safeStorage.getItem(STORAGE_KEYS.USERS));
+      if (u && Array.isArray(u) && u.length > 0) return u;
+    } catch (e) {}
+    return DEFAULT_USERS;
+  }
+
+  static saveUsers(users) {
+    safeStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
+    this.triggerCloudSync();
+  }
+
+  static getCurrentUser() {
+    try {
+      const u = JSON.parse(safeStorage.getItem(STORAGE_KEYS.CURRENT_USER));
+      if (u && u.id) return u;
+    } catch (e) {}
+    const all = this.getUsers();
+    return all[0] || DEFAULT_USERS[0];
+  }
+
+  static setCurrentUser(user) {
+    safeStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(user));
+    if (typeof window !== 'undefined' && window.dispatchEvent) {
+      window.dispatchEvent(new CustomEvent('rons_user_switched', { detail: user }));
+    }
+  }
+
+  static authenticateUser(userId, pin) {
+    const users = this.getUsers();
+    const target = users.find(u => u.id === userId);
+    if (!target) return { success: false, error: "Staff/User profile not found." };
+    if (target.pin && String(target.pin).trim() !== String(pin).trim()) {
+      return { success: false, error: "Incorrect 4-digit PIN code." };
+    }
+    this.setCurrentUser(target);
+    return { success: true, user: target };
+  }
+
+  static updateUser(updated) {
+    const users = this.getUsers();
+    const idx = users.findIndex(u => u.id === updated.id);
+    if (idx >= 0) {
+      users[idx] = { ...users[idx], ...updated };
+      this.saveUsers(users);
+      const curr = this.getCurrentUser();
+      if (curr && curr.id === updated.id) {
+        this.setCurrentUser(users[idx]);
+      }
+    }
+  }
+
+  // ==========================================
+  // ERP DEDUCTIONS LEDGER (Utang, CA, Shortages, Lacking Products)
+  // ==========================================
+  static getDeductions() {
+    try {
+      const stored = JSON.parse(safeStorage.getItem(STORAGE_KEYS.DEDUCTIONS));
+      if (stored && Array.isArray(stored) && stored.length > 0) return stored;
+    } catch (e) {}
+    // If advances exist in legacy key, migrate them
+    const legacy = this.getAdvances();
+    if (legacy && legacy.length > 0) {
+      const migrated = legacy.map(a => ({
+        id: a.id || `DED-${Date.now()}-${Math.floor(Math.random()*1000)}`,
+        employeeId: a.employeeId,
+        employeeName: a.employeeName,
+        category: a.category || "CA",
+        type: a.type || "Cash Advance (Vale)",
+        date: a.date || new Date().toISOString().split('T')[0],
+        amount: a.amount || 0,
+        deductionPerCutoff: a.deductionPerCutoff || a.amount,
+        deducted: a.deducted || 0,
+        reason: a.reason || "Staff cash advance / vale",
+        status: a.status || "Active",
+        loggedBy: a.loggedBy || "Management"
+      }));
+      this.saveDeductions(migrated);
+      return migrated;
+    }
+    return DEFAULT_DEDUCTIONS;
+  }
+
+  static saveDeductions(deductions) {
+    safeStorage.setItem(STORAGE_KEYS.DEDUCTIONS, JSON.stringify(deductions));
+    // Also keep advances key synchronized for backward compatibility
+    safeStorage.setItem(STORAGE_KEYS.ADVANCES, JSON.stringify(deductions));
+    this.triggerCloudSync();
+  }
+
+  static addDeduction(deduction) {
+    const deductions = this.getDeductions();
+    deductions.unshift(deduction);
+    this.saveDeductions(deductions);
+    this.autoBackupSnapshot(`Added Deduction (${deduction.category}) for ${deduction.employeeName}`);
+  }
+
+  static updateDeduction(updated) {
+    const deductions = this.getDeductions();
+    const idx = deductions.findIndex(d => d.id === updated.id);
+    if (idx >= 0) {
+      deductions[idx] = { ...deductions[idx], ...updated };
+      this.saveDeductions(deductions);
+    }
+  }
+
+  static deleteDeduction(id) {
+    let deductions = this.getDeductions();
+    deductions = deductions.filter(d => d.id !== id);
+    this.saveDeductions(deductions);
+  }
+
+  // ==========================================
+  // ERP LECHON MANOK & LIEMPO INVENTORY
+  // ==========================================
+  static getInventory() {
+    try {
+      const inv = JSON.parse(safeStorage.getItem(STORAGE_KEYS.INVENTORY));
+      if (inv && inv.products && inv.dailySheets) return inv;
+    } catch (e) {}
+    return DEFAULT_INVENTORY;
+  }
+
+  static saveInventory(inventory) {
+    safeStorage.setItem(STORAGE_KEYS.INVENTORY, JSON.stringify(inventory));
+    this.triggerCloudSync();
+  }
+
+  static addInventoryDailySheet(sheet) {
+    const inv = this.getInventory();
+    const existingIdx = inv.dailySheets.findIndex(s => s.id === sheet.id || s.date === sheet.date);
+    if (existingIdx >= 0) {
+      inv.dailySheets[existingIdx] = { ...inv.dailySheets[existingIdx], ...sheet };
+    } else {
+      inv.dailySheets.unshift(sheet);
+    }
+    this.saveInventory(inv);
+    this.autoBackupSnapshot(`Saved Daily Chicken Inventory (${sheet.date})`);
+  }
+
+  static addRoastBatch(sheetDate, batch) {
+    const inv = this.getInventory();
+    let sheet = inv.dailySheets.find(s => s.date === sheetDate);
+    if (!sheet) {
+      sheet = {
+        id: `INV-${sheetDate}`,
+        date: sheetDate,
+        cashierOnDuty: "Cashier on duty",
+        roasterOnDuty: batch.roaster || "Grill Master",
+        beginningChicken: 0,
+        receivedChicken: 0,
+        roastedBatches: [],
+        totalRoastedChicken: 0,
+        soldWholeChicken: 0,
+        soldHalfChicken: 0,
+        soldLiempoSlabs: 0,
+        spoilageRejectChicken: 0,
+        staffMealChicken: 0,
+        expectedEndingChicken: 0,
+        actualEndingChicken: 0,
+        varianceChicken: 0,
+        beginningLiempo: 0,
+        receivedLiempo: 0,
+        totalRoastedLiempo: 0,
+        endingLiempo: 0
+      };
+      inv.dailySheets.unshift(sheet);
+    }
+    if (!sheet.roastedBatches) sheet.roastedBatches = [];
+    batch.batchNo = sheet.roastedBatches.length + 1;
+    sheet.roastedBatches.push(batch);
+    sheet.totalRoastedChicken = sheet.roastedBatches.reduce((sum, b) => sum + (Number(b.chickenCount) || 0), 0);
+    sheet.totalRoastedLiempo = sheet.roastedBatches.reduce((sum, b) => sum + (Number(b.liempoCount) || 0), 0);
+    this.saveInventory(inv);
+    return sheet;
+  }
+
+  // ==========================================
+  // ERP CASHIER SALES & REMITTANCES
+  // ==========================================
+  static getRemittances() {
+    try {
+      const rems = JSON.parse(safeStorage.getItem(STORAGE_KEYS.REMITTANCES));
+      if (rems && Array.isArray(rems)) return rems;
+    } catch (e) {}
+    return DEFAULT_REMITTANCES;
+  }
+
+  static saveRemittances(remittances) {
+    safeStorage.setItem(STORAGE_KEYS.REMITTANCES, JSON.stringify(remittances));
+    this.triggerCloudSync();
+  }
+
+  static addRemittance(remittance) {
+    const rems = this.getRemittances();
+    rems.unshift(remittance);
+    this.saveRemittances(rems);
+    this.autoBackupSnapshot(`Saved Shift Remittance (${remittance.shift} - ${remittance.cashierName})`);
+  }
+
+  static updateRemittance(updated) {
+    const rems = this.getRemittances();
+    const idx = rems.findIndex(r => r.id === updated.id);
+    if (idx >= 0) {
+      rems[idx] = { ...rems[idx], ...updated };
+      this.saveRemittances(rems);
+    }
+  }
+
+  // ==========================================
+  // ERP AI FINANCIAL ADVISOR
+  // ==========================================
+  static getAiAdvisory() {
+    try {
+      const adv = JSON.parse(safeStorage.getItem(STORAGE_KEYS.AI_ADVISORY));
+      if (adv && adv.insights) return adv;
+    } catch (e) {}
+    return DEFAULT_AI_ADVISORY;
+  }
+
+  static saveAiAdvisory(advisory) {
+    safeStorage.setItem(STORAGE_KEYS.AI_ADVISORY, JSON.stringify(advisory));
+    this.triggerCloudSync();
+  }
+
   // Leaves
   static getLeaves() {
     try {
@@ -2307,8 +2882,8 @@ class DB {
 
   static getFullBackupData(label = 'Manual Export') {
     return {
-      version: '1.0',
-      system: "Ron's Chicken Custom Payroll & Biometric Attendance System",
+      version: '2.0',
+      system: "Ron's Chicken Custom ERP, Inventory & Payroll System",
       branch: "Cugman Branch (Cagayan de Oro)",
       exportDate: new Date().toISOString(),
       label: label,
@@ -2317,6 +2892,11 @@ class DB {
         shifts: this.getShifts(),
         cutoffs: this.getCutoffs(),
         advances: this.getAdvances(),
+        deductions: this.getDeductions(),
+        users: this.getUsers(),
+        inventory: this.getInventory(),
+        remittances: this.getRemittances(),
+        aiAdvisory: this.getAiAdvisory(),
         settings: this.getSettings(),
         payrollHistory: this.getPayrollHistory(),
         leaves: this.getLeaves(),
@@ -2333,7 +2913,7 @@ class DB {
     const dateStr = now.toISOString().slice(0, 10);
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute("href", jsonStr);
-    downloadAnchor.setAttribute("download", `rons_chicken_cugman_payroll_backup_${dateStr}.json`);
+    downloadAnchor.setAttribute("download", `rons_chicken_cugman_erp_backup_${dateStr}.json`);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
@@ -2356,13 +2936,18 @@ class DB {
       if (payload.shifts) this.saveShifts(payload.shifts);
       if (payload.cutoffs) this.saveCutoffs(payload.cutoffs);
       if (payload.advances) this.saveAdvances(payload.advances);
+      if (payload.deductions) this.saveDeductions(payload.deductions);
+      if (payload.users) this.saveUsers(payload.users);
+      if (payload.inventory) this.saveInventory(payload.inventory);
+      if (payload.remittances) this.saveRemittances(payload.remittances);
+      if (payload.aiAdvisory) this.saveAiAdvisory(payload.aiAdvisory);
       if (payload.settings) this.saveSettings(payload.settings);
       if (payload.payrollHistory) this.savePayrollHistory(payload.payrollHistory);
       if (payload.leaves) this.saveLeaves(payload.leaves);
       if (payload.deviceConfig) this.saveDeviceConfig(payload.deviceConfig);
 
       this.autoBackupSnapshot('Post-Restore Snapshot');
-      return { success: true, message: `Successfully restored ${payload.employees.length} employees and records.` };
+      return { success: true, message: `Successfully restored ${payload.employees.length} employees and ERP records.` };
     } catch (err) {
       console.error("[DB] Import Backup Error:", err);
       return { success: false, error: err.message };

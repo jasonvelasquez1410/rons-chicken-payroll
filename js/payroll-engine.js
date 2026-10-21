@@ -122,13 +122,17 @@ class PayrollEngine {
         : this.computePagIbig();
     }
 
-    // Cash Advance (Vale)
+    // Categorized Deductions (Utang, CA, Shortages, Lacking Products, Others)
     const cashAdvanceDeduction = parseFloat((options.cashAdvanceDeduction || 0).toFixed(2));
+    const utangDeduction = parseFloat((options.utangDeduction || 0).toFixed(2));
+    const shortageDeduction = parseFloat((options.shortageDeduction || 0).toFixed(2));
+    const lackingProductDeduction = parseFloat((options.lackingProductDeduction || 0).toFixed(2));
     const otherDeductions = parseFloat((options.otherDeductions || 0).toFixed(2));
 
     // Total Deductions
     const totalDeductions = parseFloat((
-      lateDeduction + sssEE + philHealthEE + pagIbigEE + cashAdvanceDeduction + otherDeductions
+      lateDeduction + sssEE + philHealthEE + pagIbigEE + 
+      cashAdvanceDeduction + utangDeduction + shortageDeduction + lackingProductDeduction + otherDeductions
     ).toFixed(2));
 
     // Net Pay
@@ -167,6 +171,9 @@ class PayrollEngine {
         philHealth: philHealthEE,
         pagIbig: pagIbigEE,
         cashAdvance: cashAdvanceDeduction,
+        utang: utangDeduction,
+        shortage: shortageDeduction,
+        lackingProduct: lackingProductDeduction,
         other: otherDeductions,
         totalDeductions
       },
@@ -183,7 +190,7 @@ class PayrollEngine {
    */
   static runBranchPayroll(cutoff, options = {}) {
     const employees = window.DB ? window.DB.getEmployees() : [];
-    const advances = window.DB ? window.DB.getAdvances() : [];
+    const allDeductions = window.DB ? (typeof window.DB.getDeductions === 'function' ? window.DB.getDeductions() : window.DB.getAdvances()) : [];
     const shifts = window.DB ? window.DB.getShifts() : [];
 
     const payrollResults = [];
@@ -192,6 +199,10 @@ class PayrollEngine {
     let branchTotalNet = 0;
     let branchTotalOT = 0;
     let branchTotalNightDiff = 0;
+    let branchTotalVale = 0;
+    let branchTotalUtang = 0;
+    let branchTotalShortages = 0;
+    let branchTotalLacking = 0;
 
     employees.forEach(emp => {
       // Calculate timecard
@@ -202,17 +213,49 @@ class PayrollEngine {
         shifts
       );
 
-      // Find active advances for employee
-      const empAdvances = advances.filter(a => a.employeeId === emp.id && a.status === "Active");
-      const advanceToDeduct = empAdvances.reduce((sum, a) => {
-        const remaining = Math.max(0, (a.amount || 0) - (a.deducted || 0));
-        const perCutoff = a.deductionPerCutoff ? Math.min(a.deductionPerCutoff, remaining) : remaining;
-        return sum + perCutoff;
-      }, 0);
+      // Find active deductions for employee
+      const empDeductions = allDeductions.filter(a => a.employeeId === emp.id && a.status === "Active");
+      
+      const calcCatDeduct = (categoryKeywords) => {
+        return empDeductions
+          .filter(a => {
+            const cat = (a.category || '').toLowerCase();
+            const typ = (a.type || '').toLowerCase();
+            return categoryKeywords.some(k => cat.includes(k) || typ.includes(k));
+          })
+          .reduce((sum, a) => {
+            const remaining = Math.max(0, (Number(a.amount) || 0) - (Number(a.deducted) || 0));
+            const perCutoff = a.deductionPerCutoff ? Math.min(Number(a.deductionPerCutoff), remaining) : remaining;
+            return sum + perCutoff;
+          }, 0);
+      };
+
+      const valeDeduct = calcCatDeduct(['ca', 'vale', 'advance']);
+      const utangDeduct = calcCatDeduct(['utang', 'loan', 'credit']);
+      const shortageDeduct = calcCatDeduct(['shortage', 'short']);
+      const lackingDeduct = calcCatDeduct(['lacking', 'burnt', 'shrinkage', 'damage']);
+      
+      // Other deductions
+      const accountedCategories = ['ca', 'vale', 'advance', 'utang', 'loan', 'credit', 'shortage', 'short', 'lacking', 'burnt', 'shrinkage', 'damage'];
+      const otherDeduct = empDeductions
+        .filter(a => {
+          const cat = (a.category || '').toLowerCase();
+          const typ = (a.type || '').toLowerCase();
+          return !accountedCategories.some(k => cat.includes(k) || typ.includes(k));
+        })
+        .reduce((sum, a) => {
+          const remaining = Math.max(0, (Number(a.amount) || 0) - (Number(a.deducted) || 0));
+          const perCutoff = a.deductionPerCutoff ? Math.min(Number(a.deductionPerCutoff), remaining) : remaining;
+          return sum + perCutoff;
+        }, 0);
 
       // Run calculation
       const payroll = this.computeEmployeePayroll(emp, timecard, {
-        cashAdvanceDeduction: advanceToDeduct,
+        cashAdvanceDeduction: valeDeduct,
+        utangDeduction: utangDeduct,
+        shortageDeduction: shortageDeduct,
+        lackingProductDeduction: lackingDeduct,
+        otherDeductions: otherDeduct,
         incentives: (emp.position && emp.position.includes("Grill")) ? 200 : 0 // Grill master bonus
       });
 
@@ -232,6 +275,10 @@ class PayrollEngine {
       branchTotalNet += payroll.netPay;
       branchTotalOT += payroll.earnings.otPay;
       branchTotalNightDiff += payroll.earnings.nightDiffPay;
+      branchTotalVale += valeDeduct;
+      branchTotalUtang += utangDeduct;
+      branchTotalShortages += shortageDeduct;
+      branchTotalLacking += lackingDeduct;
     });
 
     const summary = {
@@ -246,7 +293,11 @@ class PayrollEngine {
         deductions: parseFloat(branchTotalDeductions.toFixed(2)),
         net: parseFloat(branchTotalNet.toFixed(2)),
         overtime: parseFloat(branchTotalOT.toFixed(2)),
-        nightDiff: parseFloat(branchTotalNightDiff.toFixed(2))
+        nightDiff: parseFloat(branchTotalNightDiff.toFixed(2)),
+        vale: parseFloat(branchTotalVale.toFixed(2)),
+        utang: parseFloat(branchTotalUtang.toFixed(2)),
+        shortages: parseFloat(branchTotalShortages.toFixed(2)),
+        lackingProducts: parseFloat(branchTotalLacking.toFixed(2))
       },
       records: payrollResults
     };

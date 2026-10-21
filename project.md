@@ -1,4 +1,4 @@
-# Ron's Chicken Custom Payroll & Biometric Attendance System
+# Ron's Chicken - Custom ERP, Lechon Inventory & Payroll Suite (v4.0.0)
 
 **Business Name:** Ron's Chicken (Lechon Manok & Liempo)  
 **Branch:** Cugman Branch (Cagayan de Oro City, Misamis Oriental, Philippines)  
@@ -14,7 +14,13 @@
 
 - **Hardware Environment:** **Deli e3960** (Standalone fingerprint biometric attendance clock, non-WiFi).
 - **Core Workflow:** Staff punch on the Deli e3960 at Cugman branch. The supervisor exports the attendance record to a USB flash drive as an Excel spreadsheet (`cugman_(August)Employee Attendance Record.xls`).
-- **Goal Achieved:** A high-performance Progressive Web Application (PWA) tailored for Ron's Chicken to ingest Deli e3960 USB attendance exports in under 1 second, automate DOLE/BIR compliant payroll calculations, manage cash advance (*vale*) ledgers, generate single-line print-ready batch payslips, and synchronize data across all devices in real time with **$0 monthly server/database fees** (Google Firebase Spark Free Tier).
+- **ERP Transformation (Client Request):** Sir Irl confirmed expanding the system into a customized restaurant ERP suite tailored for Cugman operations:
+  1. **Itemized Deductions Ledger:** Explicit sections for **Utang** (Store Credit/Loans), **CA** (Cash Advance/Vale), **Shortages** (Cashier Remittance Gaps), and **Lacking Products** (Burnt/Damaged/Missing chicken accountability).
+  2. **Role-Based Access Control (RBAC):** Customized user permissions for **3 Cashiers** (Morning, Evening, Relief) + **Owner/Admin (Sir Irl)** secured by 4-digit PIN authentication. Cashier accounts access a dedicated, clean POS & Cashier Portal, protecting confidential employee rates, payroll sums, and business profit margins.
+  3. **Lechon Manok & Liempo Inventory Engine:** Daily stock tracking (Beginning warmer count, Delivered birds, Spit Roasting Batches, Sold Whole/Half/Liempo, Spoilage, and Ending count) with real-time variance detection and 1-click automatic deduction charging.
+  4. **Cashier Sales & Shift Remittance Reconciliation:** Drawer cash count vs expected sales, GCash tracking, store petty expenses, and automated shortage calculation linked to deductions.
+  5. **AI Financial Analyst ("Ron's AI Financial Advisor"):** Interactive CFO intelligence module with a Financial Health Scorecard (92/100), labor cost benchmarking (~19.8% vs DOLE targets), 4 strategic profit playbooks, and interactive simulation calculators.
+- **Goal Achieved:** A complete restaurant ERP running at **$0 monthly operating costs** (Google Firebase Spark Free Tier) with offline-first PWA resilience.
 
 ---
 
@@ -25,27 +31,70 @@ graph TD
     A[Deli e3960 Biometric USB Export] --> B[Biometric Parser / Timecard Engine]
     B --> C[DOLE & BIR Payroll Engine]
     D[Staff & Statutory Settings] --> C
-    E[Cash Advance / Vale Ledger] --> C
-    C --> F[Batch Printable Payslips & Summary]
-    C --> G[Local IndexedDB / LocalStorage DB]
-    G <-->|Auto Sync / Offline Resilient| H[Google Firebase Cloud Firestore]
-    H <--> I[Sir Irl Laptop / Phone / Tablet]
+    E[Categorized Deductions Ledger: Utang / CA / Shortages / Lacking] --> C
+    C --> F[Print-Ready Batch Payslips]
+    
+    G[Lechon Manok & Liempo Inventory Engine] --> H[Variance & Accountability Alert]
+    H -->|1-Click Charge| E
+    
+    I[Cashier Shift Remittances & Drawer Count] --> J[Cash Shortage Tracker]
+    J -->|1-Click Charge| E
+    
+    K[Role Permissions & PIN Auth: 3 Cashiers + Admin] --> L[Role-Guarded Views / Cashier POS Portal]
+    M[AI Financial Analyst & CFO Advisory] --> N[Profit Margin & Spit Roasting Playbooks]
+    
+    C & G & I & K --> O[Local IndexedDB / LocalStorage]
+    O <-->|Real-Time Cloud Sync| P[Google Firebase Firestore]
+    P <--> Q[Sir Irl Laptop / Cashier Counter Tablet / Phone]
 ```
 
-### A. Deli e3960 Biometric Ingestion (`js/biometric-parser.js`)
+### A. Categorized Deductions & Credit Ledger (`js/app.js`, `js/db.js`, `js/payroll-engine.js`)
+- Dedicated tracking and category filter pills for:
+  - 📝 **Utang (Store Credit / Loans):** Itemized loans and merchandise credit.
+  - 💵 **Cash Advance (CA / Vale):** Emergency personal staff advances.
+  - ⚠️ **Shortages (Cashier Cash Shortage):** Unbalanced cash drawers upon shift remittance.
+  - 🍗 **Lacking Products (Burnt / Missing Chicken):** Production discrepancies, charred birds, or warmer shortages.
+- Category badges (`badge-utang`, `badge-ca`, `badge-shortage`, `badge-lacking`).
+- Itemized line items directly printed on official employee payslips.
+
+### B. Role-Based Permissions & 3 Cashiers Engine (`js/erp-modules.js`, `js/db.js`)
+- Pre-configured user roles:
+  - **Sir Irl (Owner / General Manager):** PIN `8888` — Full access to all ERP modules, payroll rates, inventory audit, and cloud backups.
+  - **Cashier 1 - Chailene (Morning Shift):** PIN `1111` — Morning shift POS, sales recording, and batch roast monitoring.
+  - **Cashier 2 - Pamela (Evening Shift):** PIN `2222` — Evening shift POS, dinner rush roasting, and drawer closeout.
+  - **Cashier 3 - Relief (Weekend / Relief):** PIN `3333` — Relief cashiering and operational handovers.
+- **Cashier View Protection:** Cashiers opening the system see an isolated POS & shift handover dashboard. Confidential payroll summaries, employee daily wages, and financial advisory margins are completely hidden from counter view.
+
+### C. Lechon Manok & Liempo Inventory Engine (`js/erp-modules.js`, `js/db.js`)
+- Real-time stock calculation: `Expected Ending = (Beginning + Received) - (Sold Whole + Sold Halves/2 + Spoilage)`.
+- Interactive **Spit Roasting Batch Logger**: records roast time, spit number, roaster name, and chicken count.
+- **Auto-Variance Detection:** If physical warmer count is less than expected, a warning banner highlights the discrepancy and provides a **1-Click Charge to Lacking Product Deduction** button.
+
+### D. Cashier Sales & Shift Remittance Reconciliation (`js/erp-modules.js`, `js/db.js`)
+- Cashier records shift drawer cash, GCash payments, and store expense vouchers.
+- Real-time discrepancy calculator: `Variance = Total Remitted - Total Expected Sales`.
+- Any negative balance triggers an instant shortcut to log the shortage under the cashier's name in the Deductions Ledger.
+
+### E. AI Financial Analyst & Advisor (`js/erp-modules.js`)
+- Cugman branch CFO intelligence engine:
+  - **Financial Health Scorecard:** Rated 92/100 based on labor cost ratio (~19.8% vs 25% target), gross margins (38.2% Whole Lechon, 40.5% Liempo), and shrinkage (<0.4%).
+  - **Strategic Playbooks:**
+    1. *Dinner Rush Roasting Spit Scheduling:* Shift roast batches to 4:15 PM to capture 5:15–6:45 PM takeout demand.
+    2. *Liempo Roasting Spit Reallocation:* Boost monthly net profit by +₱18,900 via higher liempo margins.
+    3. *Shortage & Loss Recovery:* 100% loss recovery via automated payroll ledger integration.
+    4. *High-Margin Gravy & Atchara Upselling:* +₱21,600 monthly net profit from side item bundles.
+  - **Interactive Scenario Simulation Tool:** Real-time revenue, gross profit, and margin calculator.
+
+### F. Deli e3960 Biometric Ingestion (`js/biometric-parser.js`)
 - Ingests raw timestamp matrices exported by the Deli e3960.
 - Handles overnight roasting shifts, calculates late/undertime, deducts mandatory 1-hour lunch breaks for shifts > 5 hours, and generates comprehensive timecards for all 31 Cugman staff.
 
-### B. Philippine DOLE & BIR Payroll Engine (`js/payroll-engine.js`)
+### G. Philippine DOLE & BIR Payroll Engine (`js/payroll-engine.js`)
 - **Wages & Premiums:** Daily rate (₱438.00–₱480.00), Regular Overtime (125%), Night Shift Differential (10% from 10 PM–6 AM), and Daily Food Allowance (₱50/day).
 - **Statutory Deductions (SSS, PhilHealth, Pag-IBIG):**
-  - **Semi-Monthly Split (Default):** The system automatically divides monthly statutory contributions in half (50% on the 15th cutoff, 50% on the 30th/31st cutoff) to prevent heavy one-time deductions:
-    - SSS: Split in half (~₱258.75 on the 15th, ~₱258.75 on the 31st for ₱438/day rate).
-    - PhilHealth (PHIC): Split in half (~₱143.00 per cutoff based on 5% premium).
-    - Pag-IBIG (HDMF): Standard ₱100.00 per cutoff (totaling ₱200/month).
-  - **Manual Overrides:** Management can type any custom fixed peso deduction per cutoff in **Staff & Statutory** (`customSssAmount`, `customPhilHealthAmount`, `customPagIbigAmount`).
-  - **1-Click Exemptions:** Checkboxes for **Exempt SSS**, **Exempt PHIC**, **Exempt HDMF** for probationary or voluntary staff.
-  - **Tax Exemption:** Minimum wage earners earning ≤ ₱10,417 per cutoff are 100% Tax Exempt under TRAIN Law (₱0.00 tax).
+  - **Semi-Monthly Split (Default):** 50% on 15th cutoff, 50% on 30th/31st cutoff.
+  - **Manual Overrides & 1-Click Exemptions:** Custom amounts or full exemption checkboxes.
+  - **Tax Exemption:** 100% Tax Exempt under TRAIN Law for minimum wage earners.
 - **13th Month Pay Accrual:** Real-time continuous accrual (`Basic Pay / 12`).
 
 ### C. Real-Time Multi-Device Cloud Sync (`js/firebase-sync.js`)
@@ -117,6 +166,7 @@ graph TD
     ├── ⚙️ db.js                                        # Persistent DB, Auto-Backups, 31 Staff Profiles, SafeStorage Fallback
     ├── ⏱️ biometric-parser.js                          # Deli e3960 Excel parser & timecard engine
     ├── 💰 payroll-engine.js                            # DOLE/BIR statutory calculation engine & semi-monthly split
+    ├── 🍗 erp-modules.js                               # ERP Suite: Inventory, Remittances, 3 Cashiers RBAC & AI Advisor
     ├── ☁️ firebase-sync.js                             # Real-time multi-device cloud synchronization (Firestore)
     ├── 📡 device-sync.js                               # Hardware USB config & Cloud push API
     └── 🚀 app.js                                       # Cutoff controller, views, payslips & UI router
