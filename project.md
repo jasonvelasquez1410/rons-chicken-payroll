@@ -1,124 +1,160 @@
-# Ron's Chicken - Custom ERP, Lechon Inventory & Payroll Suite (v4.0.0)
+# Ron's Chicken - Custom ERP, Lechon Inventory & Payroll Suite (v4.0.8-erp)
 
 **Business Name:** Ron's Chicken (Lechon Manok & Liempo)  
 **Branch:** Cugman Branch (Cagayan de Oro City, Misamis Oriental, Philippines)  
-**Client / Owner Contact:** Sir Irl & Management • 0928 775 6605 • [Facebook Page](https://www.facebook.com/pages/Rons-Chicken/1808066046182615)  
+**Clients / Owners:** Bro Irl & Sis Riza (Management) • 0928 775 6605 • [Facebook Page](https://www.facebook.com/pages/Rons-Chicken/1808066046182615) • *DHLC Church Family*  
 **Developer:** Jason Jeff D. Velasquez  
 **Live Deployment (Vercel):** [https://rons-chicken-payroll.vercel.app](https://rons-chicken-payroll.vercel.app)  
-**Emergency Cache Reset Link:** [https://rons-chicken-payroll.vercel.app/?reset=1](https://rons-chicken-payroll.vercel.app/?reset=1)  
+**1-Click Emergency Cache Reset Link:** [https://rons-chicken-payroll.vercel.app/?reset=1](https://rons-chicken-payroll.vercel.app/?reset=1)  
 **GitHub Repository:** [https://github.com/jasonvelasquez1410/rons-chicken-payroll](https://github.com/jasonvelasquez1410/rons-chicken-payroll)  
+**Latest Cache-Buster Version:** `v=4.0.8-erp`
 
 ---
 
 ## 1. Project Background & Objective
 
-- **Hardware Environment:** **Deli e3960** (Standalone fingerprint biometric attendance clock, non-WiFi).
-- **Core Workflow:** Staff punch on the Deli e3960 at Cugman branch. The supervisor exports the attendance record to a USB flash drive as an Excel spreadsheet (`cugman_(August)Employee Attendance Record.xls`).
-- **ERP Transformation (Client Request):** Sir Irl confirmed expanding the system into a customized restaurant ERP suite tailored for Cugman operations:
-  1. **Itemized Deductions Ledger:** Explicit sections for **Utang** (Store Credit/Loans), **CA** (Cash Advance/Vale), **Shortages** (Cashier Remittance Gaps), and **Lacking Products** (Burnt/Damaged/Missing chicken accountability).
-  2. **Role-Based Access Control (RBAC):** Customized user permissions for **3 Cashiers** (Morning, Evening, Relief) + **Owner/Admin (Sir Irl)** secured by 4-digit PIN authentication. Cashier accounts access a dedicated, clean POS & Cashier Portal, protecting confidential employee rates, payroll sums, and business profit margins.
-  3. **Lechon Manok & Liempo Inventory Engine:** Daily stock tracking (Beginning warmer count, Delivered birds, Spit Roasting Batches, Sold Whole/Half/Liempo, Spoilage, and Ending count) with real-time variance detection and 1-click automatic deduction charging.
-  4. **Cashier Sales & Shift Remittance Reconciliation:** Drawer cash count vs expected sales, GCash tracking, store petty expenses, and automated shortage calculation linked to deductions.
-  5. **AI Financial Analyst ("Ron's AI Financial Advisor"):** Interactive CFO intelligence module with a Financial Health Scorecard (92/100), labor cost benchmarking (~19.8% vs DOLE targets), 4 strategic profit playbooks, and interactive simulation calculators.
-- **Goal Achieved:** A complete restaurant ERP running at **$0 monthly operating costs** (Google Firebase Spark Free Tier) with offline-first PWA resilience.
+- **Hardware Environment:** **Deli e3960** (Standalone biometric fingerprint attendance clock, non-WiFi).
+- **Core Workflow:** Staff punch in/out on the Deli e3960 at Cugman branch. Supervisor exports the attendance matrix to a USB flash drive as an Excel spreadsheet (`cugman_(August)Employee Attendance Record.xls`).
+- **ERP Transformation:** Expanded the standalone payroll calculator into a full-featured, zero-cost restaurant ERP suite tailored for Cugman operations:
+  1. **Terminal Security Lock Screen (RBAC):** Touch keypad and keyboard input with 4-digit PIN authentication. Roles for **Management** + **3 Cashiers** (Morning, Evening, Relief) + **Kitchen Roaster**. Staff accounts access isolated operational portals, shielding sensitive employee wage rates, DOLE payroll totals, and store margin data.
+  2. **Zero Public PIN Display:** PIN numbers and bypass options are completely hidden from the public terminal UI. Only Management holds the master access codes and distributes them privately.
+  3. **Interactive Conversational AI Financial Analyst ("Ron's AI CFO"):** Executive advisory chatbox that converses in **English, Taglish, and fluent Cagayan de Oro Bisaya**. Features 1-click pre-made consultation questions, scenario simulation calculators, and persistent business memory that learns new rules across sessions.
+  4. **Itemized Deductions Ledger:** Categorized sections for **Utang** (Store Credit/Loans), **CA** (Cash Advance/Vale), **Shortages** (Cashier Remittance Gaps), and **Lacking Products** (Burnt/Damaged/Missing chicken accountability).
+  5. **Daily Lechon Manok & Liempo Inventory Engine:** Daily stock reconciliation (Beginning display, Delivered birds, Spit Roasting Batches, Sold Whole/Half/Liempo, Spoilage, and Closing display) with real-time discrepancy alerts and 1-click auto-charge to deductions.
+  6. **Cashier Sales & Shift Remittance Reconciliation:** Drawer cash count vs expected sales, GCash collection, store petty expense tracking, and automated shortage deduction charging.
+- **Operating Cost:** Runs at **$0 monthly operating cost** utilizing Google Firebase Spark Free Tier (<0.05% quota usage) and Vercel edge hosting.
 
 ---
 
-## 2. System Architecture & Implemented Modules
+## 2. Master Access PINs & User Role Permissions
+
+> **CONFIDENTIAL (For Management Only):**  
+> PINs are hidden from all screen views, placeholders, and user cards. Management can modify PINs and permissions anytime under the **Users & Permissions** module (`[⚙️ Customize Permissions & PIN]`).
+
+| Profile ID | Display Name | Role / Shift | Confidential PIN | Authorized Features & Permissions |
+| :--- | :--- | :--- | :---: | :--- |
+| `usr_admin` | **Management** | Owner & Management | **`8888`** | **Full Executive Access:** AI Advisor, DOLE Payroll, Salaries, Inventory Audit, Cloud Sync, User RBAC |
+| `usr_cashier_1` | **Chailene Dolido** | Cashier 1 (Morning Shift: 06:00 - 14:00) | **`1111`** | **Cashier POS Portal:** Shift Drawer Remittances, Chicken Stock Count (Payroll & AI Blocked) |
+| `usr_cashier_2` | **Pamela Galdo** | Cashier 2 (Evening Shift: 14:00 - 22:00) | **`2222`** | **Cashier POS Portal:** Shift Drawer Remittances, Chicken Stock Count (Payroll & AI Blocked) |
+| `usr_cashier_3` | **Relief Cashier** | Cashier 3 (Weekend / Relief Shift) | **`3333`** | **Cashier POS Portal:** Shift Drawer Remittances, Chicken Stock Count (Payroll & AI Blocked) |
+| `usr_kitchen` | **Gerald Lacasa** | Kitchen / Master Roaster (14:00 - 23:00) | **`4444`** | **Kitchen Terminal:** Rotisserie Spit Batches, Damaged Roast Loss Logs (Cash & AI Blocked) |
+
+---
+
+## 3. System Architecture & Component Workflow
 
 ```mermaid
 graph TD
-    A[Deli e3960 Biometric USB Export] --> B[Biometric Parser / Timecard Engine]
-    B --> C[DOLE & BIR Payroll Engine]
-    D[Staff & Statutory Settings] --> C
-    E[Categorized Deductions Ledger: Utang / CA / Shortages / Lacking] --> C
-    C --> F[Print-Ready Batch Payslips]
-    
-    G[Lechon Manok & Liempo Inventory Engine] --> H[Variance & Accountability Alert]
-    H -->|1-Click Charge| E
-    
-    I[Cashier Shift Remittances & Drawer Count] --> J[Cash Shortage Tracker]
-    J -->|1-Click Charge| E
-    
-    K[Role Permissions & PIN Auth: 3 Cashiers + Admin] --> L[Role-Guarded Views / Cashier POS Portal]
-    M[AI Financial Analyst & CFO Advisory] --> N[Profit Margin & Spit Roasting Playbooks]
-    
-    C & G & I & K --> O[Local IndexedDB / LocalStorage]
-    O <-->|Real-Time Cloud Sync| P[Google Firebase Firestore]
-    P <--> Q[Sir Irl Laptop / Cashier Counter Tablet / Phone]
+    A[Terminal Security Lock Screen] -->|PIN 8888| B[Executive Management Dashboard]
+    A -->|PIN 1111 / 2222 / 3333| C[Cashier POS Portal]
+    A -->|PIN 4444| D[Kitchen Roasting Portal]
+
+    subgraph Management Only
+        B --> E[DOLE & BIR Payroll Engine]
+        B --> F[AI Financial Analyst & CFO Chatbot]
+        B --> G[Users & Permissions RBAC]
+        B --> H[Financial Health Scorecard 92/100]
+    end
+
+    subgraph Counter Operations
+        C --> I[Cash Drawer Shift Remittance]
+        C --> J[Whole Chicken Stock Reconciliation]
+        I -->|Shortage Detected| K[Categorized Deductions Ledger]
+        J -->|Unaccounted Birds| K
+    end
+
+    subgraph Kitchen Operations
+        D --> L[Rotisserie Spit Batch Logger]
+        D --> M[Damaged / Burnt Roast Report]
+        M -->|1-Click Charge| K
+    end
+
+    subgraph Biometric & Cloud
+        N[Deli e3960 USB Export] --> O[Biometric Parser]
+        O --> E
+        E & K & I & J & F <--> P[Offline IndexedDB / LocalStorage]
+        P <-->|Real-Time Cloud Sync| Q[Google Firebase Firestore]
+    end
 ```
-
-### A. Categorized Deductions & Credit Ledger (`js/app.js`, `js/db.js`, `js/payroll-engine.js`)
-- Dedicated tracking and category filter pills for:
-  - 📝 **Utang (Store Credit / Loans):** Itemized loans and merchandise credit.
-  - 💵 **Cash Advance (CA / Vale):** Emergency personal staff advances.
-  - ⚠️ **Shortages (Cashier Cash Shortage):** Unbalanced cash drawers upon shift remittance.
-  - 🍗 **Lacking Products (Burnt / Missing Chicken):** Production discrepancies, charred birds, or warmer shortages.
-- Category badges (`badge-utang`, `badge-ca`, `badge-shortage`, `badge-lacking`).
-- Itemized line items directly printed on official employee payslips.
-
-### B. Role-Based Permissions & 3 Cashiers Engine (`js/erp-modules.js`, `js/db.js`)
-- Pre-configured user roles:
-  - **Sir Irl (Owner / General Manager):** PIN `8888` — Full access to all ERP modules, payroll rates, inventory audit, and cloud backups.
-  - **Cashier 1 - Chailene (Morning Shift):** PIN `1111` — Morning shift POS, sales recording, and batch roast monitoring.
-  - **Cashier 2 - Pamela (Evening Shift):** PIN `2222` — Evening shift POS, dinner rush roasting, and drawer closeout.
-  - **Cashier 3 - Relief (Weekend / Relief):** PIN `3333` — Relief cashiering and operational handovers.
-- **Cashier View Protection:** Cashiers opening the system see an isolated POS & shift handover dashboard. Confidential payroll summaries, employee daily wages, and financial advisory margins are completely hidden from counter view.
-
-### C. Lechon Manok & Liempo Inventory Engine (`js/erp-modules.js`, `js/db.js`)
-- Real-time stock calculation: `Expected Ending = (Beginning + Received) - (Sold Whole + Sold Halves/2 + Spoilage)`.
-- Interactive **Spit Roasting Batch Logger**: records roast time, spit number, roaster name, and chicken count.
-- **Auto-Variance Detection:** If physical warmer count is less than expected, a warning banner highlights the discrepancy and provides a **1-Click Charge to Lacking Product Deduction** button.
-
-### D. Cashier Sales & Shift Remittance Reconciliation (`js/erp-modules.js`, `js/db.js`)
-- Cashier records shift drawer cash, GCash payments, and store expense vouchers.
-- Real-time discrepancy calculator: `Variance = Total Remitted - Total Expected Sales`.
-- Any negative balance triggers an instant shortcut to log the shortage under the cashier's name in the Deductions Ledger.
-
-### E. AI Financial Analyst & Advisor (`js/erp-modules.js`)
-- Cugman branch CFO intelligence engine:
-  - **Financial Health Scorecard:** Rated 92/100 based on labor cost ratio (~19.8% vs 25% target), gross margins (38.2% Whole Lechon, 40.5% Liempo), and shrinkage (<0.4%).
-  - **Strategic Playbooks:**
-    1. *Dinner Rush Roasting Spit Scheduling:* Shift roast batches to 4:15 PM to capture 5:15–6:45 PM takeout demand.
-    2. *Liempo Roasting Spit Reallocation:* Boost monthly net profit by +₱18,900 via higher liempo margins.
-    3. *Shortage & Loss Recovery:* 100% loss recovery via automated payroll ledger integration.
-    4. *High-Margin Gravy & Atchara Upselling:* +₱21,600 monthly net profit from side item bundles.
-  - **Interactive Scenario Simulation Tool:** Real-time revenue, gross profit, and margin calculator.
-
-### F. Deli e3960 Biometric Ingestion (`js/biometric-parser.js`)
-- Ingests raw timestamp matrices exported by the Deli e3960.
-- Handles overnight roasting shifts, calculates late/undertime, deducts mandatory 1-hour lunch breaks for shifts > 5 hours, and generates comprehensive timecards for all 31 Cugman staff.
-
-### G. Philippine DOLE & BIR Payroll Engine (`js/payroll-engine.js`)
-- **Wages & Premiums:** Daily rate (₱438.00–₱480.00), Regular Overtime (125%), Night Shift Differential (10% from 10 PM–6 AM), and Daily Food Allowance (₱50/day).
-- **Statutory Deductions (SSS, PhilHealth, Pag-IBIG):**
-  - **Semi-Monthly Split (Default):** 50% on 15th cutoff, 50% on 30th/31st cutoff.
-  - **Manual Overrides & 1-Click Exemptions:** Custom amounts or full exemption checkboxes.
-  - **Tax Exemption:** 100% Tax Exempt under TRAIN Law for minimum wage earners.
-- **13th Month Pay Accrual:** Real-time continuous accrual (`Basic Pay / 12`).
-
-### C. Real-Time Multi-Device Cloud Sync (`js/firebase-sync.js`)
-- **Zero-Setup Sync Engine:** Integrated directly with Google Firebase Firestore (Project: `rons-chicken-payroll`).
-- **Cross-Device Continuity:** Changes made on Sir Irl's laptop (attendance uploads, rate changes, vale deductions) automatically appear on his smartphone or manager tablet in real time via `onSnapshot` listeners.
-- **Offline-First Resilience:** If branch WiFi or mobile data drops, the app works 100% locally in IndexedDB/LocalStorage (badge displays `🟡 Offline (Queued)`). Once reconnected, all queued updates automatically push to the cloud (badge updates to `🟢 Cloud Synced`).
-- **Cost:** 100% free ($0 monthly cost) utilizing <0.05% of Google Firebase Spark Free Tier quotas.
-
-### D. Interactive Cutoff Date Controller Bar (`js/app.js`)
-- Positioned across Overview, Attendance, and Payroll views.
-- **Preset Dropdowns:** Instant switching between semi-monthly periods (`Aug 16 - Aug 31`, `Sep 01 - Sep 15`, `Sep 16 - Sep 30`, `Oct 01 - Oct 15`, `Oct 16 - Oct 31`).
-- **Custom Date Pickers:** `From:` and `To:` date pickers with `⚡ Apply & Recalculate`.
-- **`+ New Cutoff` Modal:** Enables adding and naming future cutoff periods.
-
-### E. Single-Line Print-Ready Batch Payslips (`js/app.js`, `css/style.css`)
-- 1-Click batch payslip generator for all 31 staff.
-- Clean thermal / standard print format with locked single-line date headers preventing awkward wrapping.
-
-### F. Formal Proposal & Quotation Document (`Rons_Chicken_Custom_Payroll_Proposal_Quotation.html` / `.pdf`)
-- Single-page executive proposal with project scope, ₱30,000 quotation breakdown, 2-part milestone payment terms (50% / 50%), and Conforme signature block.
 
 ---
 
-## 3. Commercial Terms & Pricing Structure
+## 4. Key Modules & Features Implemented
+
+### A. Terminal Security Lock Screen (`js/erp-modules.js`)
+- **Keypad & Keyboard Support:** Touchscreen 3x4 numeric keypad with clear (`⌫`), unlock (`🔓`), and physical keyboard sync (`#lock-pin-input`).
+- **Auto-Unlock:** Triggers authentication automatically upon entering 4 digits.
+- **Strict Authentication:** Removed all bypass buttons so staff must enter their authentic PIN.
+- **Clean Naming:** Admin profile is labeled cleanly as **Management** across all selection cards and hero displays.
+
+### B. AI Financial Analyst & CFO Advisor (`js/erp-modules.js`, `js/db.js`)
+- **Multi-Lingual Conversation Engine:** Understands and replies in **English, Taglish, and authentic Cagayan de Oro Bisaya** (e.g. *pila, unsaon, ginansya, halin, trabahante, sweldo, kuwang, timan-i*).
+- **1-Click Pre-Made Questions:**
+  1. *Daily Break-Even Volume:* Calculates exact volume (105 whole chickens/day) needed to cover ₱15,800 daily operating overhead (31 staff wages + charcoal + gas + utilities).
+  2. *15% Monthly Profit Strategy:* Algorithmic recommendations (+₱33,200/mo) via 5 PM dinner rush liempo roasting, spiced gravy add-on combos, and zero-shortage turn-overs.
+  3. *Lechon Manok vs Liempo Profitability:* Comparative unit economics (₱150 margin on whole chicken vs ₱170 margin on liempo).
+  4. *Cashier Shortage Mitigation:* Mandatory 2:00 PM blind drawer count protocols and automated payroll ledger integration.
+  5. *31 Staff Labor Audit:* Benchmarked against DOLE Northern Mindanao standards (₱438–₱480/day + ₱50 meal allowance = ~19.8% labor cost ratio).
+  6. *Raw Chicken Price Sensitivity:* Explains financial impact if supplier increases bird prices from ₱210 to ₱215–₱220.
+- **Persistent Business Knowledge Memory (`rons_erp_ai_business_memory_v2`):**
+  - Users can teach the AI new store rules (e.g., typing *"Take note: Friday sales surge 40%"* or *"Timan-i: ang supplier sa manok mo-deliver alas 6 sa buntag"*).
+  - The AI records the fact into persistent storage and incorporates it into all future financial calculations and projections.
+- **Local Simulation + Optional API Key:** Operates completely offline with built-in financial formulas, while supporting an optional Google Gemini API key if desired.
+
+### C. Cashier POS Counter Portal (`js/erp-modules.js`)
+- **Shift Drawer Remittance:** Cashiers input counted cash bills, coins, GCash digital payments, and store expense vouchers.
+- **Automatic Shortage Computation:** Calculates `Variance = Counted Cash - Expected Cash`. If negative, provides a 1-click shortcut to log the shortage directly to the cashier's payroll deductions.
+- **Chicken Stock Count:** Records whole birds received from kitchen roasters, sold over counter, and closing warmer display buffer.
+
+### D. Kitchen & Roasting Portal (`js/erp-modules.js`)
+- **Rotisserie Spit Batch Logger:** Records spit number (Spit 1–4), roaster name, whole chicken count, and roasting duration.
+- **Damaged / Burnt Roast Reporting:** Automatically computes loss at wholesale cost (₱210/bird) and can link to employee lacking products ledger.
+
+### E. Philippine DOLE & BIR Payroll Engine (`js/payroll-engine.js`, `js/biometric-parser.js`)
+- **Biometric Processing:** Parses raw Deli e3960 Excel punch matrices for all 31 staff. Correctly handles split lunch breaks and overnight roasting shifts.
+- **Statutory Deductions (SSS, PhilHealth, Pag-IBIG):**
+  - Semi-monthly 50/50 split across 15th and 30th/31st cutoffs.
+  - Manual overrides and 1-click exemption checkboxes.
+  - TRAIN Law tax-exempt status for minimum wage earners.
+- **1-Click Batch Payslip Generator:** Single-line locked headers formatted for standard paper or thermal receipt printing.
+
+### F. Multi-Device Real-Time Cloud Sync (`js/firebase-sync.js`)
+- Google Firebase Firestore integration (`rons-chicken-payroll`).
+- Seamless real-time updates across phone, laptop, and counter tablet.
+- Fully resilient offline-first mode (automatic sync upon reconnection).
+
+---
+
+## 5. File & Directory Reference
+
+```
+📁 Ron's Chicken Custom Payroll System/
+├── 📄 project.md                                       # Master project documentation & resume notes
+├── 📄 README.md                                        # Git & setup guide
+├── 📄 Rons_Chicken_Custom_Payroll_Proposal_Quotation.html # Single-page formal proposal source
+├── 📄 Rons_Chicken_Custom_Payroll_Proposal_Quotation_v2.pdf # Print-ready single-page proposal PDF
+├── 📄 index.html                                       # Application shell (PWA) with v4.0.8-erp cache busters
+├── 📄 manifest.json                                    # PWA manifest
+├── 📄 sw.js                                            # Service Worker (Self-destruct & cache purge script)
+├── 📄 vercel.json                                      # Vercel deployment & strict cache headers
+├── 📄 cugman_(August)Employee Attendance Record.xls    # Real Deli e3960 attendance sample
+├── 📁 assets/
+│   └── 🖼️ logo.jpg                                     # Ron's Chicken official logo
+├── 📁 css/
+│   └── 🎨 style.css                                    # Bento Grid, Theme Dimmer & Print CSS (v4.0.8-erp)
+└── 📁 js/
+    ├── ⚙️ db.js                                        # Persistent DB, Auto-Backups, 31 Staff Profiles, SafeStorage
+    ├── ⏱️ biometric-parser.js                          # Deli e3960 Excel parser & timecard engine
+    ├── 💰 payroll-engine.js                            # DOLE/BIR statutory calculation engine & semi-monthly split
+    ├── 🍗 erp-modules.js                               # ERP Suite: Inventory, Remittances, RBAC, Lock Screen & AI CFO
+    ├── ☁️ firebase-sync.js                             # Real-time multi-device cloud synchronization (Firestore)
+    ├── 📡 device-sync.js                               # Hardware USB config & Cloud push API
+    └── 🚀 app.js                                       # Cutoff controller, views, payslips & UI router
+```
+
+---
+
+## 6. Commercial Terms & Quotation Reference
 
 - **Total One-Time Project Investment:** **₱30,000.00**
   - Custom Payroll & Biometric Engine (Lifetime Ownership, $0 monthly fees): **₱25,000.00**
@@ -129,89 +165,23 @@ graph TD
 
 ---
 
-## 4. Sales & Client Handover Playbook (Sir Irl)
-
-```mermaid
-graph TD
-    A[Step 1: Send Demo Link & Feature Highlights] --> B[Sir Irl Tests System on Phone/PC]
-    B --> C[Sir Irl Confirms Features / Statutory Settings]
-    C --> D[Step 2: Send 50/50 Milestone Terms & Attach Formal Proposal PDF]
-    D --> E[Step 3: Assist on 1st Live Cutoff & Receive Final Payment]
-```
-
-1. **Step 1 Message:** Send the live Vercel link (`https://rons-chicken-payroll.vercel.app`) with remote payroll instructions.
-2. **Step 2 Message:** Upon his confirmation, send the pricing summary and attach `Rons_Chicken_Custom_Payroll_Proposal_Quotation_v2.pdf`.
-3. **Step 3 Live Run:** Assist management in running their first actual cutoff with live USB attendance.
-
----
-
-## 5. File & Directory Structure
-
-```
-📁 Ron's Chicken Custom Payroll System/
-├── 📄 project.md                                       # Master project documentation & resume notes
-├── 📄 README.md                                        # Git & setup guide
-├── 📄 Rons_Chicken_Custom_Payroll_Proposal_Quotation.html # Single-page formal proposal source
-├── 📄 Rons_Chicken_Custom_Payroll_Proposal_Quotation_v2.pdf # Print-ready single-page proposal PDF
-├── 📄 index.html                                       # Application shell (PWA) with anti-cache headers & recovery card
-├── 📄 manifest.json                                    # PWA manifest
-├── 📄 sw.js                                            # Service Worker (Self-destruct & cache purge script)
-├── 📄 vercel.json                                      # Vercel deployment & strict cache headers
-├── 📄 cugman_(August)Employee Attendance Record.xls    # Real Deli e3960 attendance sample
-├── 📁 assets/
-│   └── 🖼️ logo.jpg                                     # Ron's Chicken official logo
-├── 📁 css/
-│   └── 🎨 style.css                                    # Bento Grid, Theme Dimmer & Print CSS (v3.1.0)
-└── 📁 js/
-    ├── ⚙️ db.js                                        # Persistent DB, Auto-Backups, 31 Staff Profiles, SafeStorage Fallback
-    ├── ⏱️ biometric-parser.js                          # Deli e3960 Excel parser & timecard engine
-    ├── 💰 payroll-engine.js                            # DOLE/BIR statutory calculation engine & semi-monthly split
-    ├── 🍗 erp-modules.js                               # ERP Suite: Inventory, Remittances, 3 Cashiers RBAC & AI Advisor
-    ├── ☁️ firebase-sync.js                             # Real-time multi-device cloud synchronization (Firestore)
-    ├── 📡 device-sync.js                               # Hardware USB config & Cloud push API
-    └── 🚀 app.js                                       # Cutoff controller, views, payslips & UI router
-```
-
----
-
-## 6. Incident Log & Technical Resolutions
-
-### Incident 1: Cross-Device Data Consistency
-- **Root Cause:** Standalone IndexedDB kept records isolated to the specific browser/device.
-- **Resolution:** Integrated Firebase Firestore Cloud Sync (`js/firebase-sync.js`) with automatic push on every database save and real-time `onSnapshot` listener.
-
-### Incident 2: White Screen on Laptop / Edge Browser
-- **Symptoms:** Laptop browser (Edge/Chrome) displayed a blank white screen when opening the Vercel link.
-- **Root Cause:**
-  1. **Legacy Service Worker & Disk Cache Persistence:** In earlier builds, the browser registered a Service Worker that cached the old offline app shell. When the user navigated to the URL or pressed standard reload (`F5`), Edge served the stale cached worker from disk rather than querying Vercel.
-  2. **Storage Access Denials:** In restricted browser security modes or privacy modes, synchronous calls to `window.localStorage` could throw unhandled DOMExceptions.
-- **Resolutions Implemented:**
-  1. **Anti-Cache Headers & Cache Busters (v3.1.0):** Added strict HTTP `<meta>` tags (`no-cache, no-store, must-revalidate, max-age=0`) and bumped all script and stylesheet query parameters to `?v=3.1.0`.
-  2. **Self-Destructing Service Worker (`sw.js`):** Script immediately unregisters all active service worker registrations and executes `caches.delete()` for all legacy offline caches.
-  3. **Universal `safeStorage` Layer (`js/db.js`):** Implemented in-memory fallback (`Map`) wrapped in `try/catch` so the app runs smoothly even if cookies/localStorage are blocked.
-  4. **Emergency URL Reset Parameter (`?reset=1`):** Navigating to `https://rons-chicken-payroll.vercel.app/?reset=1` automatically clears local storage, deletes caches, unregisters old workers, and boots up clean.
-  5. **Watchdog Auto-Recovery UI (`index.html`):** If initialization takes longer than 2.5s, the system displays an interactive recovery card with `⚡ Launch System Now` and `🔄 Reset Cache & Fresh Reload` buttons instead of an empty screen.
-
----
-
 ## 7. 🚀 WHAT TO DO NEXT AFTER LAPTOP RESTART (Quick Resume Checklist)
 
 When you turn on your laptop and resume work:
 
 1. **Open the Project Folder in IDE:**
-   - Open folder: `c:\Users\USER\Documents\Programming Folder Rep\Ron's Chickent Custom Payroll System`.
+   - Workspace directory: `c:\Users\USER\Documents\Programming Folder Rep\Ron's Chickent Custom Payroll System`.
 
-2. **Verify Live App Status:**
-   - Open: [https://rons-chicken-payroll.vercel.app](https://rons-chicken-payroll.vercel.app) in your browser.
-   - Check the top navbar: it should display `🟢 Cloud Synced`.
+2. **Verify Live Production Deployment:**
+   - Open: [https://rons-chicken-payroll.vercel.app](https://rons-chicken-payroll.vercel.app).
+   - Check the terminal lock screen: It should display **Management** as the primary admin profile with PINs completely hidden.
+   - Enter **`8888`** to unlock executive mode.
 
-3. **Assisting Sir Irl on his Laptop:**
-   - If Sir Irl still has a cached screen from an earlier session, provide him with either:
-     - **Link:** [https://rons-chicken-payroll.vercel.app/?reset=1](https://rons-chicken-payroll.vercel.app/?reset=1)
-     - **Keyboard Shortcut in Edge:** Press **`Ctrl + Shift + R`** (or **`Ctrl + F5`**) to hard-refresh.
-     - **InPrivate Window:** Press **`Ctrl + Shift + N`** and open the link.
+3. **In Case of Stale Browser Cache on Client Devices:**
+   - Have the client visit: [https://rons-chicken-payroll.vercel.app/?reset=1](https://rons-chicken-payroll.vercel.app/?reset=1).
+   - This automatically executes storage purge, clears old service workers, and reloads `v4.0.8-erp` cleanly.
 
-4. **Sir Irl Live Cutoff & Handover:**
-   - Guide Sir Irl to drag-and-drop or upload their latest USB attendance file from the Deli e3960.
-   - Confirm statutory split deductions (50% on the 15th, 50% on the 30th/31st) or apply any custom peso overrides.
-   - Present the formal proposal PDF (`Rons_Chicken_Custom_Payroll_Proposal_Quotation_v2.pdf`) for Conforme signing and Milestone 1 payment (₱15,000.00).
+4. **Client Collaboration (Bro Irl & Sis Riza):**
+   - Forward the ready-to-send Christian update message via Messenger.
+   - Guide them to log in with Management PIN `8888` and try chatting with the AI Financial Analyst or clicking the pre-made question buttons.
+   - Assist in uploading their latest USB biometric file (`.xls`) from the Deli e3960 when their next cutoff arrives.
