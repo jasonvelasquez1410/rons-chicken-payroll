@@ -9,21 +9,25 @@
   /* Dynamic Brightness Variable (0 to 100) */
   --brightness-level: 0;
 
-  /* Dynamically Calculated Surfaces Based on Brightness Slider */
-  --bg-black: hsl(222, 18%, calc(4% + (var(--brightness-level) * 0.90%)));
-  --bg-canvas: hsl(222, 18%, calc(6% + (var(--brightness-level) * 0.88%)));
-  --bg-card-dark: hsl(222, 16%, calc(9% + (var(--brightness-level) * 0.84%)));
-  --bg-card-elevated: hsl(222, 15%, calc(13% + (var(--brightness-level) * 0.80%)));
-  --bg-surface: hsl(222, 14%, calc(17% + (var(--brightness-level) * 0.76%)));
+  /* Ambient Night Theme Brightness Curve:
+     0% = Pitch Deep Black (OLED Midnight: #05070d)
+     100% = Elevated Studio Slate Navy (#1e2538)
+     Surfaces always retain high contrast against white and orange text,
+     preventing muddy washed-out gray mid-tones. */
+  --bg-black: hsl(222, 24%, calc(3% + (var(--brightness-level) * 0.12%)));
+  --bg-canvas: hsl(222, 22%, calc(5% + (var(--brightness-level) * 0.14%)));
+  --bg-card-dark: hsl(222, 20%, calc(8% + (var(--brightness-level) * 0.16%)));
+  --bg-card-elevated: hsl(222, 18%, calc(11% + (var(--brightness-level) * 0.18%)));
+  --bg-surface: hsl(222, 17%, calc(15% + (var(--brightness-level) * 0.20%)));
   
-  /* Text dynamically flips from light to dark at high brightness */
-  --text-primary: hsl(210, 20%, calc(98% - (var(--brightness-level) * 0.85%)));
-  --text-secondary: hsl(215, 15%, calc(70% - (var(--brightness-level) * 0.35%)));
-  --text-muted: hsl(215, 12%, calc(50% - (var(--brightness-level) * 0.10%)));
+  /* Text & Labels maintain high contrast across all slider positions */
+  --text-primary: #ffffff;
+  --text-secondary: hsl(215, 25%, calc(86% - (var(--brightness-level) * 0.12%)));
+  --text-muted: hsl(215, 20%, calc(72% - (var(--brightness-level) * 0.10%)));
   --text-dark: #0a0a0c;
 
-  --border-subtle: rgba(255, 255, 255, calc(0.08 + (var(--brightness-level) * 0.0008)));
-  --border-glass: rgba(255, 255, 255, calc(0.12 + (var(--brightness-level) * 0.001)));
+  --border-subtle: rgba(255, 255, 255, calc(0.10 + (var(--brightness-level) * 0.0006)));
+  --border-glass: rgba(255, 255, 255, calc(0.16 + (var(--brightness-level) * 0.0008)));
 
   /* Signature Mi Nomina Bento Palette (Always Vibrant) */
   --bento-orange: #ff5500;
