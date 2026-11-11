@@ -113,17 +113,22 @@ class DeviceSync {
             // Record cutoff if detected
             if (result.cutoffRange) {
               const cutoffs = window.DB.getCutoffs();
+              const start = result.startDate || "2026-08-16";
+              const end = result.endDate || "2026-09-05";
               const newCutoff = {
                 id: `CO-${Date.now()}`,
                 name: `Attendance: ${result.cutoffRange}`,
-                startDate: "2026-08-16",
-                endDate: "2026-09-05",
+                startDate: start,
+                endDate: end,
                 status: "Imported & Ready",
                 importedAt: new Date().toLocaleString(),
                 sourceFile: file.name
               };
               cutoffs.unshift(newCutoff);
               window.DB.saveCutoffs(cutoffs);
+              if (typeof window !== 'undefined') {
+                window.activeCutoff = newCutoff;
+              }
             }
 
             resolve({

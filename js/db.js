@@ -2846,8 +2846,36 @@ class DB {
 
   static updateUserPermissions(userId, data) {
     const users = this.getUsers();
-    const idx = users.findIndex(u => u.id === userId);
-    if (idx < 0) return { success: false, error: "Staff account not found." };
+    let idx = users.findIndex(u => u.id === userId);
+
+    if (idx < 0) {
+      // Create new user if not found
+      const newId = userId || `usr_${Date.now()}`;
+      const newUser = {
+        id: newId,
+        name: (data.name || 'New Staff').trim(),
+        role: data.role || 'cashier',
+        title: (data.title || data.cashierShift || 'Store Staff').trim(),
+        cashierShift: (data.cashierShift || data.title || 'Day Shift').trim(),
+        pin: String(data.pin || '1234').trim(),
+        avatar: data.avatar || (data.role === 'admin' ? '👑' : data.role === 'kitchen' ? '👨‍🍳' : '💳'),
+        permissions: data.permissions || {
+          all: data.role === 'admin',
+          canAccessPayroll: data.role === 'admin',
+          canViewStaffRates: data.role === 'admin',
+          canEditInventory: true,
+          canVerifyRemittances: data.role === 'cashier' || data.role === 'admin',
+          canManageDeductions: data.role === 'admin',
+          canReportShortages: true,
+          canReportLackingProducts: true,
+          canAccessAiAdvisor: data.role === 'admin',
+          canManageUsers: data.role === 'admin'
+        }
+      };
+      users.push(newUser);
+      this.saveUsers(users);
+      return { success: true, user: newUser };
+    }
 
     const u = users[idx];
     if (data.name) u.name = data.name.trim();
@@ -2866,6 +2894,55 @@ class DB {
       this.setCurrentUser(u);
     }
     return { success: true, user: u };
+  }
+
+  static addUser(userData) {
+    const users = this.getUsers();
+    const newId = userData.id || `usr_staff_${Date.now()}`;
+    const avatar = userData.avatar || (userData.role === 'admin' ? '👑' : userData.role === 'kitchen' ? '👨‍🍳' : '💳');
+    const newUser = {
+      id: newId,
+      name: (userData.name || 'New Staff Profile').trim(),
+      role: userData.role || 'cashier',
+      pin: String(userData.pin || '1234').trim(),
+      avatar: avatar,
+      title: (userData.title || userData.cashierShift || 'Store Staff').trim(),
+      cashierShift: (userData.cashierShift || userData.title || 'Store Shift').trim(),
+      employeeId: userData.employeeId || null,
+      permissions: userData.permissions || {
+        all: userData.role === 'admin',
+        canAccessPayroll: userData.role === 'admin',
+        canViewStaffRates: userData.role === 'admin',
+        canEditInventory: true,
+        canVerifyRemittances: userData.role === 'cashier' || userData.role === 'admin',
+        canManageDeductions: userData.role === 'admin',
+        canReportShortages: true,
+        canReportLackingProducts: true,
+        canAccessAiAdvisor: userData.role === 'admin',
+        canManageUsers: userData.role === 'admin'
+      }
+    };
+    users.push(newUser);
+    this.saveUsers(users);
+    return { success: true, user: newUser };
+  }
+
+  static deleteUser(userId) {
+    if (userId === 'usr_admin') {
+      return { success: false, error: "The primary Management admin account cannot be deleted." };
+    }
+    let users = this.getUsers();
+    const beforeCount = users.length;
+    users = users.filter(u => u.id !== userId);
+    if (users.length === beforeCount) {
+      return { success: false, error: "User account not found." };
+    }
+    this.saveUsers(users);
+    const curr = this.getCurrentUser();
+    if (curr && curr.id === userId) {
+      this.setCurrentUser(users[0] || DEFAULT_USERS[0]);
+    }
+    return { success: true };
   }
 
   static applyRolePreset(userId, presetKey) {
@@ -3066,16 +3143,31 @@ class DB {
     this.triggerCloudSync();
   }
 
-  static addAiChatMessage(role, text) {
+  static addAiChatMessage(roleOrMsg, text) {
     const history = this.getAiChatHistory();
     const now = new Date();
-    const msg = {
-      id: `msg_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
-      role: role,
-      timestamp: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      date: now.toISOString().split('T')[0],
-      text: text
-    };
+    let msg;
+
+    if (typeof roleOrMsg === 'object' && roleOrMsg !== null) {
+      msg = {
+        id: roleOrMsg.id || `msg_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+        role: roleOrMsg.role || 'user',
+        sender: roleOrMsg.sender || (roleOrMsg.role === 'user' ? 'Management' : "Ron's AI CFO"),
+        timestamp: roleOrMsg.timestamp || now.toISOString(),
+        date: roleOrMsg.date || now.toISOString().split('T')[0],
+        text: roleOrMsg.text || ''
+      };
+    } else {
+      msg = {
+        id: `msg_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+        role: roleOrMsg || 'user',
+        sender: (roleOrMsg === 'user') ? 'Management' : "Ron's AI CFO",
+        timestamp: now.toISOString(),
+        date: now.toISOString().split('T')[0],
+        text: text || ''
+      };
+    }
+
     history.push(msg);
     if (history.length > 60) {
       history.splice(0, history.length - 60);

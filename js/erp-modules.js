@@ -600,6 +600,9 @@ window.ErpModules = (function() {
           </div>
         </div>
         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <button class="btn-bento btn-bento-orange" onclick="ErpModules.openAddUserModal()">
+            ➕ Add New User Account
+          </button>
           <button class="btn-bento btn-bento-dark" onclick="window.lockTerminal()">
             🔒 Lock Terminal Screen
           </button>
@@ -710,17 +713,38 @@ window.ErpModules = (function() {
               </div>
             </div>
 
-            <div style="display: flex; gap: 0.5rem;">
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
               <button class="btn-bento btn-bento-dark btn-sm" style="flex: 1.2; font-weight: 700;" onclick="ErpModules.openEditUserModal('${u.id}')">
-                ⚙️ Customize Permissions &amp; PIN
+                ⚙️ Permissions &amp; PIN
               </button>
               <button class="btn-bento btn-bento-orange btn-sm" style="flex: 0.8;" onclick="window.lockTerminal('${u.id}')">
                 🔒 Switch
               </button>
+              ${u.id !== 'usr_admin' ? `
+                <button class="btn-bento btn-bento-dark btn-sm" style="color: #f43f5e; padding: 0.4rem 0.6rem;" onclick="ErpModules.handleDeleteUser('${u.id}', '${escapeHtml(u.name)}')" title="Delete Account">
+                  🗑️
+                </button>
+              ` : ''}
             </div>
           </div>
         `;
         }).join('')}
+
+        <!-- Dedicated "+ Add Another User / Cashier" Bento Card -->
+        <div onclick="ErpModules.openAddUserModal()" style="background: rgba(255, 85, 0, 0.04); border: 2px dashed rgba(255, 85, 0, 0.4); border-radius: var(--radius-md); padding: 2rem 1.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; transition: all 0.2s ease; min-height: 280px;" onmouseover="this.style.borderColor='var(--bento-orange)'; this.style.background='rgba(255, 85, 0, 0.08)'" onmouseout="this.style.borderColor='rgba(255, 85, 0, 0.4)'; this.style.background='rgba(255, 85, 0, 0.04)'">
+          <div style="width: 58px; height: 58px; border-radius: 50%; background: rgba(255, 85, 0, 0.15); color: var(--bento-orange); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin-bottom: 1rem; border: 1.5px solid rgba(255, 85, 0, 0.3);">
+            ➕
+          </div>
+          <h3 style="color: #ffffff; font-size: 1.15rem; margin-bottom: 0.35rem; font-weight: 800;">
+            Add Another User / Cashier
+          </h3>
+          <p style="color: var(--text-secondary); font-size: 0.82rem; max-width: 260px; line-height: 1.45; margin-bottom: 1.25rem;">
+            Create a new cashier, roast master, or relief staff profile with custom 4-digit PIN &amp; access permissions.
+          </p>
+          <button type="button" class="btn-bento btn-bento-orange btn-sm" style="font-weight: 800; pointer-events: none;">
+            ➕ Add Staff Account
+          </button>
+        </div>
       </div>
     `;
   }
@@ -1283,6 +1307,46 @@ window.ErpModules = (function() {
     }, 100);
   }
 
+  function openAddUserModal() {
+    const idInput = document.getElementById('perm-user-id');
+    const nameInput = document.getElementById('perm-user-name');
+    const roleSelect = document.getElementById('perm-user-role');
+    const shiftInput = document.getElementById('perm-user-shift');
+    const pinInput = document.getElementById('perm-user-pin');
+    const avatarSpan = document.getElementById('perm-user-avatar');
+    const titleHeader = document.getElementById('perm-modal-user-title');
+
+    if (idInput) idInput.value = '';
+    if (nameInput) nameInput.value = '';
+    if (roleSelect) roleSelect.value = 'cashier';
+    if (shiftInput) shiftInput.value = 'Day Shift';
+    if (pinInput) pinInput.value = '';
+    if (avatarSpan) avatarSpan.textContent = '💳';
+    if (titleHeader) titleHeader.textContent = 'Add New Staff / Cashier Account';
+
+    applyModalPreset('cashier');
+
+    if (typeof window.openModal === 'function') {
+      window.openModal('user-permissions-modal');
+    }
+  }
+
+  function handleDeleteUser(userId, userName) {
+    if (userId === 'usr_admin') {
+      alert("The primary Management account cannot be deleted.");
+      return;
+    }
+    if (confirm(`Are you sure you want to delete user account "${userName}"?`)) {
+      const res = window.DB.deleteUser(userId);
+      if (res.success) {
+        alert(`Account "${userName}" deleted successfully.`);
+        if (typeof window.renderApp === 'function') window.renderApp();
+      } else {
+        alert(res.error || "Failed to delete user account.");
+      }
+    }
+  }
+
   function openEditUserModal(userId) {
     const user = window.DB.getUsers().find(u => u.id === userId);
     if (!user) return;
@@ -1556,7 +1620,14 @@ window.ErpModules = (function() {
 
     return history.map(msg => {
       const isUser = msg.role === 'user';
-      const timeStr = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+      let timeStr = '';
+      if (msg.timestamp) {
+        const parsedDate = new Date(msg.timestamp);
+        timeStr = !isNaN(parsedDate.getTime())
+          ? parsedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          : String(msg.timestamp);
+      }
+      const rawText = msg.text || (typeof msg.role === 'object' && msg.role && msg.role.text ? msg.role.text : '');
       if (isUser) {
         return `
           <div class="ai-chat-bubble-wrapper user">
@@ -1566,7 +1637,7 @@ window.ErpModules = (function() {
                 <span>${escapeHtml(msg.sender || 'Management')}</span> • <span>${timeStr}</span>
               </div>
               <div class="ai-chat-bubble ai-chat-bubble-user">
-                ${escapeHtml(msg.text)}
+                ${escapeHtml(rawText)}
               </div>
             </div>
           </div>
@@ -1580,7 +1651,7 @@ window.ErpModules = (function() {
                 <strong style="color: #c4b5fd;">Ron's AI CFO Advisor</strong> • <span>${timeStr}</span>
               </div>
               <div class="ai-chat-bubble ai-chat-bubble-bot">
-                ${formatAiMarkdown(msg.text)}
+                ${formatAiMarkdown(rawText)}
               </div>
             </div>
           </div>
@@ -2162,6 +2233,8 @@ Provide razor-sharp, actionable financial guidance. Use markdown formatting with
     linkShortageToDeductions,
     chargeDiscrepancyToLacking,
     openReportLackingModal,
+    openAddUserModal,
+    handleDeleteUser,
     openEditUserModal,
     applyModalPreset,
     handleSaveUserPermissions,

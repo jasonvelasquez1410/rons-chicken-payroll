@@ -347,6 +347,10 @@ function renderApp() {
           ${ICONS.ai}
           <span>AI Analyst</span>
         </div>
+        <div class="bottom-nav-item ${currentView === 'users' ? 'active' : ''}" onclick="navigateTo('users')">
+          ${ICONS.users}
+          <span>Users</span>
+        </div>
       </nav>
 
       <!-- Upload Modal -->
@@ -461,13 +465,16 @@ function renderApp() {
 
             <div style="display: grid; gap: 1.25rem;">
               <!-- Employee Switcher -->
-              <div style="background: var(--bg-surface); padding: 0.75rem 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
+              <div style="background: var(--bg-surface); padding: 0.75rem 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;">
                 <label style="font-size: 0.82rem; font-weight: 700; color: var(--text-primary); white-space: nowrap;">Active Staff Member:</label>
-                <select id="emp-select-switcher" onchange="handleEmployeeSelectChange(this.value)" style="flex: 1; padding: 0.5rem 0.75rem; border-radius: var(--radius-sm); background: var(--bg-card-dark); border: 1px solid var(--border-glass); color: var(--text-primary); font-size: 0.85rem;">
+                <select id="emp-select-switcher" onchange="handleEmployeeSelectChange(this.value)" style="flex: 1; min-width: 200px; padding: 0.5rem 0.75rem; border-radius: var(--radius-sm); background: var(--bg-card-dark); border: 1px solid var(--border-glass); color: var(--text-primary); font-size: 0.85rem;">
                   ${safeGetEmployees().map(e => `
                     <option value="${e.id}">#${e.id} ${e.name} (${e.position || e.department})</option>
                   `).join('')}
                 </select>
+                <button type="button" class="btn-bento btn-bento-orange btn-sm" onclick="openNewEmployeeForm()" style="font-weight: 800; white-space: nowrap;">
+                  ➕ Add New Staff
+                </button>
               </div>
 
               <!-- Section 1: Basic Employment & Wage -->
@@ -1859,8 +1866,9 @@ function renderBentoPayroll() {
         <p style="color: var(--text-secondary);">${activeCutoff.name} • Ron's Chicken Cugman</p>
       </div>
       <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-        <button class="btn-bento btn-bento-purple" onclick="openEmployeeModal()">${ICONS.employee} Edit Staff & Statutory</button>
-        <button class="btn-bento btn-bento-orange" onclick="generateAllBatchPayslips()">${ICONS.print} Print All Payslips (31 Staff)</button>
+        <button class="btn-bento btn-bento-orange" onclick="openNewEmployeeForm()">${ICONS.employee} ➕ Add New Staff</button>
+        <button class="btn-bento btn-bento-purple" onclick="openEmployeeModal()">${ICONS.employee} Edit Staff &amp; Statutory</button>
+        <button class="btn-bento btn-bento-orange" onclick="generateAllBatchPayslips()">${ICONS.print} Print All Payslips</button>
         <button class="btn-bento btn-bento-dark" onclick="exportPayrollCSV()">${ICONS.download} Bank Advice CSV</button>
         <button class="btn-bento btn-bento-purple" onclick="recalculatePayroll()">${ICONS.payroll} Recalculate</button>
       </div>
@@ -2792,6 +2800,48 @@ function openEmployeeModal(employeeId) {
   openModal('employee-modal');
 }
 
+function openNewEmployeeForm() {
+  const employees = safeGetEmployees();
+  const maxId = employees.reduce((max, e) => Math.max(max, Number(e.id) || 0), 0);
+  const nextId = maxId + 1;
+
+  const editIdEl = document.getElementById('emp-edit-id');
+  const switcherEl = document.getElementById('emp-select-switcher');
+  const nameEl = document.getElementById('emp-name');
+  const posEl = document.getElementById('emp-position');
+  const rateEl = document.getElementById('emp-daily-rate');
+  const allowEl = document.getElementById('emp-allowance');
+  const sssNoEl = document.getElementById('emp-sss-no');
+  const sssCustomEl = document.getElementById('emp-sss-custom');
+  const phicNoEl = document.getElementById('emp-philhealth-no');
+  const phicCustomEl = document.getElementById('emp-philhealth-custom');
+  const hdmfNoEl = document.getElementById('emp-pagibig-no');
+  const hdmfCustomEl = document.getElementById('emp-pagibig-custom');
+  const tinNoEl = document.getElementById('emp-tin-no');
+  const sssExemptEl = document.getElementById('emp-sss-exempt');
+  const phicExemptEl = document.getElementById('emp-phic-exempt');
+  const hdmfExemptEl = document.getElementById('emp-hdmf-exempt');
+
+  if (editIdEl) editIdEl.value = nextId;
+  if (nameEl) nameEl.value = '';
+  if (posEl) posEl.value = 'Service & Operations Staff';
+  if (rateEl) rateEl.value = 438;
+  if (allowEl) allowEl.value = 50;
+  if (sssNoEl) sssNoEl.value = '';
+  if (sssCustomEl) sssCustomEl.value = '';
+  if (phicNoEl) phicNoEl.value = '';
+  if (phicCustomEl) phicCustomEl.value = '';
+  if (hdmfNoEl) hdmfNoEl.value = '';
+  if (hdmfCustomEl) hdmfCustomEl.value = '';
+  if (tinNoEl) tinNoEl.value = '';
+  if (sssExemptEl) sssExemptEl.checked = false;
+  if (phicExemptEl) phicExemptEl.checked = false;
+  if (hdmfExemptEl) hdmfExemptEl.checked = false;
+
+  openModal('employee-modal');
+  if (nameEl) nameEl.focus();
+}
+
 function handleEmployeeSelectChange(employeeId) {
   const emp = window.DB.getEmployeeById(Number(employeeId));
   if (!emp) return;
@@ -2834,8 +2884,14 @@ function handleEmployeeSelectChange(employeeId) {
 function handleSaveEmployee(event) {
   event.preventDefault();
   const empId = Number(document.getElementById('emp-edit-id').value);
-  const emp = window.DB.getEmployeeById(empId);
-  if (!emp) return;
+  let emp = window.DB.getEmployeeById(empId);
+  if (!emp) {
+    emp = {
+      id: empId,
+      department: "OPERATION",
+      attendanceLogs: []
+    };
+  }
 
   const sssCustomVal = document.getElementById('emp-sss-custom').value;
   const phicCustomVal = document.getElementById('emp-philhealth-custom').value;

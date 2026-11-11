@@ -7,11 +7,19 @@ class BiometricParser {
   static async ensureSheetJS() {
     if (typeof window !== 'undefined' && typeof window.XLSX !== 'undefined') return true;
     return new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
-      script.onload = () => resolve(true);
-      script.onerror = () => reject(new Error("Unable to download SheetJS parser library. Please check your internet connection."));
-      document.head.appendChild(script);
+      // First attempt to load local bundle
+      const localScript = document.createElement('script');
+      localScript.src = 'js/xlsx.full.min.js?v=4.0.9-erp';
+      localScript.onload = () => resolve(true);
+      localScript.onerror = () => {
+        // Fallback to CDN if local bundle fails
+        const cdnScript = document.createElement('script');
+        cdnScript.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+        cdnScript.onload = () => resolve(true);
+        cdnScript.onerror = () => reject(new Error("Unable to download SheetJS parser library. Please check your internet connection."));
+        document.head.appendChild(cdnScript);
+      };
+      document.head.appendChild(localScript);
     });
   }
 
@@ -43,16 +51,27 @@ class BiometricParser {
   static parseRows(rows, sheetName = "Attendance") {
     let cutoffRange = "Unknown Cutoff Period";
     let tablingDate = "";
+    let startDate = "2026-08-16";
+    let endDate = "2026-09-05";
     let employeesMap = new Map();
 
     // Look for attendance period in top rows
     for (let r = 0; r < Math.min(rows.length, 10); r++) {
       const rowStr = (rows[r] || []).join(" ");
       const matchPeriod = rowStr.match(/Attendance\s*date\s*:\s*([0-9\/\-~]+)/i);
-      if (matchPeriod) cutoffRange = matchPeriod[1];
+      if (matchPeriod) {
+        cutoffRange = matchPeriod[1].trim();
+        const parts = cutoffRange.split("~");
+        if (parts.length === 2) {
+          const m1 = parts[0].trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+          if (m1) startDate = `${m1[3]}-${m1[1].padStart(2, '0')}-${m1[2].padStart(2, '0')}`;
+          const m2 = parts[1].trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+          if (m2) endDate = `${m2[3]}-${m2[1].padStart(2, '0')}-${m2[2].padStart(2, '0')}`;
+        }
+      }
 
       const matchTabling = rowStr.match(/Tabling\s*date\s*:\s*([0-9\/\-: ]+)/i);
-      if (matchTabling) tablingDate = matchTabling[1];
+      if (matchTabling) tablingDate = matchTabling[1].trim();
     }
 
     let currentEmp = null;
@@ -62,49 +81,80 @@ class BiometricParser {
       const row = rows[r] || [];
       const rowStr = row.map(c => String(c).trim()).join(" ");
 
-      // Check if this row is an Employee Header: e.g. "User ID: 12 Name: argie daliva Department: OPERATION"
-      const userIdMatch = rowStr.match(/User\s*ID\s*:\s*(\d+)/i);
-      const nameMatch = rowStr.match(/Name\s*:\s*([^Department|Dept]+)/i);
-      const deptMatch = rowStr.match(/Department\s*:\s*([^\s]+)/i);
+      // 1. Check if this row is an Employee Header: supports both cell-separated and concatenated strings
+      let userId = null;
+      let name = "";
+      let dept = "";
 
-      if (userIdMatch) {
-        const id = parseInt(userIdMatch[1], 10);
-        let name = nameMatch ? nameMatch[1].trim() : `Employee #${id}`;
-        // Title case name
-        name = name.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ");
-        const department = deptMatch ? deptMatch[1].trim() : "COMPANY";
+      for (let c = 0; c < row.length; c++) {
+        const val = String(row[c]).trim();
+        if (/^User\s*ID:?$/i.test(val) && row[c + 1] !== undefined) {
+          const parsed = parseInt(String(row[c + 1]).trim(), 10);
+          if (!isNaN(parsed)) userId = parsed;
+        }
+        if (/^Name:?$/i.test(val) && row[c + 1] !== undefined) {
+          name = String(row[c + 1]).trim();
+        }
+        if (/^Department:?$/i.test(val) && row[c + 1] !== undefined) {
+          dept = String(row[c + 1]).trim();
+        }
+      }
+
+      // Regex fallback if cell scanning did not extract
+      if (userId === null) {
+        const userIdMatch = rowStr.match(/User\s*ID\s*:\s*(\d+)/i);
+        if (userIdMatch) {
+          userId = parseInt(userIdMatch[1], 10);
+        }
+      }
+
+      if (userId !== null) {
+        if (!name) {
+          const nameMatch = rowStr.match(/Name\s*:\s*([^\s][^:]*?)(?:\s+Department|\s+Dept|$)/i);
+          if (nameMatch) name = nameMatch[1].trim();
+        }
+        if (!dept) {
+          const deptMatch = rowStr.match(/Department\s*:\s*([^\s]+)/i);
+          if (deptMatch) dept = deptMatch[1].trim();
+        }
+
+        let formattedName = name || `Employee #${userId}`;
+        formattedName = formattedName.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ");
 
         currentEmp = {
-          id: id,
-          name: name,
-          department: department,
+          id: userId,
+          name: formattedName,
+          department: dept || "OPERATION",
           punches: []
         };
-        employeesMap.set(id, currentEmp);
+        employeesMap.set(userId, currentEmp);
         daysHeaderMap = null;
         continue;
       }
 
-      // Check if this row is a day numbers header (e.g. 16, 17, 18 ... 31, 1, 2, 3, 4, 5)
-      const hasConsecutiveDays = row.some(cell => {
-        const val = parseInt(String(cell).trim(), 10);
-        return !isNaN(val) && val >= 1 && val <= 31;
-      });
-
-      if (currentEmp && hasConsecutiveDays && !daysHeaderMap) {
-        daysHeaderMap = {};
+      // 2. Check if this row is a day numbers header (e.g. 16, 17, 18 ... 31, 1, 2, 3, 4, 5)
+      // Must be pure day numbers without colons/timestamps to prevent punch lines from overwriting the header map
+      if (currentEmp && !daysHeaderMap) {
+        let sequentialDayCount = 0;
+        const candidateMap = {};
         for (let colIdx = 0; colIdx < row.length; colIdx++) {
-          const val = parseInt(String(row[colIdx]).trim(), 10);
-          if (!isNaN(val) && val >= 1 && val <= 31) {
-            daysHeaderMap[colIdx] = val;
+          const cellStr = String(row[colIdx]).trim();
+          if (/^\d{1,2}$/.test(cellStr)) {
+            const val = parseInt(cellStr, 10);
+            if (val >= 1 && val <= 31) {
+              candidateMap[colIdx] = val;
+              sequentialDayCount++;
+            }
           }
         }
-        continue;
+        if (sequentialDayCount >= 10) {
+          daysHeaderMap = candidateMap;
+          continue;
+        }
       }
 
-      // If we have a current employee and a days map, parse punches in this row
+      // 3. If we have a current employee and a days map, parse punches in this row
       if (currentEmp && daysHeaderMap) {
-        let foundPunchInRow = false;
         for (const [colIdxStr, dayNum] of Object.entries(daysHeaderMap)) {
           const colIdx = parseInt(colIdxStr, 10);
           const cellContent = String(row[colIdx] || "").trim();
@@ -116,7 +166,6 @@ class BiometricParser {
           for (const line of lines) {
             const timeMatch = line.match(/^(\d{1,2}):(\d{2})$/);
             if (timeMatch) {
-              foundPunchInRow = true;
               // Infer month: if day >= 16 assume previous month (e.g., Aug), else current (e.g., Sept)
               const year = 2026;
               const month = (dayNum >= 16) ? 8 : 9;
@@ -144,6 +193,8 @@ class BiometricParser {
     return {
       cutoffRange,
       tablingDate,
+      startDate,
+      endDate,
       employeeCount: parsedEmployees.length,
       employees: parsedEmployees
     };
