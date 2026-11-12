@@ -471,35 +471,35 @@ const DEFAULT_AI_ADVISORY = {
   insights: [
     {
       id: "INS-01",
-      category: "Roasting Timing & Waste Prevention",
-      title: "Batch 3 (Evening Roasting) Schedule Optimization",
+      category: "🍗 Spit Roasting Predictor",
+      title: "Batch 3 Spit Optimization & Peak Heatmap",
       impact: "+₱14,400 / month saved in spoilage",
-      confidence: "High",
-      summary: "Data indicates peak Cugman takeout traffic peaks at 5:15 PM - 6:45 PM. Moving Batch 3 roasting start from 5:00 PM to 4:15 PM eliminates customer wait queues and prevents rushed overcooking."
+      confidence: "High (4 Spits Active)",
+      summary: "Peak Cugman Highway takeout demand hits at 5:15 PM - 6:45 PM. Loading all 4 motorized spits (32 birds) by 3:45 PM ensures 8-10 freshly roasted golden chickens in the warmer ahead of dinner rush without overcooking."
     },
     {
       id: "INS-02",
-      category: "Product Mix & Margin Expansion",
-      title: "Increase Liempo Roasting Spit Allocation (+15% Net Margin)",
-      impact: "+₱18,900 / month net profit",
-      confidence: "High",
-      summary: "Roasted Liempo commands a 40.5% gross margin compared to 38.2% for Whole Chicken. Cugman branch sells out Liempo by 7:00 PM daily. Adding 5 more Liempo slabs per evening run captures unfulfilled dinner demand."
+      category: "🥩 Liempo & Add-on Upsell",
+      title: "Evening Liempo Allocation & Gravy Combo Booster",
+      impact: "+₱21,600 / month pure profit",
+      confidence: "High (+₱20/slab margin)",
+      summary: "Pork Liempo yields ₱170 cash margin versus ₱150 for Whole Chicken. Prompting cashiers to offer 'Ron's Spiced Gravy (₱25) + Cold Drinks' to 25% of walk-ins increases ticket sizes by ₱45 with zero overhead."
     },
     {
       id: "INS-03",
-      category: "Shortage & Shrinkage Defense",
-      title: "Cashier Remittance & Lacking Chicken Accountability",
-      impact: "100% loss recovery via automated payroll deductions",
-      confidence: "Very High",
-      summary: "Shortages and damaged chicken across the active cutoff totaled ₱600 (<0.4% of branch gross sales). Auto-linking cashier shortage logs to payroll ensures zero company loss while training counter accuracy."
+      category: "📉 Cash Turnover Defense",
+      title: "2:00 PM Blind Drawer Handover & Auto-Voucher",
+      impact: "100% shortage recovery via payroll",
+      confidence: "Very High (Zero Drift)",
+      summary: "Mandatory blind drawer counts at 2:00 PM turnover eliminate register discrepancies between morning (Chailene) and evening (Pamela) shifts. Variances over ₱50 auto-generate digital deduction vouchers."
     },
     {
       id: "INS-04",
-      category: "Side Item Upselling",
-      title: "High-Margin Atchara & Secret Spiced Gravy Bundles",
-      impact: "+₱21,600 / month pure gross profit",
-      confidence: "High",
-      summary: "Sauce and side items carry a 70%+ gross margin (₱25 retail vs ₱8 production cost). Training cashiers to suggest 'Add Special Gravy & Cold Drink' to 25% of Whole Chicken customers raises average order value by ₱45."
+      category: "📱 Executive Alert Dispatch",
+      title: "9:30 PM Closing Summary (WhatsApp / Telegram / SMS)",
+      impact: "100% daily owner visibility",
+      confidence: "Active System Trigger",
+      summary: "Compiles today's branch performance: Chickens & Liempo sold, gross cash receipts, GCash totals, and staff biometric attendance into an executive 4-line alert dispatched to Sir Irl."
     }
   ]
 };

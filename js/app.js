@@ -1390,28 +1390,28 @@ function renderApp() {
             <div style="display: grid; gap: 1rem;">
               <div style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); border-radius: var(--radius-sm); padding: 0.85rem;">
                 <div style="font-size: 0.82rem; font-weight: 700; color: #10b981; margin-bottom: 0.25rem;">
-                  ✨ Built-in Autonomous CFO Engine ($0 Cost, Offline Ready)
+                  ✨ Zero-Setup Backend AI Engine Active (Vercel Serverless /api/chat)
                 </div>
                 <div style="font-size: 0.75rem; color: var(--text-secondary); line-height: 1.45;">
-                  Works out-of-the-box with 0 setup! Performs break-even calculations, margin simulations, labor audits, and Taglish Q&amp;A locally on your device.
+                  Uses Google Gemini free tier securely from your backend environment (<code>GEMINI_API_KEY</code>). No need to expose your API key on customer devices or phones!
                 </div>
               </div>
 
               <div>
                 <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--text-secondary);">AI Engine Mode</label>
                 <select id="ai-config-mode" style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.88rem;">
-                  <option value="autonomous">Hybrid Autonomous CFO Engine (Default - Instant $0)</option>
-                  <option value="gemini">Google Gemini 1.5 Flash (Generative Taglish LLM)</option>
+                  <option value="gemini">Google Gemini AI (Vercel Backend / Free API Key)</option>
+                  <option value="autonomous">Offline Autonomous CFO Engine (Local Device $0)</option>
                 </select>
               </div>
 
               <div>
                 <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--text-secondary);">
-                  Google Gemini API Key <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 400;">(Optional)</span>
+                  Custom Gemini API Key Override <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 400;">(Optional)</span>
                 </label>
-                <input type="password" id="ai-config-key" placeholder="AIzaSy... (Leave blank to use free built-in engine)" style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.88rem;">
+                <input type="password" id="ai-config-key" placeholder="AIzaSy... (Leave blank to use Vercel backend key)" style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.88rem;">
                 <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.35rem;">
-                  Stored locally in your browser's private secure storage.
+                  Leave blank to use your secure Vercel environment key or local fallback.
                 </div>
               </div>
 
@@ -1421,6 +1421,135 @@ function renderApp() {
               </div>
             </div>
           </form>
+        </div>
+      </div>
+
+      <!-- 2:00 PM Blind Drawer Turnover & Shortage Auto-Voucher Modal -->
+      <div id="blind-turnover-modal" class="modal-backdrop">
+        <div class="modal-card" style="max-width: 580px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="font-size: 1.4rem;">📉</span>
+              <div>
+                <h3 style="color: var(--text-primary); font-size: 1.2rem; margin: 0;">2:00 PM Shift Handover Blind Count</h3>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Prevent cash register leakage &amp; auto-generate deduction vouchers</div>
+              </div>
+            </div>
+            <button class="btn-bento btn-bento-dark btn-sm" onclick="closeModal('blind-turnover-modal')">✕</button>
+          </div>
+
+          <div style="background: rgba(255,85,0,0.08); border: 1px solid rgba(255,85,0,0.25); border-radius: var(--radius-sm); padding: 0.85rem; margin-bottom: 1rem;">
+            <div style="font-size: 0.8rem; font-weight: 700; color: var(--bento-orange); margin-bottom: 0.2rem;">
+              🔒 Blind Drawer Protocol
+            </div>
+            <div style="font-size: 0.75rem; color: var(--text-secondary); line-height: 1.45;">
+              Outgoing cashier counts physical drawer cash without seeing system gross sales. If counted cash falls short of net expected cash, the system auto-generates a <strong>Digital Shortage Voucher</strong> linked directly to upcoming payroll.
+            </div>
+          </div>
+
+          <form onsubmit="ErpModules.handleSaveBlindTurnover(event)">
+            <div style="display: grid; gap: 0.85rem;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                <div>
+                  <label style="display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.3rem; color: var(--text-secondary);">Turnover Date</label>
+                  <input type="date" id="bt-date" value="${new Date().toISOString().split('T')[0]}" required style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.85rem;">
+                </div>
+                <div>
+                  <label style="display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.3rem; color: var(--text-secondary);">Scheduled Shift Change</label>
+                  <input type="text" value="14:00 (Morning → Evening Handover)" readonly style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-card-dark); border: 1px solid var(--border-subtle); color: #94a3b8; font-size: 0.82rem;">
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                <div>
+                  <label style="display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.3rem; color: var(--text-secondary);">Outgoing Cashier (Turnover Out)</label>
+                  <select id="bt-outgoing" style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.85rem;">
+                    <option value="Chailene Dolido (Cashier 1)">Chailene Dolido (Cashier 1)</option>
+                    <option value="Pamela Galdo (Cashier 2)">Pamela Galdo (Cashier 2)</option>
+                    <option value="Relief Cashier (Cashier 3)">Relief Cashier (Cashier 3)</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.3rem; color: var(--text-secondary);">Incoming Cashier (Turnover In)</label>
+                  <select id="bt-incoming" style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.85rem;">
+                    <option value="Pamela Galdo (Cashier 2)">Pamela Galdo (Cashier 2)</option>
+                    <option value="Chailene Dolido (Cashier 1)">Chailene Dolido (Cashier 1)</option>
+                    <option value="Relief Cashier (Cashier 3)">Relief Cashier (Cashier 3)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 0.85rem;">
+                <label style="display: block; font-size: 0.85rem; font-weight: 800; margin-bottom: 0.35rem; color: #10b981;">
+                  💵 Actual Cash Counted in Drawer (₱)
+                </label>
+                <input type="number" id="bt-cash-counted" step="0.5" placeholder="Enter counted bills & coins (e.g. 17950)" required style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-sm); background: var(--bg-card-dark); border: 1px solid rgba(16,185,129,0.5); color: #10b981; font-size: 1.15rem; font-weight: 800;">
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                <div>
+                  <label style="display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.3rem; color: var(--text-secondary);">GCash / Digital Shift Total (₱)</label>
+                  <input type="number" id="bt-gcash" step="0.5" value="3450" style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.9rem;">
+                </div>
+                <div>
+                  <label style="display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.3rem; color: var(--text-secondary);">Shift Petty Outlays (₱)</label>
+                  <input type="number" id="bt-petty" step="0.5" value="450" style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.9rem;">
+                </div>
+              </div>
+
+              <div>
+                <label style="display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.3rem; color: var(--text-secondary);">Petty Expense Receipt Note</label>
+                <input type="text" id="bt-petty-note" value="1 Sack Mangrove Roasting Charcoal (₱450)" style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.82rem;">
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 0.75rem;">
+                <button type="button" class="btn-bento btn-bento-dark" onclick="closeModal('blind-turnover-modal')">Cancel</button>
+                <button type="submit" class="btn-bento btn-bento-orange" style="font-weight: 800;">🔒 Co-Sign &amp; Verify Handover</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- 9:30 PM Executive Daily Closing Briefing Modal -->
+      <div id="executive-summary-modal" class="modal-backdrop">
+        <div class="modal-card" style="max-width: 600px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="font-size: 1.4rem;">📱</span>
+              <div>
+                <h3 style="color: var(--text-primary); font-size: 1.2rem; margin: 0;">Executive Daily Closing Summary</h3>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Dispatch store closing report to Sir Irl (WhatsApp / Telegram / SMS)</div>
+              </div>
+            </div>
+            <button class="btn-bento btn-bento-dark btn-sm" onclick="closeModal('executive-summary-modal')">✕</button>
+          </div>
+
+          <div style="margin-bottom: 1rem;">
+            <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--text-secondary);">
+              Formatted Closing Dispatch Message
+            </label>
+            <textarea id="exec-summary-preview" rows="12" style="width: 100%; padding: 0.85rem 1rem; border-radius: var(--radius-sm); background: var(--bg-card-dark); border: 1px solid var(--border-subtle); color: #38bdf8; font-family: monospace; font-size: 0.85rem; line-height: 1.45; resize: none;"></textarea>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.6rem; margin-bottom: 1rem;">
+            <button class="btn-bento btn-bento-dark" style="font-size: 0.8rem; padding: 0.6rem 0.5rem; display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem;" onclick="ErpModules.copyExecutiveSummary()">
+              📋 Copy Text
+            </button>
+            <button class="btn-bento btn-bento-dark" style="font-size: 0.8rem; padding: 0.6rem 0.5rem; color: #25d366; display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem;" onclick="ErpModules.shareExecutiveSummaryWhatsApp()">
+              💬 WhatsApp
+            </button>
+            <button class="btn-bento btn-bento-dark" style="font-size: 0.8rem; padding: 0.6rem 0.5rem; color: #0088cc; display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem;" onclick="ErpModules.shareExecutiveSummaryTelegram()">
+              ✈️ Telegram
+            </button>
+            <button class="btn-bento btn-bento-dark" style="font-size: 0.8rem; padding: 0.6rem 0.5rem; color: #38bdf8; display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem;" onclick="ErpModules.shareExecutiveSummarySms()">
+              ✉️ SMS Text
+            </button>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end;">
+            <button type="button" class="btn-bento btn-bento-orange" onclick="closeModal('executive-summary-modal')">Done</button>
+          </div>
         </div>
       </div>
     `;
