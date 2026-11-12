@@ -1886,8 +1886,8 @@ window.ErpModules = (function() {
       /\b(ka\s*buok|buok|ginansya|ihaw|ihawonon|manok|baboy|inasal)\b/,
       /\b(trabahante|sweldo|panihapon|paniudto|hapon|buntag|gabii|udto)\b/,
       /\b(halin|halinon|kuwang|kwarta|tudlo|timan[\-\s]?i|hinumdumi)\b/,
-      /\b(nako|nato|ninyo|atong|inyong|kanako|kanato|kaninyo)\b/,
-      /\b(hain|kinsang|basta|alang|sulayi|tan-aw|subay|alkanse)\b/
+      /\b(nako|nato|ninyo|atong|inyong|kanako|kanato|kaninyo|nimo)\b/,
+      /\b(hain|kinsang|basta|alang|sulayi|tan-aw|subay|alkanse|buhaton|isugo|tanan)\b/
     ];
     if (bisayaMarkers.some(regex => regex.test(lower))) {
       return 'bisaya';
@@ -2072,6 +2072,17 @@ ${rulesList || 'None yet'}`;
     const isBisaya = (lang === 'bisaya');
     const isTagalog = (lang === 'tagalog');
     const isEnglish = (lang === 'english');
+
+    // Intent: System Capabilities / "Can you do everything / what can you do inside the system?"
+    if (/can\s*you\s*do|what\s*can\s*you\s*do|kaya\s*mo\s*ba|kaya\s*ba|mahimo\s*ba|makaya\s*ba|unsa\s*imong\s*mahimo|ano\s*kayang\s*gawin|everything\s*i\s*ask|everything/i.test(lower)) {
+      if (isBisaya) {
+        return `Oo, Sir Irl! Isip imong **Executive AI CFO & System Copilot**, konektado ko sa tibuok Ron's Chicken ERP system. Mao ni ang akong mga mahimo para nimo:\n\n1. **Kwentada & Financial Analysis:**\n   • Kwentahon dayon ang atong daily break-even (105 whole chickens @ ₱150 margin)\n   • I-audit ang sweldo ug meal allowance sa atong 31 ka staff (labor ratio karon: 19.8%)\n   • I-komparar ang kita sa Lechon Manok batok sa Pork Liempo (+₱20 mas dako ang cash sa liempo)\n   • I-simulate ang profit boost (+₱33,200/mo) pinaagi sa cashier combos ug zero shortages\n\n2. **Tudluan og Bag-ong Patakaran (Persistent Business Memory):**\n   • Pwede nimo tudluan og bag-ong presyo o patakaran pinaagi sa pag-type og *"Timan-i: (ang imong patakaran)"* ug awtomatiko kining ma-save sa akong memory!\n\n3. **Quick Navigation & Actions sa Tindahan:**\n   • Pwede nako ablihan ang bisan asa nga dashboard para nimo: Payroll, Remittances, Lechon Inventory, o Users & Permissions.\n\nUnsa man ang imong gustong ipabuhat o ipasusi nako sa sistema karon dayon, Sir Irl?`;
+      } else if (isTagalog) {
+        return `Opo, Sir Irl! Bilang inyong **Executive AI CFO & System Copilot**, konektado ako sa buong database at mga module ng Ron's Chicken ERP. Narito ang mga kaya kong gawin para sa inyo:\n\n1. **Financial Computations & Analysis:**\n   • Agad kong kinukuwenta ang daily break-even target (105 heads @ ₱150 unit margin)\n   • Ina-audit ang sahod at ₱50 daily meal allowance ng 31 staff (19.8% labor ratio)\n   • Pinagkukumpara ang tubo ng Lechon Manok vs Liempo (+₱20 cash advantage per slab)\n   • Gumagawa ng projection para mapataas ang buwanang kita ng 15% (+₱33,200/month)\n\n2. **Persistent Store Rules & Memory:**\n   • Maaari nyo akong turuan ng bagong patakaran o presyo sa pamamagitan ng pag-type ng *"Take note: (ang rule dito)"* at automatic ko itong itatala sa aking memory!\n\n3. **Direktang Pag-assist sa Operations:**\n   • Pwede kong i-pull up o gabayan kayo sa alinmang bahagi ng system tulad ng Payroll, Cashier Remittances, Inventory Spits, o User Roles.\n\nAno po ang nais ninyong ipagawa o ipasuri sa akin sa system natin ngayon, Sir Irl?`;
+      } else {
+        return `Yes, absolutely, Sir Irl! As your **Executive AI CFO & Operations Copilot**, I am directly wired into our branch data and financial models. Here is what I can do for you right inside the system:\n\n1. **Live Financial & Operational Analytics:**\n   • Calculate real-time break-even volume targets (105 whole chickens/day @ ₱150 unit margin)\n   • Audit compensation and meal allowances for all 31 staff members (maintaining our optimal 19.8% labor ratio)\n   • Run unit economics comparisons (e.g. Whole Chicken vs Roasted Liempo at +₱20 higher cash profit per slab)\n   • Deliver executable strategies to expand monthly net margin by 15% (+₱33,200/month)\n\n2. **Persistent Business Memory & Custom Rules:**\n   • You can teach me new operational policies, pricing updates, or supplier agreements anytime by typing *"Take note: (your rule here)"*, and I will commit them to memory and factor them into all future analyses!\n\n3. **Interactive Store Copilot:**\n   • I monitor cash drawer shortages at cashier turnover, roasting spit capacities, and branch inventory.\n\nWhat specific task or financial audit would you like me to tackle inside the system right now, Sir Irl?`;
+      }
+    }
 
     // Intent: Expenses & Daily Operating Costs
     if (/expense|gasto|gastos|operating\s*cost|fixed\s*cost|overhead|kuryente|uling|bill|bayronon/i.test(lower)) {
