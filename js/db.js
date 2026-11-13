@@ -58,6 +58,7 @@ const STORAGE_KEYS = {
   AI_CHAT_HISTORY: 'rons_erp_ai_chat_history_v2', // Conversational message thread
   AI_MEMORY: 'rons_erp_ai_business_memory_v2', // Learned business facts & rules
   AI_CONFIG: 'rons_erp_ai_config_v2', // Optional Gemini API key & settings
+  ONLINE_ORDERS: 'rons_erp_online_orders_v1', // Live Facebook & Web Kitchen Orders (KDS)
   SETTINGS: 'rons_payroll_settings_v1',
   PAYROLL_HISTORY: 'rons_payroll_history_v1',
   DEVICE_CONFIG: 'rons_payroll_device_config_v1',
@@ -3233,6 +3234,103 @@ class DB {
     this.triggerCloudSync();
   }
 
+  // Kitchen Display System (KDS) & Online Orders
+  static getOnlineOrders() {
+    try {
+      const data = JSON.parse(safeStorage.getItem(STORAGE_KEYS.ONLINE_ORDERS));
+      if (Array.isArray(data) && data.length > 0) return data;
+    } catch (e) {}
+
+    // Initial demo / baseline live orders for instant kitchen display experience
+    const initialOrders = [
+      {
+        id: "ORD-FB-101",
+        orderNo: "#FB-101",
+        customerName: "Mark Anthony Tan",
+        contactNumber: "0917-882-9901",
+        channel: "Facebook Messenger",
+        paymentMethod: "GCash (Paid)",
+        paymentReference: "GC-9821873192",
+        orderTime: "11:20 AM",
+        targetTime: "11:50 AM (Lunch Rush)",
+        type: "Pickup",
+        status: "preparing", // pending | preparing | warmer | completed | cancelled
+        items: [
+          { name: "Whole Lechon Manok", qty: 2, price: 360, spit: "Spit 2" },
+          { name: "Ron's Spiced Gravy", qty: 2, price: 25, spit: "Pouch" }
+        ],
+        totalAmount: 770,
+        specialInstructions: "Pakapini gamay sarsa ug extra crispy ang panit.",
+        timestamp: new Date().toISOString()
+      },
+      {
+        id: "ORD-FB-102",
+        orderNo: "#FB-102",
+        customerName: "Engr. Roberto Dairo",
+        contactNumber: "0926-441-2890",
+        channel: "Online Order Link",
+        paymentMethod: "GCash (Paid)",
+        paymentReference: "GC-4481029411",
+        orderTime: "11:35 AM",
+        targetTime: "12:15 PM (Site Lunch)",
+        type: "Delivery",
+        deliveryAddress: "Zone 2, Highway, Cugman",
+        status: "pending",
+        items: [
+          { name: "Roasted Pork Liempo Slab", qty: 2, price: 420, spit: "Spit 3" },
+          { name: "Whole Lechon Manok", qty: 1, price: 360, spit: "Spit 1" }
+        ],
+        totalAmount: 1200,
+        specialInstructions: "I-chop daan ang liempo ug lechon manok palihug.",
+        timestamp: new Date().toISOString()
+      }
+    ];
+    safeStorage.setItem(STORAGE_KEYS.ONLINE_ORDERS, JSON.stringify(initialOrders));
+    return initialOrders;
+  }
+
+  static saveOnlineOrders(orders) {
+    safeStorage.setItem(STORAGE_KEYS.ONLINE_ORDERS, JSON.stringify(orders));
+    this.triggerCloudSync();
+  }
+
+  static addOnlineOrder(order) {
+    const orders = this.getOnlineOrders();
+    const newOrder = {
+      id: order.id || `ORD-${Date.now()}`,
+      orderNo: order.orderNo || `#FB-${Math.floor(100 + Math.random() * 900)}`,
+      customerName: order.customerName || "Walk-In / FB Guest",
+      contactNumber: order.contactNumber || "N/A",
+      channel: order.channel || "Facebook Messenger",
+      paymentMethod: order.paymentMethod || "GCash (Paid)",
+      paymentReference: order.paymentReference || `REF-${Math.floor(100000 + Math.random() * 900000)}`,
+      orderTime: order.orderTime || new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      targetTime: order.targetTime || "Immediate (30 min)",
+      type: order.type || "Pickup",
+      deliveryAddress: order.deliveryAddress || "",
+      status: order.status || "pending",
+      items: order.items || [],
+      totalAmount: Number(order.totalAmount) || 0,
+      specialInstructions: order.specialInstructions || "",
+      timestamp: new Date().toISOString()
+    };
+    orders.unshift(newOrder);
+    this.saveOnlineOrders(orders);
+    return newOrder;
+  }
+
+  static updateOrderStatus(orderId, newStatus) {
+    const orders = this.getOnlineOrders();
+    const target = orders.find(o => o.id === orderId);
+    if (target) {
+      target.status = newStatus;
+      target.updatedAt = new Date().toISOString();
+      this.saveOnlineOrders(orders);
+      return target;
+    }
+    return null;
+  }
+
   // Leaves
   static getLeaves() {
     try {
@@ -3351,6 +3449,7 @@ class DB {
         aiChatHistory: this.getAiChatHistory(),
         aiMemory: this.getAiMemory(),
         aiConfig: this.getAiConfig(),
+        onlineOrders: this.getOnlineOrders(),
         settings: this.getSettings(),
         payrollHistory: this.getPayrollHistory(),
         leaves: this.getLeaves(),
@@ -3398,6 +3497,7 @@ class DB {
       if (payload.aiChatHistory) this.saveAiChatHistory(payload.aiChatHistory);
       if (payload.aiMemory) this.saveAiMemory(payload.aiMemory);
       if (payload.aiConfig) this.saveAiConfig(payload.aiConfig);
+      if (payload.onlineOrders) this.saveOnlineOrders(payload.onlineOrders);
       if (payload.settings) this.saveSettings(payload.settings);
       if (payload.payrollHistory) this.savePayrollHistory(payload.payrollHistory);
       if (payload.leaves) this.saveLeaves(payload.leaves);

@@ -256,6 +256,9 @@ function renderApp() {
           <button class="erp-tab-btn ${currentView === 'remittances' ? 'active' : ''}" onclick="navigateTo('remittances')">
             ${ICONS.money} POS Remittances
           </button>
+          <button class="erp-tab-btn ${currentView === 'kds' ? 'active' : ''}" onclick="navigateTo('kds')">
+            🔔 Kitchen Orders (KDS)
+          </button>
           <button class="erp-tab-btn ${currentView === 'advances' || currentView === 'deductions' ? 'active' : ''}" onclick="navigateTo('advances')">
             ${ICONS.receipt} Utang &amp; Deductions
           </button>
@@ -1552,6 +1555,99 @@ function renderApp() {
           </div>
         </div>
       </div>
+
+      <!-- Online Customer / Facebook Order Modal (KDS Dispatch) -->
+      <div id="online-order-modal" class="modal-backdrop">
+        <div class="modal-card" style="max-width: 580px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="font-size: 1.4rem;">🔔</span>
+              <div>
+                <h3 style="color: var(--text-primary); font-size: 1.2rem; margin: 0;">New Online / Facebook Order</h3>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Dispatches directly to kitchen screen with audio alert</div>
+              </div>
+            </div>
+            <button class="btn-bento btn-bento-dark btn-sm" onclick="closeModal('online-order-modal')">✕</button>
+          </div>
+
+          <form onsubmit="ErpModules.handleSaveOnlineOrder(event)">
+            <div style="display: grid; gap: 0.85rem;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                <div>
+                  <label style="display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-secondary);">Customer Name</label>
+                  <input type="text" id="ord-cust-name" required placeholder="e.g. Maria Santos" style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.88rem;">
+                </div>
+                <div>
+                  <label style="display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-secondary);">Contact Mobile Number</label>
+                  <input type="text" id="ord-cust-phone" required placeholder="e.g. 0917-123-4567" style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.88rem;">
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                <div>
+                  <label style="display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-secondary);">Channel / Source</label>
+                  <select id="ord-channel" style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.88rem;">
+                    <option value="Facebook Messenger">Facebook Messenger</option>
+                    <option value="Online Order Link">Direct Web Order Link</option>
+                    <option value="Phone Call / SMS">Phone Call / SMS</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-secondary);">Order Type</label>
+                  <select id="ord-type" style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.88rem;">
+                    <option value="Pickup">Pickup at Counter</option>
+                    <option value="Delivery">Delivery (Maxim / Grab / FoodPanda)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Menu Items Quantity -->
+              <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--border-glass); border-radius: var(--radius-sm); padding: 0.85rem;">
+                <div style="font-size: 0.75rem; font-weight: 800; color: var(--bento-orange); text-transform: uppercase; margin-bottom: 0.65rem;">
+                  🍗 Select Order Items:
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.6rem;">
+                  <div>
+                    <label style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">Whole Chicken (₱360)</label>
+                    <input type="number" id="ord-chicken-qty" min="0" value="1" style="width: 100%; padding: 0.55rem; border-radius: var(--radius-xs); background: var(--bg-card-dark); border: 1px solid var(--border-subtle); color: var(--text-primary); font-weight: 700; text-align: center;">
+                  </div>
+                  <div>
+                    <label style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">Pork Liempo (₱420)</label>
+                    <input type="number" id="ord-liempo-qty" min="0" value="0" style="width: 100%; padding: 0.55rem; border-radius: var(--radius-xs); background: var(--bg-card-dark); border: 1px solid var(--border-subtle); color: var(--text-primary); font-weight: 700; text-align: center;">
+                  </div>
+                  <div>
+                    <label style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">Spiced Gravy (₱25)</label>
+                    <input type="number" id="ord-gravy-qty" min="0" value="1" style="width: 100%; padding: 0.55rem; border-radius: var(--radius-xs); background: var(--bg-card-dark); border: 1px solid var(--border-subtle); color: var(--text-primary); font-weight: 700; text-align: center;">
+                  </div>
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                <div>
+                  <label style="display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-secondary);">Target Pickup / Cook Time</label>
+                  <input type="text" id="ord-target-time" placeholder="e.g. 12:00 PM (Lunch)" value="Immediate (30 min)" style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.88rem;">
+                </div>
+                <div>
+                  <label style="display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-secondary);">Payment Status</label>
+                  <input type="text" readonly value="✓ GCash Paid & Verified" style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: #10b981; font-weight: 700; font-size: 0.85rem;">
+                </div>
+              </div>
+
+              <div>
+                <label style="display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-secondary);">Special Instructions / Pakapin</label>
+                <input type="text" id="ord-notes" placeholder="e.g. I-chop daan, extra crispy ang panit, pakapini sarsa" style="width: 100%; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.88rem;">
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 0.5rem;">
+                <button type="button" class="btn-bento btn-bento-dark" onclick="closeModal('online-order-modal')">Cancel</button>
+                <button type="submit" class="btn-bento btn-bento-orange" style="font-weight: 800;">
+                  ⚡ Dispatch to Kitchen (Chime &amp; Flash)
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
     `;
   }
   window.__ronsAppReady = true;
@@ -1599,6 +1695,10 @@ function renderManagerBentoView() {
         return (window.ErpModules && typeof window.ErpModules.renderBentoRemittances === 'function')
           ? window.ErpModules.renderBentoRemittances()
           : '<div class="data-panel-card" style="padding: 2rem;">Remittances Module Loading...</div>';
+      case 'kds':
+        return (window.ErpModules && typeof window.ErpModules.renderBentoKds === 'function')
+          ? window.ErpModules.renderBentoKds()
+          : '<div class="data-panel-card" style="padding: 2rem;">Kitchen Display System Loading...</div>';
       case 'aiAdvisor':
         if (!currentUser.permissions?.canAccessAiAdvisor && currentUser.role !== 'admin') {
           return `

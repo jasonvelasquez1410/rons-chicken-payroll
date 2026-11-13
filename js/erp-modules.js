@@ -956,7 +956,7 @@ window.ErpModules = (function() {
         </div>
 
         <!-- Today's Spit Batches Summary -->
-        <div class="data-panel-card">
+        <div class="data-panel-card" style="margin-bottom: 1.5rem;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
             <h3 style="color: var(--text-primary); font-size: 1.15rem; margin: 0;">Today's Roasting Spit Batches (${today})</h3>
             <div style="display: flex; gap: 0.75rem;">
@@ -996,8 +996,344 @@ window.ErpModules = (function() {
             </div>
           `}
         </div>
+
+        <!-- Embedded Live Kitchen Display System (KDS) for Kitchen Staff -->
+        ${renderKdsOrdersBoard()}
       </div>
     `;
+  }
+
+  // ----------------------------------------------------
+  // 6.5. KITCHEN DISPLAY SYSTEM (KDS) & ONLINE ORDERS
+  // ----------------------------------------------------
+  function playKitchenChime() {
+    try {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext) return;
+      const ctx = new AudioContext();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+      osc.frequency.setValueAtTime(880.00, ctx.currentTime + 0.12); // A5
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.45);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.46);
+    } catch (e) {}
+  }
+
+  function renderKdsOrdersBoard() {
+    const orders = (window.DB && typeof window.DB.getOnlineOrders === 'function') 
+      ? window.DB.getOnlineOrders() 
+      : [];
+
+    const activeOrders = orders.filter(o => o.status !== 'completed' && o.status !== 'cancelled');
+    const completedToday = orders.filter(o => o.status === 'completed');
+
+    return `
+      <div class="data-panel-card" style="padding: 1.25rem; border: 1.5px solid rgba(255, 85, 0, 0.4); background: radial-gradient(circle at 10% 10%, rgba(255, 85, 0, 0.05), transparent 60%), var(--bg-card-dark);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.6rem;">
+              <span style="font-size: 1.4rem;">🔔</span>
+              <h3 style="color: #ffffff; font-size: 1.2rem; margin: 0; font-weight: 800; letter-spacing: -0.02em;">
+                Kitchen Order Display (KDS)
+              </h3>
+              <span class="pill pill-orange" style="font-size: 0.72rem; animation: pulse 2s infinite;">
+                ● LIVE FB / ONLINE FEED
+              </span>
+            </div>
+            <div style="font-size: 0.76rem; color: var(--text-muted); margin-top: 0.2rem;">
+              Confirmed online &amp; Facebook Messenger orders. Kitchen roasters can prepare without cashier interruption.
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <button class="btn-bento btn-bento-dark btn-sm" onclick="ErpModules.openCustomerOrderModal()" title="Simulate a new online customer order">
+              + New Order
+            </button>
+            <button class="btn-bento btn-bento-purple btn-sm" onclick="ErpModules.openKdsFullscreen()">
+              🖥️ Fullscreen KDS
+            </button>
+          </div>
+        </div>
+
+        ${activeOrders.length === 0 ? `
+          <div style="text-align: center; padding: 2.5rem 1rem; background: rgba(0,0,0,0.2); border-radius: var(--radius-sm); border: 1px dashed var(--border-subtle);">
+            <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">✨</div>
+            <div style="font-weight: 700; color: var(--text-primary); font-size: 1rem;">All Orders Dispatched &amp; Clear!</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">
+              When customers order through Facebook or your online link, the tickets will flash and chime here instantly.
+            </div>
+            <div style="margin-top: 1rem;">
+              <button class="btn-bento btn-bento-orange btn-sm" onclick="ErpModules.openCustomerOrderModal()">
+                ⚡ Place Sample Test Order
+              </button>
+            </div>
+          </div>
+        ` : `
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+            ${activeOrders.map(order => `
+              <div style="background: var(--bg-surface); border: 1.5px solid ${order.status === 'pending' ? '#ff5500' : '#8b5cf6'}; border-radius: var(--radius-md); padding: 1.15rem; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 15px rgba(0,0,0,0.3); position: relative; overflow: hidden;">
+                
+                <!-- Status Top Bar -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+                  <div>
+                    <span style="font-size: 1.15rem; font-weight: 900; color: #ffffff; letter-spacing: 0.02em;">
+                      ${order.orderNo}
+                    </span>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.15rem;">
+                      ${order.channel} • <strong>${order.type}</strong>
+                    </div>
+                  </div>
+                  <div style="text-align: right;">
+                    <span class="pill ${order.status === 'pending' ? 'pill-orange' : 'pill-purple'}" style="font-size: 0.72rem; font-weight: 800;">
+                      ${order.status === 'pending' ? '🔥 NEW (NEEDS SPIT)' : '👨‍🍳 ROASTING'}
+                    </span>
+                    <div style="font-size: 0.7rem; color: #10b981; font-weight: 700; margin-top: 0.2rem;">
+                      ✓ ${order.paymentMethod}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Customer Details & Target Time -->
+                <div style="background: rgba(0,0,0,0.25); border-radius: var(--radius-xs); padding: 0.5rem 0.75rem; margin-bottom: 0.75rem; font-size: 0.78rem;">
+                  <div style="color: #ffffff; font-weight: 700;">👤 ${escapeHtml(order.customerName)} (${escapeHtml(order.contactNumber)})</div>
+                  <div style="color: #fb923c; font-weight: 600; margin-top: 0.15rem;">⏰ Target Ready: ${escapeHtml(order.targetTime)}</div>
+                  ${order.deliveryAddress ? `<div style="color: var(--text-muted); font-size: 0.72rem; margin-top: 0.15rem;">📍 ${escapeHtml(order.deliveryAddress)}</div>` : ''}
+                </div>
+
+                <!-- Order Item Breakdown (Large Font for Roasters) -->
+                <div style="margin-bottom: 0.85rem; border-top: 1px dashed var(--border-glass); border-bottom: 1px dashed var(--border-glass); padding: 0.6rem 0;">
+                  ${order.items.map(item => `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                      <span style="font-size: 0.95rem; font-weight: 800; color: #ffffff;">
+                        <span style="color: #ff5500;">${item.qty}x</span> ${escapeHtml(item.name)}
+                      </span>
+                      <span style="font-size: 0.72rem; background: rgba(255,255,255,0.08); padding: 0.15rem 0.45rem; border-radius: 4px; color: var(--text-secondary);">
+                        ${item.spit || 'Counter'}
+                      </span>
+                    </div>
+                  `).join('')}
+                </div>
+
+                <!-- Special Notes / Pakapin -->
+                ${order.specialInstructions ? `
+                  <div style="background: rgba(234, 179, 8, 0.1); border-left: 3px solid #eab308; padding: 0.4rem 0.6rem; border-radius: 2px; margin-bottom: 0.85rem; font-size: 0.75rem; color: #fde047;">
+                    <strong>Note:</strong> ${escapeHtml(order.specialInstructions)}
+                  </div>
+                ` : ''}
+
+                <!-- Action Workflow Buttons -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.4rem;">
+                  <button class="btn-bento btn-bento-dark btn-sm" onclick="ErpModules.printKitchenSlip('${order.id}')" style="font-size: 0.75rem; justify-content: center;">
+                    🖨️ Print Slip
+                  </button>
+                  ${order.status === 'pending' ? `
+                    <button class="btn-bento btn-bento-purple btn-sm" onclick="ErpModules.updateKdsStatus('${order.id}', 'preparing')" style="font-weight: 800; font-size: 0.75rem; justify-content: center;">
+                      🔥 Put on Spit
+                    </button>
+                  ` : `
+                    <button class="btn-bento btn-bento-orange btn-sm" onclick="ErpModules.updateKdsStatus('${order.id}', 'completed')" style="font-weight: 800; font-size: 0.75rem; justify-content: center;">
+                      ✓ Ready / Packed
+                    </button>
+                  `}
+                </div>
+
+              </div>
+            `).join('')}
+          </div>
+        `}
+
+        ${completedToday.length > 0 ? `
+          <div style="margin-top: 1rem; border-top: 1px solid var(--border-subtle); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; color: var(--text-muted);">
+            <span>✓ ${completedToday.length} Online order(s) fulfilled &amp; dispatched today</span>
+            <button class="btn-bento btn-bento-dark btn-sm" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;" onclick="ErpModules.openCustomerOrderModal()">
+              + Place Online Order
+            </button>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }
+
+  function renderBentoKds() {
+    return `
+      <div style="max-width: 1100px; margin: 0 auto; padding: 1.25rem 1rem 6rem;">
+        <div class="user-welcome-banner" style="margin-bottom: 1.5rem;">
+          <div class="user-welcome-info">
+            <div class="user-avatar-circle" style="background: linear-gradient(135deg, #ff5500, #ea580c); color: #fff;">🔔</div>
+            <div class="user-welcome-text">
+              <h2 style="margin: 0; font-size: 1.4rem; font-weight: 900; color: #fff;">
+                Kitchen Display System (KDS) &amp; Online Dispatch
+              </h2>
+              <div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.25rem;">
+                Real-time queue for Facebook Messenger &amp; Web orders. Direct to rotisserie kitchen with zero cashier interruption.
+              </div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.65rem;">
+            <button class="btn-bento btn-bento-orange" onclick="ErpModules.openCustomerOrderModal()">
+              ⚡ + Receive / Test Online Order
+            </button>
+          </div>
+        </div>
+
+        ${renderKdsOrdersBoard()}
+      </div>
+    `;
+  }
+
+  function updateKdsStatus(orderId, nextStatus) {
+    if (window.DB && typeof window.DB.updateOrderStatus === 'function') {
+      window.DB.updateOrderStatus(orderId, nextStatus);
+    }
+    if (nextStatus === 'preparing') {
+      playKitchenChime();
+    }
+    if (typeof window.renderApp === 'function') {
+      window.renderApp();
+    }
+  }
+
+  function printKitchenSlip(orderId) {
+    const orders = (window.DB && typeof window.DB.getOnlineOrders === 'function') 
+      ? window.DB.getOnlineOrders() 
+      : [];
+    const order = orders.find(o => o.id === orderId);
+    if (!order) return;
+
+    const printWin = window.open('', '_blank', 'width=380,height=600');
+    if (!printWin) {
+      alert("Please allow popups to print kitchen order tickets.");
+      return;
+    }
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>KOT - ${order.orderNo}</title>
+        <style>
+          body { font-family: 'Courier New', monospace; font-size: 13px; color: #000; margin: 10px; }
+          .center { text-align: center; }
+          .bold { font-weight: bold; }
+          .dashed { border-top: 1px dashed #000; margin: 8px 0; }
+          .row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+          .large { font-size: 16px; font-weight: bold; }
+          .huge { font-size: 20px; font-weight: 900; text-align: center; margin: 6px 0; }
+        </style>
+      </head>
+      <body onload="window.print(); window.close();">
+        <div class="center bold">RON'S CHICKEN - KITCHEN TICKET</div>
+        <div class="center" style="font-size: 11px;">Cugman Branch • Roasting Station</div>
+        <div class="huge">${order.orderNo}</div>
+        <div class="center bold">${order.paymentMethod}</div>
+        <div class="dashed"></div>
+        <div class="row"><span>Time Placed:</span><span>${order.orderTime}</span></div>
+        <div class="row"><span class="bold">TARGET TIME:</span><span class="bold">${order.targetTime}</span></div>
+        <div class="row"><span>Customer:</span><span>${order.customerName}</span></div>
+        <div class="row"><span>Contact:</span><span>${order.contactNumber}</span></div>
+        <div class="row"><span>Channel:</span><span>${order.channel}</span></div>
+        ${order.deliveryAddress ? `<div class="row"><span>Address:</span><span>${order.deliveryAddress}</span></div>` : ''}
+        <div class="dashed"></div>
+        <div class="bold" style="margin-bottom: 6px;">ITEMS TO PREPARE:</div>
+        ${order.items.map(it => `
+          <div class="row large">
+            <span>[${it.qty}] ${it.name}</span>
+            <span>${it.spit || ''}</span>
+          </div>
+        `).join('')}
+        ${order.specialInstructions ? `
+          <div class="dashed"></div>
+          <div class="bold">SPECIAL NOTE:</div>
+          <div>${order.specialInstructions}</div>
+        ` : ''}
+        <div class="dashed"></div>
+        <div class="center" style="font-size: 11px; margin-top: 15px;">
+          *** END OF KITCHEN TICKET ***
+        </div>
+      </body>
+      </html>
+    `;
+    printWin.document.write(html);
+    printWin.document.close();
+  }
+
+  function openCustomerOrderModal() {
+    const modal = document.getElementById('online-order-modal');
+    if (modal) modal.classList.add('active');
+  }
+
+  function handleSaveOnlineOrder(event) {
+    event.preventDefault();
+    const custName = document.getElementById('ord-cust-name').value.trim();
+    const custPhone = document.getElementById('ord-cust-phone').value.trim();
+    const channel = document.getElementById('ord-channel').value;
+    const ordType = document.getElementById('ord-type').value;
+    const chickens = parseInt(document.getElementById('ord-chicken-qty').value || '0', 10);
+    const liempo = parseInt(document.getElementById('ord-liempo-qty').value || '0', 10);
+    const gravy = parseInt(document.getElementById('ord-gravy-qty').value || '0', 10);
+    const notes = document.getElementById('ord-notes').value.trim();
+    const targetTime = document.getElementById('ord-target-time').value.trim();
+
+    const items = [];
+    let total = 0;
+    if (chickens > 0) {
+      items.push({ name: "Whole Lechon Manok", qty: chickens, price: 360, spit: "Spit 1/2" });
+      total += chickens * 360;
+    }
+    if (liempo > 0) {
+      items.push({ name: "Roasted Pork Liempo", qty: liempo, price: 420, spit: "Spit 3" });
+      total += liempo * 420;
+    }
+    if (gravy > 0) {
+      items.push({ name: "Ron's Spiced Gravy", qty: gravy, price: 25, spit: "Counter" });
+      total += gravy * 25;
+    }
+
+    if (items.length === 0) {
+      alert("Please select at least 1 whole chicken or pork liempo slab!");
+      return;
+    }
+
+    const newOrder = {
+      orderNo: `#FB-${Math.floor(100 + Math.random() * 900)}`,
+      customerName: custName,
+      contactNumber: custPhone,
+      channel: channel,
+      paymentMethod: "GCash (Paid & Verified)",
+      paymentReference: `GC-${Date.now().toString().slice(-8)}`,
+      orderTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      targetTime: targetTime || "Immediate (30 mins)",
+      type: ordType,
+      status: "pending",
+      items: items,
+      totalAmount: total,
+      specialInstructions: notes
+    };
+
+    if (window.DB && typeof window.DB.addOnlineOrder === 'function') {
+      window.DB.addOnlineOrder(newOrder);
+    }
+
+    playKitchenChime();
+
+    if (typeof window.closeModal === 'function') {
+      window.closeModal('online-order-modal');
+    }
+    if (typeof window.renderApp === 'function') {
+      window.renderApp();
+    }
+    alert(`✓ Order ${newOrder.orderNo} dispatched to kitchen roaster terminal! Audio chime triggered.`);
+  }
+
+  function openKdsFullscreen() {
+    if (typeof window.navigateTo === 'function') {
+      window.navigateTo('kds');
+    }
   }
 
   // ----------------------------------------------------
@@ -2552,6 +2888,14 @@ Status: Verified by Ron's AI Executive CFO Copilot`;
     openBlindTurnoverModal,
     handleSaveBlindTurnover,
     openExecutiveDailySummaryModal,
+    renderBentoKds,
+    renderKdsOrdersBoard,
+    updateKdsStatus,
+    printKitchenSlip,
+    openCustomerOrderModal,
+    handleSaveOnlineOrder,
+    openKdsFullscreen,
+    playKitchenChime,
     copyExecutiveSummary,
     shareExecutiveSummaryWhatsApp,
     shareExecutiveSummaryTelegram,
